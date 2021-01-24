@@ -53,7 +53,7 @@ body {
   font-size: 14px;
   color: var(--color-text);
   font-family: Hiragino Sans GB;
-  background: var(--color-background) url("/images/theme/background.jpg") fixed no-repeat;
+  background: var(--color-background) url("") fixed no-repeat;
 }
 body a {
   color: var(--color-text);
@@ -1090,7 +1090,7 @@ body span {
   z-index: 40;
   height: 90vh;
   width: 100%;
-  background-image: url("/images/theme/welcome-image.jpg");
+  background-image: url("/images/theme/background.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
