@@ -103,7 +103,7 @@
         enable: true
       },
       scrollbar: {
-        model: 'simple'
+        model: 'normal'
       },
       notification: {
         enable: false,
@@ -174,7 +174,13 @@
   <div class="article-wrap">
     <div class="row container">
       <div class="col-xl-3"></div>
-      <div class="col-xl-6"><article class="article">
+      <div class="col-xl-6"><aside class="post-widget">
+  <nav id="toc" class="toc-article fixed">
+	<strong class="toc-title">文章目录</strong>
+	  <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Quick-Start"><span class="post-toc-text">Quick Start</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Create-a-new-post"><span class="post-toc-text">Create a new post</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Run-server"><span class="post-toc-text">Run server</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Generate-static-files"><span class="post-toc-text">Generate static files</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Deploy-to-remote-sites"><span class="post-toc-text">Deploy to remote sites</span></a></li></ol></li></ol>
+	</nav>
+</aside>
+<article class="article">
   <div class="wrap">
     <section class="head">
   <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
@@ -182,6 +188,10 @@
     <h1 class="head-title">Hello World</h1>
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>January 24, 2021</span>
+      
+        <span class="post-info-item">
+          <i class="iconfont iconeye"></i><span id="/2021/01/24/hello-world/" class="leancloud" data-flag-title="Hello World"></span>
+        </span>
       
       <span class="post-info-item"><i class="iconfont iconfont-size"></i>440</span>
     </div>
@@ -260,7 +270,8 @@
       
     </section>
   </div>
-</article></div>
+</article>
+</div>
       <div class="col-xl-3">
         
           
@@ -321,10 +332,6 @@
   </div>
   
   
-    <div class="scrollbar j-scrollbar">
-  <div class="scrollbar-current j-scrollbar-current"></div>
-</div>
-  
   
     
 <script src="/js/color-mode.js"></script>
@@ -377,6 +384,43 @@
 <script src="/js/script.js"></script>
 
 
+
+  <script>
+  $.getScript("//cdn.jsdelivr.net/npm/leancloud-storage@4.1.0/dist/av-min.js", () => {
+
+    AV.init({
+      appId: 'Mqlwb0z4yiDoHxvfL9ofWy6H-gzGzoHsz',
+      appKey: 'LkEbh1MQI8o3VWCt8ni657QF',
+      serverURLs: 'https://mqlwb0z4.lc-cn-n1-shared.com',
+    });
+
+    const showCount = (Counter) => {
+      const asyncLimit = new AsyncLimit(2);
+      $(".leancloud").each(async (e) => {
+        const url = $(".leancloud").eq(e).attr('id').trim();
+        const query = new AV.Query("Counter");
+        query.equalTo("words", url);
+        let count = await asyncLimit.run(() => query.count());
+        $(".leancloud").eq(e).text(count ? count : '--');
+      });
+    }
+
+    const addCount = (Counter) => {
+      const url = $(".leancloud").length === 1 ? $(".leancloud").attr('id').trim() : 'http://example.com';
+      var query = new Counter;
+      query.save({
+        words: url
+      });
+    }
+
+    $(function () {
+      const Counter = AV.Object.extend("Counter");
+      addCount(Counter);
+      showCount(Counter);
+    });
+
+  });
+</script>
 
 
 
