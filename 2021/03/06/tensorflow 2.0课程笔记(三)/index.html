@@ -187,7 +187,7 @@
           <i class="iconfont iconeye"></i><span id="/2021/03/06/tensorflow%202.0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0(%E4%B8%89)/" class="leancloud" data-flag-title="tensorflow 2.0课程笔记(三)"></span>
         </span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2772</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3103</span>
     </div>
   </div>
 </section>
@@ -215,17 +215,15 @@
 <h3 id="Dropout抑制过拟合与超参数选择"><a href="#Dropout抑制过拟合与超参数选择" class="headerlink" title="Dropout抑制过拟合与超参数选择"></a>Dropout抑制过拟合与超参数选择</h3><p><strong>过拟合：</strong>在训练数据上得分很高，在测试数据集上得分相对比较低</p>
 <p><strong>欠拟合：</strong>在训练数据上得分比较低，在测试数据集上得分也比较低</p>
 <p><code>history = model.fit(train_image,train_label_onehot,</code></p>
-<pre><code class="lang-epochs=10,```">
-```validation_data = (test_image,test_label_onehot)
-</code></pre>
-<pre><code class="lang-)```">
-- 添加validation_data验证测试集正确率
-
-```plt.plot(history.epoch,history.history.get(&#39;loss&#39;),label=&#39;loss&#39;)
-</code></pre>
-<pre><code class="lang-plt.plot(history.epoch,history.history.get(&#39;val_loss&#39;),label=&#39;val_loss&#39;)```">
-```plot.legend()
-</code></pre>
+<p><code>epochs=10,</code></p>
+<p><code>validation_data = (test_image,test_label_onehot)</code></p>
+<p><code>)</code></p>
+<ul>
+<li>添加validation_data验证测试集正确率</li>
+</ul>
+<p><code>plt.plot(history.epoch,history.history.get(&#39;loss&#39;),label=&#39;loss&#39;)</code></p>
+<p><code>plt.plot(history.epoch,history.history.get(&#39;val_loss&#39;),label=&#39;val_loss&#39;)</code></p>
+<p><code>plot.legend()</code></p>
 <ul>
 <li>绘图查看训练集和测试集的loss值</li>
 </ul>
@@ -265,19 +263,15 @@
 </ol>
 <h3 id="Dropout实战"><a href="#Dropout实战" class="headerlink" title="Dropout实战"></a>Dropout实战</h3><p><code>model = tf.keras.Sequential()</code></p>
 <p><code>model.add(tf.keras.layers.Flatten(input_shape=(28,28))) #28*28</code></p>
-<pre><code class="lang-model.add(tf.keras.layers.Dense(128,activation=&#39;relu&#39;))```">
-```model.add(tf.keras.layers.Dropout(0.5))
-</code></pre>
-<pre><code class="lang-model.add(tf.keras.layers.Dense(128,activation=&#39;relu&#39;))```">
-```model.add(tf.keras.layers.Dropout(0.5))
-</code></pre>
-<pre><code class="lang-model.add(tf.keras.layers.Dense(10,activation=&#39;softmax&#39;))```">
-- 添加dropout层，丢弃50%神经元
-
-### 函数式API与多输入输出模型
-
-```import tensorflow as tf
-</code></pre>
+<p><code>model.add(tf.keras.layers.Dense(128,activation=&#39;relu&#39;))</code></p>
+<p><code>model.add(tf.keras.layers.Dropout(0.5))</code></p>
+<p><code>model.add(tf.keras.layers.Dense(128,activation=&#39;relu&#39;))</code></p>
+<p><code>model.add(tf.keras.layers.Dropout(0.5))</code></p>
+<p><code>model.add(tf.keras.layers.Dense(10,activation=&#39;softmax&#39;))</code></p>
+<ul>
+<li>添加dropout层，丢弃50%神经元</li>
+</ul>
+<h3 id="函数式API与多输入输出模型"><a href="#函数式API与多输入输出模型" class="headerlink" title="函数式API与多输入输出模型"></a>函数式API与多输入输出模型</h3><p><code>import tensorflow as tf</code></p>
 <p> <code>from tensorflow import keras</code></p>
 <p><code>import matplotlib.pyplot as plt</code></p>
 <p><code>(train_images,train_labels),(test_images,test_labels) = tf.keras.datasets.fashion_mnist.load_data()</code></p>
@@ -286,11 +280,11 @@
 <ul>
 <li>导入库与数据并归一化 </li>
 </ul>
-<pre><code class="lang-train_images.shape```">
-- (60000,28,28)
-
-```input = keras.Input(shape=(28,28))
-</code></pre>
+<p><code>train_images.shape</code></p>
+<ul>
+<li>(60000,28,28)</li>
+</ul>
+<p><code>input = keras.Input(shape=(28,28))</code></p>
 <p><code>x = keras.layers.Flatten()(input)</code></p>
 <p><code>x = keras.layers.Dense(32,activation=&#39;relu&#39;)(x)</code></p>
 <p><code>x = keras.layers.Dropout(0.5)(x)</code></p>
@@ -300,24 +294,20 @@
 <ul>
 <li>函数式API建立模型</li>
 </ul>
-<pre><code class="lang-model.compile(optimizer=&#39;adam&#39;,```">
-```loss=&#39;sparse_categorical_crossentropy&#39;
-</code></pre>
-<pre><code class="lang-metrics=[&#39;accuracy&#39;]```">
-```)
-</code></pre>
+<p><code>model.compile(optimizer=&#39;adam&#39;,</code></p>
+<p><code>loss=&#39;sparse_categorical_crossentropy&#39;</code></p>
+<p><code>metrics=[&#39;accuracy&#39;]</code></p>
+<p><code>)</code></p>
 <p><code>history = model.fit(train_images,</code></p>
-<pre><code class="lang-train_labels,```">
-```epochs=30,
-</code></pre>
+<p><code>train_labels,</code></p>
+<p><code>epochs=30,</code></p>
 <p><code>validation_data = (test_images,test_labels)</code></p>
-<pre><code class="lang-)```">
-- 编译模型
-
----
-
-```input1 = keras.Input(shape=(28,28))
-</code></pre>
+<p><code>)</code></p>
+<ul>
+<li>编译模型</li>
+</ul>
+<hr>
+<p><code>input1 = keras.Input(shape=(28,28))</code></p>
 <p><code>input2 = keras.Input(shape=(28,28))</code></p>
 <p><code>x1 = keras.layers.Flatten()(input1)</code></p>
 <p><code>x2 = keras.layers.Flatten()(input2)</code></p>
@@ -406,7 +396,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#tensorflow-2-0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0-%E4%B8%89"><span class="toc-text">tensorflow 2.0课程笔记(三)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E4%BC%98%E5%8C%96%E4%B8%8E%E8%B6%85%E5%8F%82%E6%95%B0%E9%80%89%E6%8B%A9"><span class="toc-text">网络优化与超参数选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Dropout%E6%8A%91%E5%88%B6%E8%BF%87%E6%8B%9F%E5%90%88%E4%B8%8E%E8%B6%85%E5%8F%82%E6%95%B0%E9%80%89%E6%8B%A9"><span class="toc-text">Dropout抑制过拟合与超参数选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Dropout%E5%AE%9E%E6%88%98"><span class="toc-text">Dropout实战</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#tensorflow-2-0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0-%E4%B8%89"><span class="toc-text">tensorflow 2.0课程笔记(三)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E4%BC%98%E5%8C%96%E4%B8%8E%E8%B6%85%E5%8F%82%E6%95%B0%E9%80%89%E6%8B%A9"><span class="toc-text">网络优化与超参数选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Dropout%E6%8A%91%E5%88%B6%E8%BF%87%E6%8B%9F%E5%90%88%E4%B8%8E%E8%B6%85%E5%8F%82%E6%95%B0%E9%80%89%E6%8B%A9"><span class="toc-text">Dropout抑制过拟合与超参数选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Dropout%E5%AE%9E%E6%88%98"><span class="toc-text">Dropout实战</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E5%BC%8FAPI%E4%B8%8E%E5%A4%9A%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E6%A8%A1%E5%9E%8B"><span class="toc-text">函数式API与多输入输出模型</span></a></li></ol></li></ol>
   </aside>
 
         
