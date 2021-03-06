@@ -187,7 +187,7 @@
           <i class="iconfont iconeye"></i><span id="/2021/03/06/tensorflow%202.0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0(%E4%B8%80)/" class="leancloud" data-flag-title="tensorflow 2.0课程笔记(一)"></span>
         </span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>1505</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>1608</span>
     </div>
   </div>
 </section>
@@ -255,14 +255,13 @@
 <li>引入库和画图设置</li>
 </ul>
 <p><code>data = pd.read_csv(&quot;dataset/Advertising.csv&quot;)</code></p>
-<pre><code class="lang-data.head()```">
-- data包含TV、radio、newspaper和sales
-
-``` plt.scatter(data.TV,data.sales)
-</code></pre>
-<pre><code class="lang-plt.scatter(data.radio,data.sales)```">
-```plt.scatter(data.newspaper,data.sales)
-</code></pre>
+<p><code>data.head()</code></p>
+<ul>
+<li>data包含TV、radio、newspaper和sales</li>
+</ul>
+<p><code>plt.scatter(data.TV,data.sales)</code></p>
+<p><code>plt.scatter(data.radio,data.sales)</code> </p>
+<p><code>plt.scatter(data.newspaper,data.sales)</code></p>
 <ul>
 <li>绘制各种广告投放量与销量值的关系（前两者线性，后者非线性）</li>
 </ul>
@@ -272,28 +271,26 @@
 <li>设置输入和输出</li>
 </ul>
 <p><code>model = tf.keras.Sequential([tf.keras.layers.Dense(10,input_shape=(3,),activation=&#39;relu&#39;),</code></p>
-<pre><code class="lang-tf.keras.layers.Dense(1)]```">
-```)
-</code></pre>
+<p><code>tf.keras.layers.Dense(1)]</code></p>
+<p><code>)</code></p>
 <ul>
 <li>包含中间的一个隐藏层（10层）和输出层，激活函数为relu，输入变量为3，输出变量为1</li>
 </ul>
-<pre><code class="lang-model.summary()```">
-- 查看模型框架，中间层有40个参数((3var+1bias)*10)
-
-```model.compile(optimizer=&#39;adam&#39;,
-</code></pre>
-<pre><code class="lang-loss=&#39;mse&#39;,```">
-```)
-</code></pre>
+<p><code>model.summary()</code></p>
+<ul>
+<li>查看模型框架，中间层有40个参数((3var+1bias)*10)</li>
+</ul>
+<p><code>model.compile(optimizer=&#39;adam&#39;,</code></p>
+<p><code>loss=&#39;mse&#39;,</code> </p>
+<p><code>)</code></p>
 <ul>
 <li>配置训练优化器</li>
 </ul>
-<pre><code class="lang-model.fit(x,y,epochs=100)```">
-- 模型训练
-
-```test = data.iloc[:10,1:-1]
-</code></pre>
+<p><code>model.fit(x,y,epochs=100)</code></p>
+<ul>
+<li>模型训练</li>
+</ul>
+<p><code>test = data.iloc[:10,1:-1]</code></p>
 <p><code>model.predict(test)</code></p>
 
       </section>
