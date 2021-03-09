@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2021-03-06T08:28:27.000Z</updated>
+  <updated>2021-03-09T05:34:34.000Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -15,6 +15,34 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>态势感知课程笔记（一）</title>
+    <link href="http://example.com/2021/03/08/%E6%80%81%E5%8A%BF%E6%84%9F%E7%9F%A5%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94%E4%B8%AD%E7%A7%91%E9%99%A2/"/>
+    <id>http://example.com/2021/03/08/%E6%80%81%E5%8A%BF%E6%84%9F%E7%9F%A5%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94%E4%B8%AD%E7%A7%91%E9%99%A2/</id>
+    <published>2021-03-08T02:30:35.000Z</published>
+    <updated>2021-03-09T05:34:34.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="网络空间安全态势感知（一）"><a href="#网络空间安全态势感知（一）" class="headerlink" title="网络空间安全态势感知（一）"></a>网络空间安全态势感知（一）</h2><h4 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h4><ul><li>重要性</li><li>原因</li><li>概述</li><li>问题与挑战</li><li>课程组织与安排</li></ul><h4 id="为什么要进行态势感知？"><a href="#为什么要进行态势感知？" class="headerlink" title="为什么要进行态势感知？"></a>为什么要进行态势感知？</h4><p>安全挑战：攻击防护双方严重不对称</p><p><img  src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210308112127.png"  ><span class="image-caption">Timespan of events by percent of breaches</span></p><p>安全需求：要尽量压缩自由攻击时间</p><h4 id="态势感知的作用和目标"><a href="#态势感知的作用和目标" class="headerlink" title="态势感知的作用和目标"></a>态势感知的作用和目标</h4><p>总结当前状态、揭示隐藏信息、预测未来趋势。“知己知彼”，为战略决策、战术行动提供支撑。</p><h4 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h4><p>是指通过技术手段从时间和空间维度来感知并获取安全相关元素，通过数据信息的整合分析来判断安全状况并预测其未来的发展趋势。</p><p>给传统安全增加了“眼睛”和“大脑”</p><p>具备了“看见”和“思考”能力的网络安全</p><p>态：数据融合</p><p>势：预测分析</p><p>感：多源异构数据采集</p><p>知：大数据分析与发掘</p><p><strong>安全元素感知</strong></p><ul><li>网络特征</li><li>入侵信息</li><li>网络心梗</li></ul><p><strong>态势综合分析</strong></p><p>【课件补充】</p><h4 id="态势感知的能力模型"><a href="#态势感知的能力模型" class="headerlink" title="态势感知的能力模型"></a>态势感知的能力模型</h4><p>价值：趋势预测、决策支撑、态势掌握</p><p>能力：融合、检测、评估、预测、呈现、溯源、共享</p><p>基础：安全态势感知运行模型、高质量的数据准备与管理、丰富的多源多行业数据</p><h4 id="态势感知数据流图"><a href="#态势感知数据流图" class="headerlink" title="态势感知数据流图"></a>态势感知数据流图</h4><p>【课件补充】</p><h4 id="态势感知的问题"><a href="#态势感知的问题" class="headerlink" title="态势感知的问题"></a>态势感知的问题</h4><ul><li><p>模型建立问题</p></li><li><p>特征要素提取问题</p></li><li><p>评估问题</p></li><li><p>预测问题</p></li></ul><h4 id="态势感知的挑战"><a href="#态势感知的挑战" class="headerlink" title="态势感知的挑战"></a>态势感知的挑战</h4><ul><li>模型挑战</li><li>指标挑战</li><li>方法挑战</li><li>系统挑战（目前需求最大）</li><li>预测挑战</li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;网络空间安全态势感知（一）&quot;&gt;&lt;a href=&quot;#网络空间安全态势感知（一）&quot; class=&quot;headerlink&quot; title=&quot;网络空间安全态势感知（一）&quot;&gt;&lt;/a&gt;网络空间安全态势感知（一）&lt;/h2&gt;&lt;h4 id=&quot;概要&quot;&gt;&lt;a href=&quot;#概要&quot; cla</summary>
+      
+    
+    
+    
+    <category term="Situational Awareness" scheme="http://example.com/categories/Situational-Awareness/"/>
+    
+    
+    <category term="course" scheme="http://example.com/tags/course/"/>
+    
+    <category term="note" scheme="http://example.com/tags/note/"/>
+    
+    <category term="Situational Awareness" scheme="http://example.com/tags/Situational-Awareness/"/>
+    
+  </entry>
   
   <entry>
     <title>tensorflow 2.0课程笔记(三)</title>
