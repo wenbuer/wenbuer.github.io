@@ -6,14 +6,12 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>网络行为学课程（一） - Welcome To Wenbuer&#39;s Blog</title>
+  <title>HacktheBox注册挑战 - Welcome To Wenbuer&#39;s Blog</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
   
-  <meta name="description" content="网络行为学课程笔记（一）行为学基本内容包括
-
-个体行为...">
+  <meta name="description" content="HacktheBox注册挑战HacktheBox是一个...">
   <meta name="author" content="Wenbuer">
   <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
   <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
@@ -138,7 +136,7 @@
         <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
       
     </div>
-    <div class="center">网络行为学课程（一）</div>
+    <div class="center">HacktheBox注册挑战</div>
     <div class="right">
       <i class="iconfont iconmenu j-navbar-menu"></i>
     </div>
@@ -181,64 +179,60 @@
     <section class="head">
   <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
   <div class="head-mask">
-    <h1 class="head-title">网络行为学课程（一）</h1>
+    <h1 class="head-title">HacktheBox注册挑战</h1>
     <div class="head-info">
-      <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 09, 2021</span>
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>March 13, 2021</span>
       
         <span class="post-info-item">
-          <i class="iconfont iconeye"></i><span id="/2021/03/09/%E7%BD%91%E7%BB%9C%E8%A1%8C%E4%B8%BA%E5%AD%A6%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/" class="leancloud" data-flag-title="网络行为学课程（一）"></span>
+          <i class="iconfont iconeye"></i><span id="/2021/03/13/HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98/" class="leancloud" data-flag-title="HacktheBox注册挑战"></span>
         </span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>493</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>1177</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
-        <h2 id="网络行为学课程笔记（一）"><a href="#网络行为学课程笔记（一）" class="headerlink" title="网络行为学课程笔记（一）"></a>网络行为学课程笔记（一）</h2><h5 id="行为学"><a href="#行为学" class="headerlink" title="行为学"></a>行为学</h5><p>基本内容包括</p>
+        <h3 id="HacktheBox注册挑战"><a href="#HacktheBox注册挑战" class="headerlink" title="HacktheBox注册挑战"></a>HacktheBox注册挑战</h3><p>HacktheBox是一个在线靶场，近期准备考OSCP，准备拿靶场练练手。</p>
+<p>HacktheBox的注册有一定的门槛，在这里记录一下解决过程。</p>
+<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313162402.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">注册页面1</span></p>
+<p>点击HACK YOUR WAY IN</p>
+<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313162502.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">注册页面2</span></p>
+<p>在注册页面首先需要输入code，我们先看hint，点击Click Here</p>
+<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313162644.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">注册码线索</span></p>
+<p>提示我们需要检测console</p>
+<p>打开控制台，看到这样的信息</p>
+<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313162823.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="    style="zoom: 67%;" /><span class="image-caption">console信息</span></p>
+<p>提示我们需要找一个有趣的js文件，进入sources下的page查看调用的js文件，找到一个带有注释的js，提示我们这个js可能被混淆了</p>
+<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313163055.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="    style="zoom:67%;" /><span class="image-caption">js文件</span></p>
+<p>这个js的内容为eval类型的混淆，经过代码格式化后，eval中function的内容如下</p>
+<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313163251.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="    style="zoom:50%;" /><span class="image-caption">js中function代码</span></p>
+<p>包含6个参数，并且给了参数的内容</p>
+<p>这边给出两种解混淆的方案</p>
 <ul>
-<li>个体行为研究</li>
-<li>全体行为研究</li>
-<li>动机与激励理论</li>
-<li>组织行为</li>
+<li>直接查找反混淆网站，因为是eval类型，反混淆比较容易<ul>
+<li>eval类型的js反混淆网站：<a target="_blank" rel="noopener" href="https://www.bm8.com.cn/jsConfusion/">https://www.bm8.com.cn/jsConfusion/</a></li>
 </ul>
-<h5 id="网络行为学（目前没有明确定义）"><a href="#网络行为学（目前没有明确定义）" class="headerlink" title="网络行为学（目前没有明确定义）"></a>网络行为学（目前没有明确定义）</h5><ul>
-<li>网络行为学是研究网络运行规律的向科学</li>
-<li>网络行为学是研究网络发展、进化规律的科学</li>
+</li>
+<li>vs运行一遍，在最后return p的地方下一个断点，直接查看p的内容<ul>
+<li><img    class="lazyload" data-original="C:\Users\ADMINI~1\AppData\Local\Temp\WeChat Files\baf9d347ca7f8b121906d956563a4e0.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">vs结果</span></li>
 </ul>
-<h5 id="网络行为学的内容"><a href="#网络行为学的内容" class="headerlink" title="网络行为学的内容"></a>网络行为学的内容</h5><ul>
-<li>行为描述</li>
-<li>行为观测</li>
-<li>行为分析</li>
-<li>行为监控</li>
+</li>
 </ul>
-<h5 id="技术领域"><a href="#技术领域" class="headerlink" title="技术领域"></a>技术领域</h5><ul>
-<li>网络测量：主动扫描，被动采样，流量识别，协议解析，行为关键信息留存</li>
-<li>分析预测：带宽时延性能分析，时空关联，多源多维融合，大数据行为分析平台，加密行为分析，云上服务及行为分析</li>
-<li>管理安全：管理框架，攻击检测与防御，渗透对抗，态势感知，应急响应，威胁发现（隐蔽未知），取证溯源</li>
-</ul>
-<h5 id="网络行为学演变"><a href="#网络行为学演变" class="headerlink" title="网络行为学演变"></a>网络行为学演变</h5><p>面向网络基本属性的测量分析——基于协议解析和特征检测的识别分析——面向云、加密、海量数据的综合分析</p>
-<p><strong>网络测量：</strong></p>
-<ul>
-<li>拓扑</li>
-<li>延时</li>
-<li>故障诊断</li>
-</ul>
-<p><strong>网络行为分析：</strong></p>
-<ul>
-<li>网络流量分类</li>
-<li>协议识别（端口、DPI）</li>
-<li>特征检测</li>
-<li>攻击检测</li>
-</ul>
-<p><strong>大数据时代的网络行为分析：</strong></p>
-<ul>
-<li>人工智能与大数据结合——网络行为学</li>
-<li>非破密场景下的加密行为辨识</li>
-<li>云计算、CDN带来的应用服务模式转变</li>
-<li>人工智能带来的海量数据处理便利</li>
-<li>网络行为分析的巨大价值挖掘</li>
-</ul>
+<p>最后得到eval的执行内容</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makeInviteCode</span>(<span class="hljs-params"></span>) </span>&#123;<br>    $.ajax(&#123;<br>        type: <span class="hljs-string">&quot;POST&quot;</span>,<br>        dataType: <span class="hljs-string">&quot;json&quot;</span>,<br>        url: <span class="hljs-string">&#x27;/api/invite/how/to/generate&#x27;</span>,<br>        success: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">a</span>) </span>&#123;<br>            <span class="hljs-built_in">console</span>.log(a)<br>        &#125;,<br>        error: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">a</span>) </span>&#123;<br>            <span class="hljs-built_in">console</span>.log(a)<br>        &#125;<br>    &#125;)<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>根据执行内容要求我们用POST访问/api/invite/how/to/generate</p>
+<p>用hackbar执行（或者postman）</p>
+<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313164219.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="    style="zoom: 67%;" /><span class="image-caption">how-to-generate</span></p>
+<p>得到如图json内容，该内容可能会改变为ROT13解密方式，但结果应该是一致的</p>
+<p>复制data内容，用hackbar解base64内容</p>
+<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313164520.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="    style="zoom:67%;" /><span class="image-caption">hackbar解base64</span></p>
+<p>提示我们需要再用post访问/api/invite/generate</p>
+<p>访问获取json内容为</p>
+<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313164702.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">注册码code1</span></p>
+<p>很容易看出这是base64，重复上述操作，用hackbar解密base64内容得到注册码（该注册码是动态变化的）</p>
+<p><code>JBIXF-QDULC-CEBFM-OTBAW-DKHYP</code></p>
+<p>填入之后就可以注册了</p>
 
       </section>
       <section class="extra">
@@ -246,7 +240,7 @@
           <ul class="copyright">
   
     <li><strong>本文作者：</strong>Wenbuer</li>
-    <li><strong>本文链接：</strong><a href="https://wenbuer.github.io/2021/03/09/%E7%BD%91%E7%BB%9C%E8%A1%8C%E4%B8%BA%E5%AD%A6%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/index.html" title="https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2021&#x2F;03&#x2F;09&#x2F;%E7%BD%91%E7%BB%9C%E8%A1%8C%E4%B8%BA%E5%AD%A6%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89&#x2F;index.html">https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2021&#x2F;03&#x2F;09&#x2F;%E7%BD%91%E7%BB%9C%E8%A1%8C%E4%B8%BA%E5%AD%A6%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89&#x2F;index.html</a></li>
+    <li><strong>本文链接：</strong><a href="https://wenbuer.github.io/2021/03/13/HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98/index.html" title="https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2021&#x2F;03&#x2F;13&#x2F;HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98&#x2F;index.html">https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2021&#x2F;03&#x2F;13&#x2F;HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98&#x2F;index.html</a></li>
     <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
   
 </ul>
@@ -263,12 +257,12 @@
 </section>
         
         
-  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Network-Behavior/" rel="tag">Network Behavior</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/course/" rel="tag">course</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/note/" rel="tag">note</a></li></ul> 
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CTF/" rel="tag">CTF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Study-Life/" rel="tag">Study Life</a></li></ul> 
 
         
   <nav class="nav">
-    <a href="/2021/03/13/HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98/"><i class="iconfont iconleft"></i>HacktheBox注册挑战</a>
-    <a href="/2021/03/08/%E6%80%81%E5%8A%BF%E6%84%9F%E7%9F%A5%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/">态势感知课程笔记（一）<i class="iconfont iconright"></i></a>
+    <a></a>
+    <a href="/2021/03/09/%E7%BD%91%E7%BB%9C%E8%A1%8C%E4%B8%BA%E5%AD%A6%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/">网络行为学课程（一）<i class="iconfont iconright"></i></a>
   </nav>
 
       </section>
@@ -315,7 +309,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E8%A1%8C%E4%B8%BA%E5%AD%A6%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89"><span class="toc-text">网络行为学课程笔记（一）</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98"><span class="toc-text">HacktheBox注册挑战</span></a></li></ol>
   </aside>
 
         
