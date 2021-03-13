@@ -6,7 +6,7 @@
   <link href="https://wenbuer.github.io/atom.xml" rel="self"/>
   
   <link href="https://wenbuer.github.io/"/>
-  <updated>2021-03-11T00:35:54.000Z</updated>
+  <updated>2021-03-13T08:52:32.000Z</updated>
   <id>https://wenbuer.github.io/</id>
   
   <author>
@@ -17,11 +17,11 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title></title>
+    <title>网络行为学课程（一）</title>
     <link href="https://wenbuer.github.io/2021/03/09/%E7%BD%91%E7%BB%9C%E8%A1%8C%E4%B8%BA%E5%AD%A6%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/"/>
     <id>https://wenbuer.github.io/2021/03/09/%E7%BD%91%E7%BB%9C%E8%A1%8C%E4%B8%BA%E5%AD%A6%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/</id>
     <published>2021-03-09T05:31:52.000Z</published>
-    <updated>2021-03-11T00:35:54.000Z</updated>
+    <updated>2021-03-13T08:52:32.000Z</updated>
     
     <content type="html"><![CDATA[<h2 id="网络行为学课程笔记（一）"><a href="#网络行为学课程笔记（一）" class="headerlink" title="网络行为学课程笔记（一）"></a>网络行为学课程笔记（一）</h2><h5 id="行为学"><a href="#行为学" class="headerlink" title="行为学"></a>行为学</h5><p>基本内容包括</p><ul><li>个体行为研究</li><li>全体行为研究</li><li>动机与激励理论</li><li>组织行为</li></ul><h5 id="网络行为学（目前没有明确定义）"><a href="#网络行为学（目前没有明确定义）" class="headerlink" title="网络行为学（目前没有明确定义）"></a>网络行为学（目前没有明确定义）</h5><ul><li>网络行为学是研究网络运行规律的向科学</li><li>网络行为学是研究网络发展、进化规律的科学</li></ul><h5 id="网络行为学的内容"><a href="#网络行为学的内容" class="headerlink" title="网络行为学的内容"></a>网络行为学的内容</h5><ul><li>行为描述</li><li>行为观测</li><li>行为分析</li><li>行为监控</li></ul><h5 id="技术领域"><a href="#技术领域" class="headerlink" title="技术领域"></a>技术领域</h5><ul><li>网络测量：主动扫描，被动采样，流量识别，协议解析，行为关键信息留存</li><li>分析预测：带宽时延性能分析，时空关联，多源多维融合，大数据行为分析平台，加密行为分析，云上服务及行为分析</li><li>管理安全：管理框架，攻击检测与防御，渗透对抗，态势感知，应急响应，威胁发现（隐蔽未知），取证溯源</li></ul><h5 id="网络行为学演变"><a href="#网络行为学演变" class="headerlink" title="网络行为学演变"></a>网络行为学演变</h5><p>面向网络基本属性的测量分析——基于协议解析和特征检测的识别分析——面向云、加密、海量数据的综合分析</p><p><strong>网络测量：</strong></p><ul><li>拓扑</li><li>延时</li><li>故障诊断</li></ul><p><strong>网络行为分析：</strong></p><ul><li>网络流量分类</li><li>协议识别（端口、DPI）</li><li>特征检测</li><li>攻击检测</li></ul><p><strong>大数据时代的网络行为分析：</strong></p><ul><li>人工智能与大数据结合——网络行为学</li><li>非破密场景下的加密行为辨识</li><li>云计算、CDN带来的应用服务模式转变</li><li>人工智能带来的海量数据处理便利</li><li>网络行为分析的巨大价值挖掘</li></ul>]]></content>
     
