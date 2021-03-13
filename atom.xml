@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>Welcome To Wenbuer Blog</title>
+  <title>Welcome To Wenbuer&#39;s Blog</title>
   
   
-  <link href="http://example.com/atom.xml" rel="self"/>
+  <link href="https://wenbuer.github.io/atom.xml" rel="self"/>
   
-  <link href="http://example.com/"/>
-  <updated>2021-03-11T00:34:37.000Z</updated>
-  <id>http://example.com/</id>
+  <link href="https://wenbuer.github.io/"/>
+  <updated>2021-03-11T00:35:54.000Z</updated>
+  <id>https://wenbuer.github.io/</id>
   
   <author>
     <name>Wenbuer</name>
@@ -17,9 +17,37 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title></title>
+    <link href="https://wenbuer.github.io/2021/03/09/%E7%BD%91%E7%BB%9C%E8%A1%8C%E4%B8%BA%E5%AD%A6%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/"/>
+    <id>https://wenbuer.github.io/2021/03/09/%E7%BD%91%E7%BB%9C%E8%A1%8C%E4%B8%BA%E5%AD%A6%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/</id>
+    <published>2021-03-09T05:31:52.000Z</published>
+    <updated>2021-03-11T00:35:54.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="网络行为学课程笔记（一）"><a href="#网络行为学课程笔记（一）" class="headerlink" title="网络行为学课程笔记（一）"></a>网络行为学课程笔记（一）</h2><h5 id="行为学"><a href="#行为学" class="headerlink" title="行为学"></a>行为学</h5><p>基本内容包括</p><ul><li>个体行为研究</li><li>全体行为研究</li><li>动机与激励理论</li><li>组织行为</li></ul><h5 id="网络行为学（目前没有明确定义）"><a href="#网络行为学（目前没有明确定义）" class="headerlink" title="网络行为学（目前没有明确定义）"></a>网络行为学（目前没有明确定义）</h5><ul><li>网络行为学是研究网络运行规律的向科学</li><li>网络行为学是研究网络发展、进化规律的科学</li></ul><h5 id="网络行为学的内容"><a href="#网络行为学的内容" class="headerlink" title="网络行为学的内容"></a>网络行为学的内容</h5><ul><li>行为描述</li><li>行为观测</li><li>行为分析</li><li>行为监控</li></ul><h5 id="技术领域"><a href="#技术领域" class="headerlink" title="技术领域"></a>技术领域</h5><ul><li>网络测量：主动扫描，被动采样，流量识别，协议解析，行为关键信息留存</li><li>分析预测：带宽时延性能分析，时空关联，多源多维融合，大数据行为分析平台，加密行为分析，云上服务及行为分析</li><li>管理安全：管理框架，攻击检测与防御，渗透对抗，态势感知，应急响应，威胁发现（隐蔽未知），取证溯源</li></ul><h5 id="网络行为学演变"><a href="#网络行为学演变" class="headerlink" title="网络行为学演变"></a>网络行为学演变</h5><p>面向网络基本属性的测量分析——基于协议解析和特征检测的识别分析——面向云、加密、海量数据的综合分析</p><p><strong>网络测量：</strong></p><ul><li>拓扑</li><li>延时</li><li>故障诊断</li></ul><p><strong>网络行为分析：</strong></p><ul><li>网络流量分类</li><li>协议识别（端口、DPI）</li><li>特征检测</li><li>攻击检测</li></ul><p><strong>大数据时代的网络行为分析：</strong></p><ul><li>人工智能与大数据结合——网络行为学</li><li>非破密场景下的加密行为辨识</li><li>云计算、CDN带来的应用服务模式转变</li><li>人工智能带来的海量数据处理便利</li><li>网络行为分析的巨大价值挖掘</li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;网络行为学课程笔记（一）&quot;&gt;&lt;a href=&quot;#网络行为学课程笔记（一）&quot; class=&quot;headerlink&quot; title=&quot;网络行为学课程笔记（一）&quot;&gt;&lt;/a&gt;网络行为学课程笔记（一）&lt;/h2&gt;&lt;h5 id=&quot;行为学&quot;&gt;&lt;a href=&quot;#行为学&quot; class</summary>
+      
+    
+    
+    
+    <category term="Network Behavior" scheme="https://wenbuer.github.io/categories/Network-Behavior/"/>
+    
+    
+    <category term="course" scheme="https://wenbuer.github.io/tags/course/"/>
+    
+    <category term="note" scheme="https://wenbuer.github.io/tags/note/"/>
+    
+    <category term="Network Behavior" scheme="https://wenbuer.github.io/tags/Network-Behavior/"/>
+    
+  </entry>
+  
+  <entry>
     <title>态势感知课程笔记（一）</title>
-    <link href="http://example.com/2021/03/08/%E6%80%81%E5%8A%BF%E6%84%9F%E7%9F%A5%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94%E4%B8%AD%E7%A7%91%E9%99%A2/"/>
-    <id>http://example.com/2021/03/08/%E6%80%81%E5%8A%BF%E6%84%9F%E7%9F%A5%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94%E4%B8%AD%E7%A7%91%E9%99%A2/</id>
+    <link href="https://wenbuer.github.io/2021/03/08/%E6%80%81%E5%8A%BF%E6%84%9F%E7%9F%A5%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/"/>
+    <id>https://wenbuer.github.io/2021/03/08/%E6%80%81%E5%8A%BF%E6%84%9F%E7%9F%A5%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/</id>
     <published>2021-03-08T02:30:35.000Z</published>
     <updated>2021-03-11T00:34:37.000Z</updated>
     
@@ -33,21 +61,21 @@
     
     
     
-    <category term="Situational Awareness" scheme="http://example.com/categories/Situational-Awareness/"/>
+    <category term="Situational Awareness" scheme="https://wenbuer.github.io/categories/Situational-Awareness/"/>
     
     
-    <category term="course" scheme="http://example.com/tags/course/"/>
+    <category term="course" scheme="https://wenbuer.github.io/tags/course/"/>
     
-    <category term="note" scheme="http://example.com/tags/note/"/>
+    <category term="note" scheme="https://wenbuer.github.io/tags/note/"/>
     
-    <category term="Situational Awareness" scheme="http://example.com/tags/Situational-Awareness/"/>
+    <category term="Situational Awareness" scheme="https://wenbuer.github.io/tags/Situational-Awareness/"/>
     
   </entry>
   
   <entry>
     <title>tensorflow 2.0课程笔记(三)</title>
-    <link href="http://example.com/2021/03/06/tensorflow%202.0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0(%E4%B8%89)/"/>
-    <id>http://example.com/2021/03/06/tensorflow%202.0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0(%E4%B8%89)/</id>
+    <link href="https://wenbuer.github.io/2021/03/06/tensorflow%202.0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0(%E4%B8%89)/"/>
+    <id>https://wenbuer.github.io/2021/03/06/tensorflow%202.0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0(%E4%B8%89)/</id>
     <published>2021-03-06T07:49:00.000Z</published>
     <updated>2021-03-06T08:28:27.000Z</updated>
     
@@ -61,23 +89,23 @@
     
     
     
-    <category term="Machine Learning" scheme="http://example.com/categories/Machine-Learning/"/>
+    <category term="Machine Learning" scheme="https://wenbuer.github.io/categories/Machine-Learning/"/>
     
     
-    <category term="Machine Learning" scheme="http://example.com/tags/Machine-Learning/"/>
+    <category term="Machine Learning" scheme="https://wenbuer.github.io/tags/Machine-Learning/"/>
     
-    <category term="Tutorials" scheme="http://example.com/tags/Tutorials/"/>
+    <category term="Tutorials" scheme="https://wenbuer.github.io/tags/Tutorials/"/>
     
-    <category term="Study Life" scheme="http://example.com/tags/Study-Life/"/>
+    <category term="Study Life" scheme="https://wenbuer.github.io/tags/Study-Life/"/>
     
-    <category term="tensorflow" scheme="http://example.com/tags/tensorflow/"/>
+    <category term="tensorflow" scheme="https://wenbuer.github.io/tags/tensorflow/"/>
     
   </entry>
   
   <entry>
     <title>tensorflow 2.0课程笔记(二)</title>
-    <link href="http://example.com/2021/03/06/tensorflow%202.0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0(%E4%BA%8C)/"/>
-    <id>http://example.com/2021/03/06/tensorflow%202.0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0(%E4%BA%8C)/</id>
+    <link href="https://wenbuer.github.io/2021/03/06/tensorflow%202.0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0(%E4%BA%8C)/"/>
+    <id>https://wenbuer.github.io/2021/03/06/tensorflow%202.0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0(%E4%BA%8C)/</id>
     <published>2021-03-06T07:48:00.000Z</published>
     <updated>2021-03-06T08:28:10.000Z</updated>
     
@@ -91,23 +119,23 @@
     
     
     
-    <category term="Machine Learning" scheme="http://example.com/categories/Machine-Learning/"/>
+    <category term="Machine Learning" scheme="https://wenbuer.github.io/categories/Machine-Learning/"/>
     
     
-    <category term="Machine Learning" scheme="http://example.com/tags/Machine-Learning/"/>
+    <category term="Machine Learning" scheme="https://wenbuer.github.io/tags/Machine-Learning/"/>
     
-    <category term="Tutorials" scheme="http://example.com/tags/Tutorials/"/>
+    <category term="Tutorials" scheme="https://wenbuer.github.io/tags/Tutorials/"/>
     
-    <category term="Study Life" scheme="http://example.com/tags/Study-Life/"/>
+    <category term="Study Life" scheme="https://wenbuer.github.io/tags/Study-Life/"/>
     
-    <category term="tensorflow" scheme="http://example.com/tags/tensorflow/"/>
+    <category term="tensorflow" scheme="https://wenbuer.github.io/tags/tensorflow/"/>
     
   </entry>
   
   <entry>
     <title>tensorflow 2.0课程笔记(一)</title>
-    <link href="http://example.com/2021/03/06/tensorflow%202.0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0(%E4%B8%80)/"/>
-    <id>http://example.com/2021/03/06/tensorflow%202.0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0(%E4%B8%80)/</id>
+    <link href="https://wenbuer.github.io/2021/03/06/tensorflow%202.0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0(%E4%B8%80)/"/>
+    <id>https://wenbuer.github.io/2021/03/06/tensorflow%202.0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0(%E4%B8%80)/</id>
     <published>2021-03-06T07:47:00.000Z</published>
     <updated>2021-03-06T08:26:44.000Z</updated>
     
@@ -121,23 +149,23 @@
     
     
     
-    <category term="Machine Learning" scheme="http://example.com/categories/Machine-Learning/"/>
+    <category term="Machine Learning" scheme="https://wenbuer.github.io/categories/Machine-Learning/"/>
     
     
-    <category term="Machine Learning" scheme="http://example.com/tags/Machine-Learning/"/>
+    <category term="Machine Learning" scheme="https://wenbuer.github.io/tags/Machine-Learning/"/>
     
-    <category term="Tutorials" scheme="http://example.com/tags/Tutorials/"/>
+    <category term="Tutorials" scheme="https://wenbuer.github.io/tags/Tutorials/"/>
     
-    <category term="Study Life" scheme="http://example.com/tags/Study-Life/"/>
+    <category term="Study Life" scheme="https://wenbuer.github.io/tags/Study-Life/"/>
     
-    <category term="tensorflow" scheme="http://example.com/tags/tensorflow/"/>
+    <category term="tensorflow" scheme="https://wenbuer.github.io/tags/tensorflow/"/>
     
   </entry>
   
   <entry>
     <title>NeSE丙队一月月赛训练</title>
-    <link href="http://example.com/2021/01/22/NeSE%E4%B8%99%E9%98%9F%E4%B8%80%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/"/>
-    <id>http://example.com/2021/01/22/NeSE%E4%B8%99%E9%98%9F%E4%B8%80%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</id>
+    <link href="https://wenbuer.github.io/2021/01/22/NeSE%E4%B8%99%E9%98%9F%E4%B8%80%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/"/>
+    <id>https://wenbuer.github.io/2021/01/22/NeSE%E4%B8%99%E9%98%9F%E4%B8%80%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</id>
     <published>2021-01-22T01:59:14.000Z</published>
     <updated>2021-01-25T02:24:05.162Z</updated>
     
@@ -151,23 +179,23 @@
     
     
     
-    <category term="Hacker" scheme="http://example.com/categories/Hacker/"/>
+    <category term="Hacker" scheme="https://wenbuer.github.io/categories/Hacker/"/>
     
-    <category term="Security" scheme="http://example.com/categories/Security/"/>
+    <category term="Security" scheme="https://wenbuer.github.io/categories/Security/"/>
     
-    <category term="CTF" scheme="http://example.com/categories/CTF/"/>
+    <category term="CTF" scheme="https://wenbuer.github.io/categories/CTF/"/>
     
     
-    <category term="CTF" scheme="http://example.com/tags/CTF/"/>
+    <category term="CTF" scheme="https://wenbuer.github.io/tags/CTF/"/>
     
-    <category term="NeSE" scheme="http://example.com/tags/NeSE/"/>
+    <category term="NeSE" scheme="https://wenbuer.github.io/tags/NeSE/"/>
     
   </entry>
   
   <entry>
     <title>社工案例思路——无交互日常篇</title>
-    <link href="http://example.com/2021/01/21/%E7%A4%BE%E5%B7%A5%E6%A1%88%E4%BE%8B%E6%80%9D%E8%B7%AF%E2%80%94%E2%80%94%E6%97%A0%E4%BA%A4%E4%BA%92%E6%97%A5%E5%B8%B8%E7%AF%87/"/>
-    <id>http://example.com/2021/01/21/%E7%A4%BE%E5%B7%A5%E6%A1%88%E4%BE%8B%E6%80%9D%E8%B7%AF%E2%80%94%E2%80%94%E6%97%A0%E4%BA%A4%E4%BA%92%E6%97%A5%E5%B8%B8%E7%AF%87/</id>
+    <link href="https://wenbuer.github.io/2021/01/21/%E7%A4%BE%E5%B7%A5%E6%A1%88%E4%BE%8B%E6%80%9D%E8%B7%AF%E2%80%94%E2%80%94%E6%97%A0%E4%BA%A4%E4%BA%92%E6%97%A5%E5%B8%B8%E7%AF%87/"/>
+    <id>https://wenbuer.github.io/2021/01/21/%E7%A4%BE%E5%B7%A5%E6%A1%88%E4%BE%8B%E6%80%9D%E8%B7%AF%E2%80%94%E2%80%94%E6%97%A0%E4%BA%A4%E4%BA%92%E6%97%A5%E5%B8%B8%E7%AF%87/</id>
     <published>2021-01-21T14:18:02.000Z</published>
     <updated>2021-01-24T14:41:40.579Z</updated>
     
@@ -181,16 +209,16 @@
     
     
     
-    <category term="Hacker" scheme="http://example.com/categories/Hacker/"/>
+    <category term="Hacker" scheme="https://wenbuer.github.io/categories/Hacker/"/>
     
-    <category term="Security" scheme="http://example.com/categories/Security/"/>
+    <category term="Security" scheme="https://wenbuer.github.io/categories/Security/"/>
     
-    <category term="Social Engineering" scheme="http://example.com/categories/Social-Engineering/"/>
+    <category term="Social Engineering" scheme="https://wenbuer.github.io/categories/Social-Engineering/"/>
     
     
-    <category term="Social Engineering" scheme="http://example.com/tags/Social-Engineering/"/>
+    <category term="Social Engineering" scheme="https://wenbuer.github.io/tags/Social-Engineering/"/>
     
-    <category term="Daily Life" scheme="http://example.com/tags/Daily-Life/"/>
+    <category term="Daily Life" scheme="https://wenbuer.github.io/tags/Daily-Life/"/>
     
   </entry>
   
