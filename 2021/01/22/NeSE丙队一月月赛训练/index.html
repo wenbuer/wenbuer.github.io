@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>NeSE丙队一月月赛训练 - Welcome To Wenbuer&#39;s Blog</title>
+  <title>NeSE丙队1月赛训练 - Welcome To Wenbuer&#39;s Blog</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
@@ -137,7 +137,7 @@
         <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
       
     </div>
-    <div class="center">NeSE丙队一月月赛训练</div>
+    <div class="center">NeSE丙队1月赛训练</div>
     <div class="right">
       <i class="iconfont iconmenu j-navbar-menu"></i>
     </div>
@@ -180,15 +180,15 @@
     <section class="head">
   <img   class="lazyload" data-original="/images/theme/post-image.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
   <div class="head-mask">
-    <h1 class="head-title">NeSE丙队一月月赛训练</h1>
+    <h1 class="head-title">NeSE丙队1月赛训练</h1>
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>January 22, 2021</span>
       
         <span class="post-info-item">
-          <i class="iconfont iconeye"></i><span id="/2021/01/22/NeSE%E4%B8%99%E9%98%9F%E4%B8%80%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/" class="leancloud" data-flag-title="NeSE丙队一月月赛训练"></span>
+          <i class="iconfont iconeye"></i><span id="/2021/01/22/NeSE%E4%B8%99%E9%98%9F%E4%B8%80%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/" class="leancloud" data-flag-title="NeSE丙队1月赛训练"></span>
         </span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>8413</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>8432</span>
     </div>
   </div>
 </section>
@@ -207,7 +207,7 @@
 <p>前两个用base64解密，得到header={“alg”:”HS256”,”type”:”JWT”}，payload={“user”:”tourist”} <del>大概是这样，忘记了</del></p>
 <p>jwt_token后面跟着key=blueNeSE，verify signature的验证的公式为</p>
 <figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs lisp">HMACSHA256(<br>  base64UrlEncode(<span class="hljs-name">header</span>) + <span class="hljs-string">&quot;.&quot;</span> +<br>  base64UrlEncode(<span class="hljs-name">payload</span>),<br>  key<br>) <br></code></pre></td></tr></table></figure>
-<p>通过jwt网站<a target="_blank" rel="noopener" href="https://jwt.io/">https://jwt.io/</a> 计算验证key确实为blueNeSE，更改payload为{“user”:”admin”}，自动生成验证的jwt_token</p>
+<p>通过jwt网站<a target="_blank" rel="noopener" href="https://jwt.io/计算验证key确实为blueNeSE，更改payload为{&quot;user&quot;:&quot;admin&quot;}，自动生成验证的jwt_token">https://jwt.io/计算验证key确实为blueNeSE，更改payload为{&quot;user&quot;:&quot;admin&quot;}，自动生成验证的jwt_token</a></p>
 <p>修改jwt_token重放包，得到flag<del>忘了</del></p>
 <h3 id="Crypto"><a href="#Crypto" class="headerlink" title="Crypto"></a>Crypto</h3><h4 id="0x03-jefferson-wheel"><a href="#0x03-jefferson-wheel" class="headerlink" title="0x03 jefferson wheel"></a>0x03 jefferson wheel</h4><p>加密表为</p>
 <p>ZWAXJGDLUBVIQHKEPNTCRMOSFY&gt;<br>KPBRLNACZDTEXMJQOYHGVSFUWI&gt;<br>BDMAIZVNHSJUWFRTEQGYXPLOCK&gt;<br>RPLHDVNGFCUKTEBSXQYIZMJWAO&gt;<br>IHFRLABEUOTSGJVDKZPMNCQWXY&gt;<br>AMKGHBWPNYCJIFZDRUSLOQXVET&gt;<br>GWTHMPYBXIZULVKSRAFDCEONJQ&gt;<br>NOZUTWDCVRJLXKISYFAPMEGHBQ&gt;<br>XPLTDSRFGENYVUBMCQWAOIKZHJ&gt;<br>UDNAJFBOWCGVRSTZQKELMXYIHP&gt;<br>MNCVBXZQWERTPOIUYALSKDJFHG&gt;<br>LVNCMXZPQOWEJURYTASBKIDFHG&gt;<br>JZQAWVXCDERFSBGTYHNUMKILOP&gt;<br>KQDLOEJPCNFXBIWZGRYMTVHSUA&gt;<br>PVLUBFJSXOWAYGNEIDZTMHCRQK&gt;</p>
