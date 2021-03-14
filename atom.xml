@@ -47,6 +47,42 @@
   </entry>
   
   <entry>
+    <title>HTB VPN配置</title>
+    <link href="https://wenbuer.github.io/2021/03/13/HTB-VPN%E9%85%8D%E7%BD%AE/"/>
+    <id>https://wenbuer.github.io/2021/03/13/HTB-VPN%E9%85%8D%E7%BD%AE/</id>
+    <published>2021-03-13T10:41:17.000Z</published>
+    <updated>2021-03-14T16:01:04.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="HTB-VPN配置"><a href="#HTB-VPN配置" class="headerlink" title="HTB VPN配置"></a>HTB VPN配置</h3><p>服务器： 阿里云 ubuntu</p><p>在服务器安装openvpn</p><p><code>apt-get update</code></p><p><code>apt-get install openvpn</code></p><p>在HTB的Labs页面中找到连接Starting Point</p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313190126.png" alt=""></p><p>选择好其中一个节点进行下载.ovpn文件</p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313185138.png" style="zoom:50%;" /></p><p>在服务器用openvpn连接到staring point</p><p><code>openvpn starting_point_XXXXX.ovpn</code></p><p>点击Archetype机器，选择Jion Machine，加入之后会告诉你该机器的IP地址</p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313185915.png" style="zoom: 50%;" /></p><p>在服务器ping该地址，可以ping通</p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313190251.png" style="zoom:50%;" /></p><p>测试VPN已经搭建完成</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h3 id=&quot;HTB-VPN配置&quot;&gt;&lt;a href=&quot;#HTB-VPN配置&quot; class=&quot;headerlink&quot; title=&quot;HTB VPN配置&quot;&gt;&lt;/a&gt;HTB VPN配置&lt;/h3&gt;&lt;p&gt;服务器： 阿里云 ubuntu&lt;/p&gt;
+&lt;p&gt;在服务器安装openvpn&lt;/p&gt;
+&lt;</summary>
+      
+    
+    
+    
+    <category term="Hacker" scheme="https://wenbuer.github.io/categories/Hacker/"/>
+    
+    <category term="Security" scheme="https://wenbuer.github.io/categories/Security/"/>
+    
+    <category term="HTB" scheme="https://wenbuer.github.io/categories/HTB/"/>
+    
+    <category term="Penetration testing" scheme="https://wenbuer.github.io/categories/Penetration-testing/"/>
+    
+    
+    <category term="HTB" scheme="https://wenbuer.github.io/tags/HTB/"/>
+    
+    <category term="Study life" scheme="https://wenbuer.github.io/tags/Study-life/"/>
+    
+    <category term="Penetration testing" scheme="https://wenbuer.github.io/tags/Penetration-testing/"/>
+    
+  </entry>
+  
+  <entry>
     <title>HacktheBox注册挑战</title>
     <link href="https://wenbuer.github.io/2021/03/13/HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98/"/>
     <id>https://wenbuer.github.io/2021/03/13/HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98/</id>

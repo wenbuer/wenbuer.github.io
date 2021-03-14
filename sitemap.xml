@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://wenbuer.github.io/2021/03/13/HTB-VPN%E9%85%8D%E7%BD%AE/</loc>
+    
+    <lastmod>2021-03-14</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://wenbuer.github.io/2021/03/14/NeSE%E4%B8%99%E9%98%9F3%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</loc>
     
     <lastmod>2021-03-14</lastmod>
@@ -171,6 +178,27 @@
     <priority>0.6</priority>
   </url>
   
+  <url>
+    <loc>https://wenbuer.github.io/tags/HTB/</loc>
+    <lastmod>2021-03-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://wenbuer.github.io/tags/Study-life/</loc>
+    <lastmod>2021-03-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://wenbuer.github.io/tags/Penetration-testing/</loc>
+    <lastmod>2021-03-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
 
   
   <url>
@@ -217,6 +245,20 @@
   
   <url>
     <loc>https://wenbuer.github.io/categories/Social-Engineering/</loc>
+    <lastmod>2021-03-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://wenbuer.github.io/categories/HTB/</loc>
+    <lastmod>2021-03-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://wenbuer.github.io/categories/Penetration-testing/</loc>
     <lastmod>2021-03-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
