@@ -187,7 +187,7 @@
           <i class="iconfont iconeye"></i><span id="/2021/03/14/NeSE%E4%B8%99%E9%98%9F3%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/" class="leancloud" data-flag-title="NeSE丙队3月月赛训练"></span>
         </span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4862</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>4893</span>
     </div>
   </div>
 </section>
@@ -199,8 +199,8 @@
 <p>直接看最后几十行格式为</p>
 <p><code>172.17.0.1 - - [22/Nov/2020:02:50:52 +0000] &quot;GET /vulnerabilities/sqli_blind/?id=2&#39; AND ORD(MID((SELECT IFNULL(CAST(flag AS CHAR),0x20) FROM dvwa.flag_is_here ORDER BY flag LIMIT 0,1),1,1))%3E64 AND &#39;RCKM&#39;=&#39;RCKM&amp;Submit=Submit HTTP/1.1&quot; 200</code></p>
 <p>其中%3E是’&gt;’，只要找到每个字符中最后为404状态码的注入ascii码就行</p>
-<p>结果为：==115、113、108、109、52、112、95、49、110==</p>
-<p>转化为ASCII码为前半部分flag: ==sqlm4p_1n==</p>
+<p>结果为：<code>115、113、108、109、52、112、95、49、110</code></p>
+<p>转化为ASCII码为前半部分flag: <code>sqlm4p_1n</code></p>
 <p><strong>tail.pcap：</strong></p>
 <p>每个流量的usbdata长度为33，不属于鼠标和键盘流量的长度</p>
 <p>推测是添加了冗余数据</p>
@@ -214,7 +214,7 @@
 <p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210314204212.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:50%;" /></p>
 <p>将其翻转镜像之后</p>
 <p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210314204306.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom: 67%;" /></p>
-<p>得到后半部分flag：==m15c==</p>
+<p>得到后半部分flag：<code>m15c</code></p>
 <p>结合得到flag：flag{sqlm4p_1n_m15c}</p>
 <h3 id="CRYPTO"><a href="#CRYPTO" class="headerlink" title="CRYPTO"></a>CRYPTO</h3><h4 id="0x01-easy-crypto"><a href="#0x01-easy-crypto" class="headerlink" title="0x01 easy_crypto"></a>0x01 easy_crypto</h4><p><strong>题目：</strong></p>
 <p>小明使用某种加密算法加密了flag，他使用另一种加密方式保存了密钥，请根据给出的两组CODE，解码出flag。<br>hint: flag{xxxx}。</p>
@@ -229,7 +229,7 @@
 <p><strong>CODE1：</strong></p>
 <p>CODE1有个明显特征U2FsdGVkX1，是Salted_的base64，一般出现在AES和DES中</p>
 <p>利用密钥RESPECT解密，AES无法解密</p>
-<p>DES解密得到==flag{niuniankuaile}==</p>
+<p>DES解密得到<code>flag&#123;niuniankuaile&#125;</code></p>
 <h3 id="REVERSE"><a href="#REVERSE" class="headerlink" title="REVERSE"></a>REVERSE</h3><h4 id="0x02-sequence"><a href="#0x02-sequence" class="headerlink" title="0x02 sequence"></a>0x02 sequence</h4><p><strong>题目：</strong></p>
 <p>一个ELF文件</p>
 <p><strong>题解：</strong></p>
@@ -243,25 +243,25 @@
 <li>aCtfThis_is_fla即是flag</li>
 </ul>
 <p>找到aCtfThis_is_fla数组，其内容为</p>
-<p>==ctf{this_is_flag2}==</p>
+<p><code>ctf&#123;this_is_flag2&#125;</code></p>
 <p>off_40B0是一个字符串，内容为</p>
-<p>==”u^&gt;d@!y2THOG/tgQ’%P~8k#.NZw4*EMc+U)l5=r0KL$_&amp;D\,x9-AB|sa?RmeS3\”ibfj;CF o`J]6XhV:n7WI(q1[z}v&lt;{Yp”==</p>
+<p><code>&quot;u^&gt;d@!y2THOG/tgQ&#39;%P~8k#.NZw4*EMc+U)l5=r0KL$_&amp;D\\,x9-AB|sa?RmeS3\&quot;ibfj;CF o</code>J]6XhV:n7WI(q1[z}v&lt;{Yp”`</p>
 <p>定义off_40B为a，aCtfThis_is_fla为b，v8为flag，其中三者关系为</p>
 <p><code>b[i]=a[flag[i]-32]</code></p>
 <p>编写python脚本</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">a = <span class="hljs-string">&quot;u^&gt;d@!y2THOG/tgQ&#x27;%P~8k#.NZw4*EMc+U)l5=r0KL$_&amp;D\\,x9-AB|sa?RmeS3\&quot;ibfj;CF o`J]6XhV:n7WI(q1[z&#125;v&lt;&#123;Yp&quot;</span><br>b = <span class="hljs-string">&quot;ctf&#123;this_is_flag2&#125;&quot;</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> b:<br>	print(<span class="hljs-built_in">chr</span>(a.index(i)+<span class="hljs-number">32</span>),end=<span class="hljs-string">&#x27;&#x27;</span>)<br></code></pre></td></tr></table></figure>
-<p>得到==flag{?-a|-m_VK_VKaCW.’y}==</p>
+<p>得到<code>flag&#123;?-a|-m_VK_VKaCW.&#39;y&#125;</code></p>
 <h4 id="0x03-flagin5"><a href="#0x03-flagin5" class="headerlink" title="0x03 flagin5"></a>0x03 flagin5</h4><p><strong>题目：</strong></p>
 <p>一个Pyinstaller贪吃蛇小程序</p>
 <p><strong>题解：</strong></p>
 <p>尝试用cheater engine定位分数所在地址，然后直接修改分数，发现无法定位</p>
 <p>浪费很多时间，<del>主要是更新windows花了三个小时</del>，重新做题</p>
 <p>思考题目含义flag in 5，用string.exe查找程序字符串，也没找到5这个文件和相关的东西</p>
-<p>查询Pyinstaller相关内容，然后下载了==pyinstxtractor.py==准备解包试试</p>
+<p>查询Pyinstaller相关内容，然后下载了<code>pyinstxtractor.py</code>准备解包试试</p>
 <p>解包完之后发现5这个文件</p>
 <p>直接用010 Editor打开</p>
 <p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210314211501.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt=""></p>
-<p>得到==flag{Wow_So_Amazing!!}==</p>
+<p>得到<code>flag&#123;Wow_So_Amazing!!&#125;</code></p>
 <h4 id="0x04-Easy-Go-Trojan"><a href="#0x04-Easy-Go-Trojan" class="headerlink" title="0x04 Easy-Go-Trojan"></a>0x04 Easy-Go-Trojan</h4><p><strong>题目：</strong></p>
 <p><strong>题解：</strong></p>
 <p>先用Detect It Easy查壳</p>
@@ -282,7 +282,7 @@
 <p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210314231050.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt=""></p>
 <p>在Procmon.exe监控处可以看到目的ip和端口</p>
 <p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210314231125.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:67%;" /></p>
-<p>得到==flag{47.93.231.121:18080}==</p>
+<p>得到<code>flag&#123;47.93.231.121:18080&#125;</code></p>
 <h4 id="0x05-Maze"><a href="#0x05-Maze" class="headerlink" title="0x05 Maze"></a>0x05 Maze</h4><p><strong>题目：</strong></p>
 <p>一个迷宫输入wasd的exe程序</p>
 <p><strong>题解：</strong></p>
@@ -308,9 +308,9 @@
 <p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210314221640.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:67%;" /></p>
 <p>aSD为迷宫字符串，拼接得到迷宫为</p>
 <p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210314222142.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt=""></p>
-<p>点击运行wasd.exe，输入==sssdddwwwddddddsssaaaw==后</p>
+<p>点击运行wasd.exe，输入<code>sssdddwwwddddddsssaaaw</code>后</p>
 <p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210314222333.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt=""></p>
-<p>因此，得到==flag{sssdddwwwddddddsssaaaw}==</p>
+<p>因此，得到<code>flag&#123;sssdddwwwddddddsssaaaw&#125;</code></p>
 
       </section>
       <section class="extra">
