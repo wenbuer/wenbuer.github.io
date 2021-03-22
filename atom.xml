@@ -119,6 +119,36 @@
   </entry>
   
   <entry>
+    <title>态势感知课程笔记（二）</title>
+    <link href="https://wenbuer.github.io/2021/03/11/%E6%80%81%E5%8A%BF%E6%84%9F%E7%9F%A5%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/"/>
+    <id>https://wenbuer.github.io/2021/03/11/%E6%80%81%E5%8A%BF%E6%84%9F%E7%9F%A5%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/</id>
+    <published>2021-03-11T00:37:32.000Z</published>
+    <updated>2021-03-22T03:08:36.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="态势感知课程笔记（二）"><a href="#态势感知课程笔记（二）" class="headerlink" title="态势感知课程笔记（二）"></a>态势感知课程笔记（二）</h2><h3 id="态势感知定义"><a href="#态势感知定义" class="headerlink" title="态势感知定义"></a>态势感知定义</h3><p><strong>态势感知：</strong>指一定时间和空间内对环境因素的获取，理解和对未来短期的预测</p><p><strong>态势感知过程：</strong>态势识别∈态势理解∈态势预测</p><h3 id="网络安全态势感知（NSSA）："><a href="#网络安全态势感知（NSSA）：" class="headerlink" title="网络安全态势感知（NSSA）："></a>网络安全态势感知（NSSA）：</h3><p><strong>定义：</strong>是利用数据融合、数据挖掘、智能分析和可视化等技术，分析并理解网络环境的安全状况和发展趋势，支撑网络安全决策。</p><p><strong>目的：</strong>了解网络的状态、受攻击情况、攻击来源以及哪些服务易受到攻击等情况，对发起攻击的网络采取措施；掌握所在网络的安全状态和趋势，做好相应的防范准备，避免和减少网络中病毒和恶意攻击带来的损失，制定有预见性的应急预案提供基础</p><h4 id="网络态势感知包含"><a href="#网络态势感知包含" class="headerlink" title="网络态势感知包含"></a>网络态势感知包含</h4><p><strong>态势识别：</strong></p><ol><li>了解当前状态，也可称为态势认知。态势认知包括状态识别与确认。状态识别只是意识到有攻击正在发生，而状态确认包括确认攻击类型、来源、属性和攻击目标等。</li><li>了解所收集的态势感知信息素材的质量（可信度），以及由此形成的知识-情报-决策的质量。</li></ol><p><strong>态势理解：</strong></p><ol><li>了解攻击的影响，也可称为影响评估。影响评估包括两部分：①当前影响评估，即损害评估；②未来影响评估。</li><li>了解行动者（对手）行为。其主要内容是分析攻击趋势和意图，重点关注某种态势下对手的行为，而非态势本身。</li><li>了解当前态势发生的原因和方式。包括因果关系分析和取证分析。</li></ol><p><strong>态势预测：</strong></p><ol><li>了解态势如何演化。态势跟踪是这一方面的主要内容。</li><li>评估当前态势的发展趋势。这涉及到多种技术，以预测对手将来可能采取的行动、活动和路径，并推断最合理的前景</li></ol><h4 id="NSSA相关技术"><a href="#NSSA相关技术" class="headerlink" title="NSSA相关技术"></a>NSSA相关技术</h4><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210315111356.png" style="zoom:67%;" /></p><p>当前态势感知学术研究涉及</p><h4 id="主要研究意义"><a href="#主要研究意义" class="headerlink" title="主要研究意义"></a>主要研究意义</h4><p>网络空间安全威胁无处不在</p><p>传统安全防护技术力不从心</p><p>面对威胁情况愈加复杂</p><ul><li>攻击面不断扩大</li><li>攻击成本降低</li><li>攻击可利用资源增加</li><li>攻击方式立体</li></ul><p>网络空间态势感知重要性</p><ul><li>习近平4.19讲话</li><li>公安部规划</li><li>公安部门实战结合</li></ul><h3 id="网络空间态势感知模型"><a href="#网络空间态势感知模型" class="headerlink" title="网络空间态势感知模型"></a>网络空间态势感知模型</h3><h4 id="JDL模型"><a href="#JDL模型" class="headerlink" title="JDL模型"></a>JDL模型</h4><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210322104006589.png" alt=""></p><h4 id="OODA模型"><a href="#OODA模型" class="headerlink" title="OODA模型"></a>OODA模型</h4><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210322104235877.png" alt=""></p><p>OODA是一个不断收集信息、评估决策和采取行动的过程。</p><p>将OODA循环应用在网络安全态势感知中，攻击者与分析者都面临这样的循环过程：在观察中感知攻击与被攻击，在理解中调整并决策攻击与防御方法，预测对手下一个动作并发起行动，同时进入下一轮的观察。</p><p>如果分析者的OODA循环比攻击者快，那么分析者有可能“进入”对方的循环中，从而占据优势。例如通过关注对方正在进行或者可能进行的事情，即分析对手的OODA环，来判断对手下一步将采取的动作，而先于对方采取行动。</p><h4 id="Endsley模型"><a href="#Endsley模型" class="headerlink" title="Endsley模型"></a>Endsley模型</h4><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210322104415628.png" alt=""></p><ul><li>Endsley态势感知理论模型分3级：感知，理解，预测</li><li>自上而下，目标驱动</li></ul><h4 id="Tim-Bass模型"><a href="#Tim-Bass模型" class="headerlink" title="Tim Bass模型"></a>Tim Bass模型</h4><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210322104538101.png" alt=""></p><p>由Tim Bass提出，分为数据、信息、知识三个层面</p><p>基于传感器信息的融合</p><ul><li>输入：入侵检测传感器信息</li><li>第0层：数据预处理</li><li>第1层：感知对象刻画</li><li>第2层：态势刻画</li><li>第3层：威胁评估</li><li>输出：入侵检测知识</li></ul><h3 id="网络态势感知性能与有效度量"><a href="#网络态势感知性能与有效度量" class="headerlink" title="网络态势感知性能与有效度量"></a>网络态势感知性能与有效度量</h3><p>数据获取时的困难</p><ul><li>由于数据巨大而又缺乏背景情况而不知所措；</li><li>必须依赖各自的专业经验才能理解；</li><li>必须进行思维加工（融合、评价和推断）。</li></ul><h4 id="信息数据比（DIR）"><a href="#信息数据比（DIR）" class="headerlink" title="信息数据比（DIR）"></a>信息数据比（DIR）</h4><p>用于衡量用户所获得“信息”的总体简化情况，相对较高的层面上已经被证明是非常有指导性的，它往往表明一类而非单个系统的能力。但在数据简化范围之外，DIR并不能提供多少关于特定技术或工具性能的认识。</p><script type="math/tex; mode=display">DIR=复杂实体数量/观察到的事件数量</script><h4 id="攻击轨迹"><a href="#攻击轨迹" class="headerlink" title="攻击轨迹"></a>攻击轨迹</h4><p>假定我们感兴趣的活动是网络攻击，则置信度旨在衡量系统检测出真正攻击轨迹（例如对攻击的假设）的效果。</p><p>攻击轨迹可以分为3类：</p><p>①已知攻击轨迹；</p><p>②检测到的攻击轨迹；</p><p>③正确检测到的攻击轨迹。</p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210322105035620.png" alt=""></p><p>置信度：衡量系统检测出真正攻击轨迹的效果，有四个尺度组成</p><p>查全率=正确检测到的攻击轨迹数量/已知攻击轨迹数量</p><p>查准确=正确检测到的攻击轨迹数量/检测到的攻击轨迹数量</p><p>碎片率=碎片数量/检测到的攻击轨迹数量</p><p>错误关联率=检测到的即非正确的攻击归集也非碎片的事件数量/检测到的攻击轨迹数量</p><h4 id="纯度"><a href="#纯度" class="headerlink" title="纯度"></a>纯度</h4><p>纯度表明正确检测到的攻击质量。纯度尺度也“调查”证据所在的某个轨迹，并表明该证据与某个攻击轨迹的关联和聚合程度如何。</p><p>纯度有两个尺度组成：</p><p>不一致率：(总告警次数-总虚告警次数)/总告警次数</p><p>证据查全率：总正确告警次数/总合适告警次数</p><h4 id="费效比"><a href="#费效比" class="headerlink" title="费效比"></a>费效比</h4><p>是相对于成本概念而言，系统发现“重要或关键”攻击轨迹的能力。</p><h4 id="攻击分值"><a href="#攻击分值" class="headerlink" title="攻击分值"></a>攻击分值</h4><p>是“令人感兴趣的活动（AOI）分值”的较早版本，对网络态势感知系统的性能测量更有价值。攻击分值试图通过计算实际发生的攻击数以及它们相对于假想攻击的优先级排序程度，对优先级排序表进行衡量，视为费效比的一个衡量标准，是因为实际攻击在优先级排序表上的位置越低，就意味着在考虑到实际攻击或对其采取行动之前要花费越多的无用功。</p><script type="math/tex; mode=display">攻击分值=\frac{核实攻击次数\times核实轨迹数-检测到的攻击位置数}{核实攻击次数\times核实轨迹数-核实攻击总数}</script><h4 id="时效性"><a href="#时效性" class="headerlink" title="时效性"></a>时效性</h4><p>指系统在时间要求内在特定领域作出响应的能力。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;态势感知课程笔记（二）&quot;&gt;&lt;a href=&quot;#态势感知课程笔记（二）&quot; class=&quot;headerlink&quot; title=&quot;态势感知课程笔记（二）&quot;&gt;&lt;/a&gt;态势感知课程笔记（二）&lt;/h2&gt;&lt;h3 id=&quot;态势感知定义&quot;&gt;&lt;a href=&quot;#态势感知定义&quot; cla</summary>
+      
+    
+    
+    <content src="https://wenbuer.github.io/images/cover/wallhaven-11.png" type="image"/>
+    
+    
+    <category term="Situational Awareness" scheme="https://wenbuer.github.io/categories/Situational-Awareness/"/>
+    
+    
+    <category term="course" scheme="https://wenbuer.github.io/tags/course/"/>
+    
+    <category term="note" scheme="https://wenbuer.github.io/tags/note/"/>
+    
+    <category term="Situational Awareness" scheme="https://wenbuer.github.io/tags/Situational-Awareness/"/>
+    
+  </entry>
+  
+  <entry>
     <title>网络行为学课程（一）</title>
     <link href="https://wenbuer.github.io/2021/03/09/%E7%BD%91%E7%BB%9C%E8%A1%8C%E4%B8%BA%E5%AD%A6%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/"/>
     <id>https://wenbuer.github.io/2021/03/09/%E7%BD%91%E7%BB%9C%E8%A1%8C%E4%B8%BA%E5%AD%A6%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/</id>
