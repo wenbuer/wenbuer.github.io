@@ -1,0 +1,505 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>HTB VPN配置 - Welcome To Wenbuer&#39;s Blog</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="HTB通过服务器代理访问靶机网页背景在之前搭建open...">
+  <meta name="author" content="Wenbuer">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_s6x2xcokxrl.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '/images/theme/loading.gif'
+      },
+      donate: {
+        enable: true,
+        alipay: '/images/theme/alipay.jpg',
+        wechat: '/images/theme/wechatpay.jpg'
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: false
+      },
+      preview: {
+        background: {
+          default: '/images/theme/background.jpg',
+          api: ''
+        },
+        motto: {
+          default: '我在开了灯的床头下，想问问自己的心啊。',
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: '/images/theme/qrcode.jpg',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        model: 'normal'
+      },
+      notification: {
+        enable: false,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="Welcome To Wenbuer's Blog" type="application/atom+xml">
+</head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+    </div>
+    <div class="center">HTB VPN配置</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+
+<nav class="menu">
+  <div class="menu-wrap">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 相册</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/cover/wallhaven-13.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">HTB VPN配置</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>April 15, 2021</span>
+      
+        <span class="post-info-item">
+          <i class="iconfont iconeye"></i><span id="/2021/04/15/HTB%E9%80%9A%E8%BF%87%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BB%A3%E7%90%86%E8%AE%BF%E9%97%AE%E9%9D%B6%E6%9C%BA%E7%BD%91%E9%A1%B5/" class="leancloud" data-flag-title="HTB VPN配置"></span>
+        </span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3331</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <h2 id="HTB通过服务器代理访问靶机网页"><a href="#HTB通过服务器代理访问靶机网页" class="headerlink" title="HTB通过服务器代理访问靶机网页"></a>HTB通过服务器代理访问靶机网页</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在之前搭建openvpn访问HTB的文章中，我用的是ubuntu服务器，且没有桌面系统。这篇文章的出现是在攻击靶机的过程中需要访问靶场的网页，因为没有桌面系统，我打算将网页转发到本机上来做。</p>
+<p>一开始考虑的是图形转发，X11的Xmanager尝试了一下，占用带宽太大，输入一个ip需要半分钟的反应时间，因此放弃。</p>
+<p>然后尝试了vnc的图形转发，不同于Xmanager通过端口转发UI界面，vnc是远程连入操作系统，相当于单独开了一个连接窗口。</p>
+<p>但是vnc的安装还需要gnome之类的桌面系统，这和我一开始使用服务器的想法背道而驰。安装期间还搞崩了我的服务器，差点直接提交工单重置。因此安装尝试完之后也放弃了这种方法。</p>
+<p>之后考虑的是流量转发，利用v2ray直接转发本机流量，交给服务器代理访问，这种方式也证明用很好的效果。</p>
+<p>下面记录了·一下我的操作过程。</p>
+<h3 id="V2ray搭建"><a href="#V2ray搭建" class="headerlink" title="V2ray搭建"></a>V2ray搭建</h3><h4 id="时间校准"><a href="#时间校准" class="headerlink" title="时间校准"></a>时间校准</h4><p><code>date -R</code></p>
+<p>查看服务器时间，确保与主机时间误差不超过90s，不同时区的服务器时间确保经过转换之后不超过90s</p>
+<p>如果时间不准确，用</p>
+<p><code>date --set=&quot;XXXX-XX-XX XX:XX:XX&quot;</code></p>
+<p>来设置时间</p>
+<h4 id="服务器安装"><a href="#服务器安装" class="headerlink" title="服务器安装"></a>服务器安装</h4><p>下载安装脚本</p>
+<p><code>wget https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh</code></p>
+<p>安装v2ray</p>
+<p><code>bash install-release.sh</code></p>
+<p>启动v2ray</p>
+<p><code>systemctl start v2ray</code></p>
+<p>设置开机启动</p>
+<p><code>systemctl enable v2ray</code></p>
+<p>查看v2ray状态</p>
+<p><code>systemctl status v2ray</code></p>
+<p>如果显示确实在运行，状态没问题，就可以停下v2ray进行config的配置</p>
+<p>停止v2ray</p>
+<p><code>systemctl stop v2ray</code></p>
+<h4 id="客户端安装"><a href="#客户端安装" class="headerlink" title="客户端安装"></a>客户端安装</h4><p>windows在<a target="_blank" rel="noopener" href="https://github.com/v2fly/v2ray-core/releases下载新版的v2ray-windows-64.zip安装包，解压即可">https://github.com/v2fly/v2ray-core/releases下载新版的v2ray-windows-64.zip安装包，解压即可</a></p>
+<p>然后设置一下浏览器代理</p>
+<p>本机是chrome浏览器，推荐使用Proxy SwitchyOmega这个插件，能更加方便的切换代理设置</p>
+<p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210415090617478.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt=""></p>
+<p>点击选项，然后点击左侧新建情景模式</p>
+<p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210415090742885.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  style="zoom:50%;" /></p>
+<p>创建完之后，填写如下</p>
+<p><img   class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20210415091207398.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  alt=""></p>
+<p>然后点击左侧应用选项进行保存</p>
+<h4 id="VMess服务端配置"><a href="#VMess服务端配置" class="headerlink" title="VMess服务端配置"></a>VMess服务端配置</h4><p>生成自己的uuid</p>
+<p><code>cat /proc/sys/kernel/random/uuid &gt; 1.txt</code></p>
+<p>编辑config.json</p>
+<p><code>vim /usr/local/etc/v2ray/config.json</code></p>
+<p>删除注释内容</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs json">&#123;<br>  <span class="hljs-attr">&quot;inbounds&quot;</span>: [<br>    &#123;<br>      <span class="hljs-attr">&quot;port&quot;</span>: <span class="hljs-string">&quot;yourport&quot;</span>, <span class="hljs-comment">// 服务器监听端口,自选,删除引号</span><br>      <span class="hljs-attr">&quot;protocol&quot;</span>: <span class="hljs-string">&quot;vmess&quot;</span>,    <span class="hljs-comment">// 主传入协议</span><br>      <span class="hljs-attr">&quot;settings&quot;</span>: &#123;<br>        <span class="hljs-attr">&quot;clients&quot;</span>: [<br>          &#123;<br>            <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;XXXXXXX-XXXX-XXXX-XXXXX-XXXXXXXX&quot;</span>,  <span class="hljs-comment">// 用户 ID，客户端与服务器必须相同，复制之前生成的uuid</span><br>            <span class="hljs-attr">&quot;alterId&quot;</span>: <span class="hljs-number">64</span><br>          &#125;<br>        ]<br>      &#125;<br>    &#125;<br>  ],<br>  <span class="hljs-attr">&quot;outbounds&quot;</span>: [<br>    &#123;<br>      <span class="hljs-attr">&quot;protocol&quot;</span>: <span class="hljs-string">&quot;freedom&quot;</span>,  <span class="hljs-comment">// 主传出协议</span><br>      <span class="hljs-attr">&quot;settings&quot;</span>: &#123;&#125;<br>    &#125;<br>  ]<br>&#125;<br></code></pre></td></tr></table></figure>
+<h4 id="VMess客户端配置"><a href="#VMess客户端配置" class="headerlink" title="VMess客户端配置"></a>VMess客户端配置</h4><p>修改安装包解压之后的config.json，记得删除注释</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs json">&#123;<br>  <span class="hljs-attr">&quot;inbounds&quot;</span>: [<br>    &#123;<br>      <span class="hljs-attr">&quot;port&quot;</span>: <span class="hljs-number">1080</span>, <span class="hljs-comment">// 监听端口</span><br>      <span class="hljs-attr">&quot;protocol&quot;</span>: <span class="hljs-string">&quot;socks&quot;</span>, <span class="hljs-comment">// 入口协议为 SOCKS 5</span><br>      <span class="hljs-attr">&quot;sniffing&quot;</span>: &#123;<br>        <span class="hljs-attr">&quot;enabled&quot;</span>: <span class="hljs-literal">true</span>,<br>        <span class="hljs-attr">&quot;destOverride&quot;</span>: [<span class="hljs-string">&quot;http&quot;</span>, <span class="hljs-string">&quot;tls&quot;</span>]<br>      &#125;,<br>      <span class="hljs-attr">&quot;settings&quot;</span>: &#123;<br>        <span class="hljs-attr">&quot;auth&quot;</span>: <span class="hljs-string">&quot;noauth&quot;</span>  <span class="hljs-comment">//socks的认证设置，noauth 代表不认证，由于 socks 通常在客户端使用，所以这里不认证</span><br>      &#125;<br>    &#125;<br>  ],<br>  <span class="hljs-attr">&quot;outbounds&quot;</span>: [<br>    &#123;<br>      <span class="hljs-attr">&quot;protocol&quot;</span>: <span class="hljs-string">&quot;vmess&quot;</span>, <span class="hljs-comment">// 出口协议</span><br>      <span class="hljs-attr">&quot;settings&quot;</span>: &#123;<br>        <span class="hljs-attr">&quot;vnext&quot;</span>: [<br>          &#123;<br>            <span class="hljs-attr">&quot;address&quot;</span>: <span class="hljs-string">&quot;your_server_ip&quot;</span>, <span class="hljs-comment">// 服务器地址，请修改为你自己的服务器 IP 或域名</span><br>            <span class="hljs-attr">&quot;port&quot;</span>: <span class="hljs-string">&quot;your port&quot;</span>,  <span class="hljs-comment">// 服务器端口，删除引号</span><br>            <span class="hljs-attr">&quot;users&quot;</span>: [<br>              &#123;<br>                <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;XXXXXXX-XXXX-XXXX-XXXXX-XXXXXXXX&quot;</span>,  <span class="hljs-comment">// 用户 ID，客户端与服务器必须相同，复制之前生成的uuid</span><br>                <span class="hljs-attr">&quot;alterId&quot;</span>: <span class="hljs-number">64</span> <span class="hljs-comment">// 此处的值也应当与服务器相同</span><br>              &#125;<br>            ]<br>          &#125;<br>        ]<br>      &#125;<br>    &#125;<br>  ]<br>&#125;<br></code></pre></td></tr></table></figure>
+<h4 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h4><p>数据包流程是</p>
+<p><code>&#123;浏览器&#125; &lt;--(socks)--&gt; &#123;V2Ray 客户端 inbound &lt;-&gt; V2Ray 客户端 outbound&#125; &lt;--(VMess)--&gt;  &#123;V2Ray 服务器 inbound &lt;-&gt; V2Ray 服务器 outbound&#125; &lt;--(Freedom)--&gt; &#123;目标网站&#125;</code></p>
+<p>检查服务器config</p>
+<p><code>/usr/local/bin/v2ray -test -config /usr/local/etc/v2ray/config.json</code></p>
+<p>服务器开启v2ray</p>
+<p><code>systemctl start v2ray</code></p>
+<p>客户端打开v2ray.exe</p>
+<p>浏览器切换代理模式</p>
+<p>即可访问HTB靶机网页（记得服务器要开放安全组端口）</p>
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>Wenbuer</li>
+    <li><strong>本文链接：</strong><a href="https://wenbuer.github.io/2021/04/15/HTB%E9%80%9A%E8%BF%87%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BB%A3%E7%90%86%E8%AE%BF%E9%97%AE%E9%9D%B6%E6%9C%BA%E7%BD%91%E9%A1%B5/index.html" title="https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2021&#x2F;04&#x2F;15&#x2F;HTB%E9%80%9A%E8%BF%87%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BB%A3%E7%90%86%E8%AE%BF%E9%97%AE%E9%9D%B6%E6%9C%BA%E7%BD%91%E9%A1%B5&#x2F;index.html">https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2021&#x2F;04&#x2F;15&#x2F;HTB%E9%80%9A%E8%BF%87%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BB%A3%E7%90%86%E8%AE%BF%E9%97%AE%E9%9D%B6%E6%9C%BA%E7%BD%91%E9%A1%B5&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+          <section class="donate">
+  <div id="qrcode-donate">
+    <img   class="lazyload" data-original="/images/theme/alipay.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" >
+  </div>
+  <div class="icon">
+    <a href="javascript:;" id="alipay"><i class="iconfont iconalipay"></i></a>
+    <a href="javascript:;" id="wechat"><i class="iconfont iconwechat-fill"></i></a>
+  </div>
+</section>
+        
+        
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTB/" rel="tag">HTB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Penetration-testing/" rel="tag">Penetration testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Study-life/" rel="tag">Study life</a></li></ul> 
+
+        
+  <nav class="nav">
+    <a></a>
+    <a href="/2021/04/13/C++%E6%B5%81%E9%87%8F%E5%8C%85%E5%88%86%E6%9E%90%E2%80%94%E2%80%94%E7%8E%8B%E8%80%85%E8%8D%A3%E8%80%80APP&Line%20App/">C++流量包分析——王者荣耀APP&Line App<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+        <section class="comments">
+  
+    <div class="btn" id="comments-btn">查看评论</div>
+  
+  
+<div id="valine"></div>
+<script defer src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<script>
+  window.onload = function () {
+    var loadValine = function () {
+      new Valine({
+        el: '#valine',
+        app_id: "Mqlwb0z4yiDoHxvfL9ofWy6H-gzGzoHsz",
+        app_key: "LkEbh1MQI8o3VWCt8ni657QF",
+        placeholder: "雁过留痕",
+        avatar: "mp",
+        pageSize: "10",
+        lang: "zh-CN",
+      });
+    }
+    if ( true ) {
+      $("#comments-btn").on("click", function () {
+        $(this).hide();
+        loadValine();
+      });
+    } else {
+      loadValine();
+    }
+  };
+</script>
+
+</section>
+      
+    </section>
+  </div>
+</article>
+</div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#HTB%E9%80%9A%E8%BF%87%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BB%A3%E7%90%86%E8%AE%BF%E9%97%AE%E9%9D%B6%E6%9C%BA%E7%BD%91%E9%A1%B5"><span class="toc-text">HTB通过服务器代理访问靶机网页</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-text">背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#V2ray%E6%90%AD%E5%BB%BA"><span class="toc-text">V2ray搭建</span></a></li></ol></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=475923426 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://github.com/wenbuer "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:wenbuer_zjc@163.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+  <script>
+  $.getScript("//cdn.jsdelivr.net/npm/leancloud-storage@4.1.0/dist/av-min.js", () => {
+
+    AV.init({
+      appId: 'Mqlwb0z4yiDoHxvfL9ofWy6H-gzGzoHsz',
+      appKey: 'LkEbh1MQI8o3VWCt8ni657QF',
+      serverURLs: 'https://mqlwb0z4.lc-cn-n1-shared.com',
+    });
+
+    const showCount = (Counter) => {
+      const asyncLimit = new AsyncLimit(2);
+      $(".leancloud").each(async (e) => {
+        const url = $(".leancloud").eq(e).attr('id').trim();
+        const query = new AV.Query("Counter");
+        query.equalTo("words", url);
+        let count = await asyncLimit.run(() => query.count());
+        $(".leancloud").eq(e).text(count ? count : '--');
+      });
+    }
+
+    const addCount = (Counter) => {
+      const url = $(".leancloud").length === 1 ? $(".leancloud").attr('id').trim() : 'https://wenbuer.github.io';
+      var query = new Counter;
+      query.save({
+        words: url
+      });
+    }
+
+    $(function () {
+      const Counter = AV.Object.extend("Counter");
+      addCount(Counter);
+      showCount(Counter);
+    });
+
+  });
+</script>
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <script>
+    window.ga = window.ga || function () {
+      (ga.q = ga.q || []).push(arguments)
+    };
+    ga.l = +new Date;
+    ga('create', '2260524932# id', 'auto');
+    ga('send', 'pageview');
+  </script>
+  <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+
+
+
+</html>
