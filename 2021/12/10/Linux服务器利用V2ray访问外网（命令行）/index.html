@@ -1,0 +1,483 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Linux服务器利用V2ray访问外网（命令行） - Welcome To Wenbuer&#39;s Blog</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="Linux服务器利用V2ray访问外网（命令行）0x0...">
+  <meta name="author" content="Wenbuer">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_s6x2xcokxrl.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '/images/theme/loading.gif'
+      },
+      donate: {
+        enable: true,
+        alipay: '/images/theme/alipay.jpg',
+        wechat: '/images/theme/wechatpay.jpg'
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: false
+      },
+      preview: {
+        background: {
+          default: '/images/theme/background.jpg',
+          api: ''
+        },
+        motto: {
+          default: '我在开了灯的床头下，想问问自己的心啊。',
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: '/images/theme/qrcode.jpg',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        model: 'normal'
+      },
+      notification: {
+        enable: false,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="Welcome To Wenbuer's Blog" type="application/atom+xml">
+</head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+    </div>
+    <div class="center">Linux服务器利用V2ray访问外网（命令行）</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+
+<nav class="menu">
+  <div class="menu-wrap">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 相册</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/cover/wallhaven-1.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">Linux服务器利用V2ray访问外网（命令行）</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>December 10, 2021</span>
+      
+        <span class="post-info-item">
+          <i class="iconfont iconeye"></i><span id="/2021/12/10/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89/" class="leancloud" data-flag-title="Linux服务器利用V2ray访问外网（命令行）"></span>
+        </span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>955</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <h2 id="Linux服务器利用V2ray访问外网（命令行）"><a href="#Linux服务器利用V2ray访问外网（命令行）" class="headerlink" title="Linux服务器利用V2ray访问外网（命令行）"></a>Linux服务器利用V2ray访问外网（命令行）</h2><h3 id="0x00-背景"><a href="#0x00-背景" class="headerlink" title="0x00 背景"></a>0x00 背景</h3><p>在用onebot+flask框架实现自定义QQ机器人功能时，想要利用爬虫获取TG机器人的相关发布内容，面临的首个问题就是服务器需要访问外网。</p>
+<p>我手上有很多外网的代理链接，但是很可惜的是这些并不是我自己的VPS服务器；且在我本身linux服务器不带用图形界面，因此无法使用ssr和v2rayN等简洁的代理服务。</p>
+<p>因此，如何在只有命令行的条件下将已有的代理链接变成v2ray客户端配置并访问外网即是本文的主要内容。</p>
+<h3 id="0x01-实现过程"><a href="#0x01-实现过程" class="headerlink" title="0x01 实现过程"></a>0x01 实现过程</h3><p>选择一个已有的代理，获取V2ray的订阅链接。</p>
+<p>这个链接是一个订阅的url，直接在浏览器输入后，即可下载订阅链接的txt文件。</p>
+<p>打开之后是一个base64编码的内容，直接解码。</p>
+<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20211205225346933.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">image-20211205225346933</span></p>
+<p>可以看到有vmess://开头的base64内容，如果选择继续解码，你会得到一个json字段，如图。</p>
+<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20211205225721126.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">image-20211205225721126</span></p>
+<p>用这些字段确实可以根据v2ray客户端配置的格式补充得到配置文件，但是过于麻烦。</p>
+<p>我们直接将vmess://的内容复制到windows上的v2rayN里面，然后选择“导出所选服务器为服务端配置”。</p>
+<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20211205230049835.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">image-20211205230049835</span></p>
+<p>然后将这个配置文件上传到我们的linux服务器上即可，启动时带上-config参数导入配置文件。（linux的V2ray相关配置可以看之前的文章）</p>
+<p><code>v2ray -config /usr/local/etc/v2ray/v2ray.json</code></p>
+<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20211205230342197.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">image-20211205230342197</span></p>
+<p>可以看到V2ray已经正常启动。</p>
+<p>接下来需要在另一个命令行窗口中将流量转发到1080端口即可实现代理，输入命令行。</p>
+<p><code>export http_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
+<p><code>export https_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
+<blockquote>
+<p>注意：该代理只作用在当前终端窗口，不会影响服务器环境</p>
+</blockquote>
+<h3 id="0x02-效果"><a href="#0x02-效果" class="headerlink" title="0x02 效果"></a>0x02 效果</h3><p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20211205231153326.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">image-20211205231153326</span></p>
+<p>命令行代理已经实现，接下来即可开始实现TG爬虫功能了</p>
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>Wenbuer</li>
+    <li><strong>本文链接：</strong><a href="https://wenbuer.github.io/2021/12/10/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89/index.html" title="https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2021&#x2F;12&#x2F;10&#x2F;Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89&#x2F;index.html">https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2021&#x2F;12&#x2F;10&#x2F;Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+          <section class="donate">
+  <div id="qrcode-donate">
+    <img   class="lazyload" data-original="/images/theme/alipay.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" >
+  </div>
+  <div class="icon">
+    <a href="javascript:;" id="alipay"><i class="iconfont iconalipay"></i></a>
+    <a href="javascript:;" id="wechat"><i class="iconfont iconwechat-fill"></i></a>
+  </div>
+</section>
+        
+        
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTB/" rel="tag">HTB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Penetration-testing/" rel="tag">Penetration testing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Study-life/" rel="tag">Study life</a></li></ul> 
+
+        
+  <nav class="nav">
+    <a></a>
+    <a href="/2021/09/15/Selenium%E6%A8%A1%E6%8B%9F%E7%BD%91%E9%A1%B5%E4%BA%A4%E4%BA%92%E5%B9%B6%E7%94%9F%E6%88%90%E6%B5%81%E9%87%8F/">Selenium模拟网页交互并生成流量<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+        <section class="comments">
+  
+    <div class="btn" id="comments-btn">查看评论</div>
+  
+  
+<div id="valine"></div>
+<script defer src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<script>
+  window.onload = function () {
+    var loadValine = function () {
+      new Valine({
+        el: '#valine',
+        app_id: "Mqlwb0z4yiDoHxvfL9ofWy6H-gzGzoHsz",
+        app_key: "LkEbh1MQI8o3VWCt8ni657QF",
+        placeholder: "雁过留痕",
+        avatar: "mp",
+        pageSize: "10",
+        lang: "zh-CN",
+      });
+    }
+    if ( true ) {
+      $("#comments-btn").on("click", function () {
+        $(this).hide();
+        loadValine();
+      });
+    } else {
+      loadValine();
+    }
+  };
+</script>
+
+</section>
+      
+    </section>
+  </div>
+</article>
+</div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89"><span class="toc-text">Linux服务器利用V2ray访问外网（命令行）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x00-%E8%83%8C%E6%99%AF"><span class="toc-text">0x00 背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-%E5%AE%9E%E7%8E%B0%E8%BF%87%E7%A8%8B"><span class="toc-text">0x01 实现过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-%E6%95%88%E6%9E%9C"><span class="toc-text">0x02 效果</span></a></li></ol></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=475923426 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://github.com/wenbuer "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:wenbuer_zjc@163.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+  <script>
+  $.getScript("//cdn.jsdelivr.net/npm/leancloud-storage@4.1.0/dist/av-min.js", () => {
+
+    AV.init({
+      appId: 'Mqlwb0z4yiDoHxvfL9ofWy6H-gzGzoHsz',
+      appKey: 'LkEbh1MQI8o3VWCt8ni657QF',
+      serverURLs: 'https://mqlwb0z4.lc-cn-n1-shared.com',
+    });
+
+    const showCount = (Counter) => {
+      const asyncLimit = new AsyncLimit(2);
+      $(".leancloud").each(async (e) => {
+        const url = $(".leancloud").eq(e).attr('id').trim();
+        const query = new AV.Query("Counter");
+        query.equalTo("words", url);
+        let count = await asyncLimit.run(() => query.count());
+        $(".leancloud").eq(e).text(count ? count : '--');
+      });
+    }
+
+    const addCount = (Counter) => {
+      const url = $(".leancloud").length === 1 ? $(".leancloud").attr('id').trim() : 'https://wenbuer.github.io';
+      var query = new Counter;
+      query.save({
+        words: url
+      });
+    }
+
+    $(function () {
+      const Counter = AV.Object.extend("Counter");
+      addCount(Counter);
+      showCount(Counter);
+    });
+
+  });
+</script>
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <script>
+    window.ga = window.ga || function () {
+      (ga.q = ga.q || []).push(arguments)
+    };
+    ga.l = +new Date;
+    ga('create', '2260524932# id', 'auto');
+    ga('send', 'pageview');
+  </script>
+  <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+
+
+
+  
+<script encrypt="[object Object]" src="/.js"></script>
+
+
+</html>
