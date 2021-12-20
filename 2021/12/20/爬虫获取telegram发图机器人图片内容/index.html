@@ -6,12 +6,12 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Linux服务器利用V2ray访问外网（命令行） - Welcome To Wenbuer&#39;s Blog</title>
+  <title>爬虫获取telegram发图机器人图片内容 - Welcome To Wenbuer&#39;s Blog</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
   
-  <meta name="description" content="Linux服务器利用V2ray访问外网（命令行）0x0...">
+  <meta name="description" content="爬虫获取telegram发图机器人图片内容首先找到要爬...">
   <meta name="author" content="Wenbuer">
   <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
   <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
@@ -136,7 +136,7 @@
         <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
       
     </div>
-    <div class="center">Linux服务器利用V2ray访问外网（命令行）</div>
+    <div class="center">爬虫获取telegram发图机器人图片内容</div>
     <div class="right">
       <i class="iconfont iconmenu j-navbar-menu"></i>
     </div>
@@ -179,44 +179,30 @@
     <section class="head">
   <img   class="lazyload" data-original="/images/cover/wallhaven-1.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
   <div class="head-mask">
-    <h1 class="head-title">Linux服务器利用V2ray访问外网（命令行）</h1>
+    <h1 class="head-title">爬虫获取telegram发图机器人图片内容</h1>
     <div class="head-info">
-      <span class="post-info-item"><i class="iconfont iconcalendar"></i>December 10, 2021</span>
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>December 20, 2021</span>
       
         <span class="post-info-item">
-          <i class="iconfont iconeye"></i><span id="/2021/12/10/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89/" class="leancloud" data-flag-title="Linux服务器利用V2ray访问外网（命令行）"></span>
+          <i class="iconfont iconeye"></i><span id="/2021/12/20/%E7%88%AC%E8%99%AB%E8%8E%B7%E5%8F%96telegram%E5%8F%91%E5%9B%BE%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9B%BE%E7%89%87%E5%86%85%E5%AE%B9/" class="leancloud" data-flag-title="爬虫获取telegram发图机器人图片内容"></span>
         </span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>958</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>2946</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
-        <h2 id="Linux服务器利用V2ray访问外网（命令行）"><a href="#Linux服务器利用V2ray访问外网（命令行）" class="headerlink" title="Linux服务器利用V2ray访问外网（命令行）"></a>Linux服务器利用V2ray访问外网（命令行）</h2><h3 id="0x00-背景"><a href="#0x00-背景" class="headerlink" title="0x00 背景"></a>0x00 背景</h3><p>在用go-cqhttp+flask框架实现自定义QQ机器人功能时，想要利用爬虫获取TG机器人的相关发布内容，面临的首个问题就是服务器需要访问外网。</p>
-<p>我手上有很多外网的代理链接，但是很可惜的是这些并不是我自己的VPS服务器；且在我本身linux服务器不带用图形界面，因此无法使用ssr和v2rayN等简洁的代理服务。</p>
-<p>因此，如何在只有命令行的条件下将已有的代理链接变成v2ray客户端配置并访问外网即是本文的主要内容。</p>
-<h3 id="0x01-实现过程"><a href="#0x01-实现过程" class="headerlink" title="0x01 实现过程"></a>0x01 实现过程</h3><p>选择一个已有的代理，获取V2ray的订阅链接。</p>
-<p>这个链接是一个订阅的url，直接在浏览器输入后，即可下载订阅链接的txt文件。</p>
-<p>打开之后是一个base64编码的内容，直接解码。</p>
-<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20211205225346933.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">image-20211205225346933</span></p>
-<p>可以看到有vmess://开头的base64内容，如果选择继续解码，你会得到一个json字段，如图。</p>
-<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20211205225721126.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">image-20211205225721126</span></p>
-<p>用这些字段确实可以根据v2ray客户端配置的格式补充得到配置文件，但是过于麻烦。</p>
-<p>我们直接将vmess://的内容复制到windows上的v2rayN里面，然后选择“导出所选服务器为服务端配置”。</p>
-<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20211205230049835.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">image-20211205230049835</span></p>
-<p>然后将这个配置文件上传到我们的linux服务器上即可，启动时带上-config参数导入配置文件。（linux的V2ray相关配置可以看之前的文章）</p>
-<p><code>v2ray -config /usr/local/etc/v2ray/v2ray.json</code></p>
-<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20211205230342197.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">image-20211205230342197</span></p>
-<p>可以看到V2ray已经正常启动。</p>
-<p>接下来需要在另一个命令行窗口中将流量转发到1080端口即可实现代理，输入命令行。</p>
-<p><code>export http_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
-<p><code>export https_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
-<blockquote>
-<p>注意：该代理只作用在当前终端窗口，不会影响服务器环境</p>
-</blockquote>
-<h3 id="0x02-效果"><a href="#0x02-效果" class="headerlink" title="0x02 效果"></a>0x02 效果</h3><p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20211205231153326.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">image-20211205231153326</span></p>
-<p>命令行代理已经实现，接下来即可开始实现TG爬虫功能了</p>
+        <h3 id="爬虫获取telegram发图机器人图片内容"><a href="#爬虫获取telegram发图机器人图片内容" class="headerlink" title="爬虫获取telegram发图机器人图片内容"></a>爬虫获取telegram发图机器人图片内容</h3><p>首先找到要爬取的机器人，对图片选择转发，然后选择复制链接</p>
+<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20211220103054655.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">image-20211220103054655</span></p>
+<p>我使用的图片机器人获取到的链接为<a target="_blank" rel="noopener" href="https://t.me/botmzt/XXXX?single，其中XXXX为数字编号">https://t.me/botmzt/XXXX?single，其中XXXX为数字编号</a></p>
+<p>在浏览器中打开，在F12控制台中点开“网络”查看图片来源</p>
+<p><img    class="lazyload" data-original="https://cdn.jsdelivr.net/gh/wenbuer/picgo/img/image-20211220123312110.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="   ><span class="image-caption">image-20211220123312110</span></p>
+<p>可以得到爬虫链接的url以及后缀embed=1&amp;single=1</p>
+<p>然后分析<a target="_blank" rel="noopener" href="https://t.me/botmzt/XXXX?embed=1&amp;single=1的源码，找到图片对应的url。同时找到无图片时的源码，作为一个判别条件">https://t.me/botmzt/XXXX?embed=1&amp;single=1的源码，找到图片对应的url。同时找到无图片时的源码，作为一个判别条件</a></p>
+<p>通过之前文章的代理内容，我们可以写爬虫代码直接下载图片内容</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># -*- coding:UTF-8 -*-</span><br><span class="hljs-keyword">import</span> requests<br><span class="hljs-keyword">import</span> re<br><span class="hljs-keyword">from</span> bs4 <span class="hljs-keyword">import</span> BeautifulSoup<br><span class="hljs-keyword">import</span> random<br><span class="hljs-keyword">import</span> os<br><span class="hljs-comment"># =====================================</span><br>prefix_url = <span class="hljs-string">&quot;https://t.me/botmzt/&quot;</span><br>suffix_url = <span class="hljs-string">&quot;?embed=1&amp;single=1&quot;</span><br>file_url = <span class="hljs-string">&quot;./picCache/&quot;</span><br>proxies = &#123;<br>        <span class="hljs-string">&#x27;http&#x27;</span>:<span class="hljs-string">&#x27;socks5://127.0.0.1:1080&#x27;</span>,<br>        <span class="hljs-string">&#x27;https&#x27;</span>:<span class="hljs-string">&#x27;socks5://127.0.0.1:1080&#x27;</span><br>&#125;<br>headers = &#123;<br>        <span class="hljs-string">&#x27;Accept-Encoding&#x27;</span>:<span class="hljs-string">&#x27;gzip&#x27;</span>,<br>        <span class="hljs-string">&#x27;Connection&#x27;</span>:<span class="hljs-string">&#x27;close&#x27;</span><br>&#125;<br><span class="hljs-comment"># =====================================</span><br><br>...<br><br>    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_all_pic</span>(<span class="hljs-params">self,last</span>):</span><br>        msg = <span class="hljs-string">&#x27;&#x27;</span><br>        tg_picnum = last<br>        picnum = tg_picnum + <span class="hljs-number">1</span><br>        target_url = prefix_url + <span class="hljs-built_in">str</span>(tg_picnum) + suffix_url<br>        r = requests.get(target_url,proxies=proxies,headers=headers)<br>        <span class="hljs-keyword">if</span> r.status_code != <span class="hljs-number">200</span>:<br>            msg = <span class="hljs-string">&#x27;无法连接至Telegram，获取失败！&#x27;</span><br>            <span class="hljs-keyword">return</span> msg<br><br>        <span class="hljs-comment"># 找到最新的picnum</span><br>        tg_soup = BeautifulSoup(r.text,<span class="hljs-string">&#x27;lxml&#x27;</span>)<br>        tg_nopost = tg_soup.find_all(<span class="hljs-string">&#x27;div&#x27;</span>,attrs=&#123;<span class="hljs-string">&#x27;class&#x27;</span>:<span class="hljs-string">&#x27;tgme_widget_message_error&#x27;</span>&#125;)<br>        <span class="hljs-keyword">while</span> <span class="hljs-keyword">not</span> tg_nopost:<br>            picnum += <span class="hljs-number">1</span><br>            target_url = prefix_url + <span class="hljs-built_in">str</span>(picnum) + suffix_url<br>            r = requests.get(target_url,proxies=proxies,headers=headers)<br>            tg_soup = BeautifulSoup(r.text,<span class="hljs-string">&quot;lxml&quot;</span>)<br>            tg_nopost = tg_soup.find_all(<span class="hljs-string">&#x27;div&#x27;</span>,attrs=&#123;<span class="hljs-string">&#x27;class&#x27;</span>:<span class="hljs-string">&#x27;tgme_widget_message_error&#x27;</span>&#125;)<br>        picnum -= <span class="hljs-number">1</span><br><br>        <span class="hljs-comment"># 下载图片</span><br>        pattern = <span class="hljs-string">&#x27;https:.*?jpg&#x27;</span><br>        compile_re = re.<span class="hljs-built_in">compile</span>(pattern)<br>        <span class="hljs-keyword">while</span> tg_picnum &lt;= picnum:<br>            print(tg_picnum)<br>            target_url = prefix_url + <span class="hljs-built_in">str</span>(tg_picnum) + suffix_url<br>            r = requests.get(target_url,proxies=proxies,headers=headers)<br>            soup = BeautifulSoup(r.text,<span class="hljs-string">&#x27;lxml&#x27;</span>)<br>            pic_data = soup.find_all(<span class="hljs-string">&#x27;a&#x27;</span>,attrs=&#123;<span class="hljs-string">&#x27;class&#x27;</span>:<span class="hljs-string">&#x27;js-message_photo&#x27;</span>&#125;)<br>            <span class="hljs-keyword">if</span> pic_data:<br>                data = pic_data[<span class="hljs-number">0</span>]<br>                img_url = re.search(pattern,data[<span class="hljs-string">&#x27;style&#x27;</span>]).group()<br>                img_data = requests.get(img_url,proxies=proxies,headers=headers).content<br>                file_url = <span class="hljs-string">f&#x27;../data/images/<span class="hljs-subst">&#123;tg_picnum+a&#125;</span>.jpg&#x27;</span><br>                <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(file_url,<span class="hljs-string">&#x27;wb+&#x27;</span>) <span class="hljs-keyword">as</span> f:<br>                    f.write(img_data)<br>            tg_picnum += <span class="hljs-number">1</span><br>        <span class="hljs-keyword">return</span> tg_picnum<br></code></pre></td></tr></table></figure>
+<p>然后将该功能集成到我们go-cqhttp机器人里面，即可让tg图片机器人变成qq图片机器人，是一个很简单就可以实现的小功能</p>
 
       </section>
       <section class="extra">
@@ -224,7 +210,7 @@
           <ul class="copyright">
   
     <li><strong>本文作者：</strong>Wenbuer</li>
-    <li><strong>本文链接：</strong><a href="https://wenbuer.github.io/2021/12/10/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89/index.html" title="https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2021&#x2F;12&#x2F;10&#x2F;Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89&#x2F;index.html">https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2021&#x2F;12&#x2F;10&#x2F;Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89&#x2F;index.html</a></li>
+    <li><strong>本文链接：</strong><a href="https://wenbuer.github.io/2021/12/20/%E7%88%AC%E8%99%AB%E8%8E%B7%E5%8F%96telegram%E5%8F%91%E5%9B%BE%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9B%BE%E7%89%87%E5%86%85%E5%AE%B9/index.html" title="https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2021&#x2F;12&#x2F;20&#x2F;%E7%88%AC%E8%99%AB%E8%8E%B7%E5%8F%96telegram%E5%8F%91%E5%9B%BE%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9B%BE%E7%89%87%E5%86%85%E5%AE%B9&#x2F;index.html">https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2021&#x2F;12&#x2F;20&#x2F;%E7%88%AC%E8%99%AB%E8%8E%B7%E5%8F%96telegram%E5%8F%91%E5%9B%BE%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9B%BE%E7%89%87%E5%86%85%E5%AE%B9&#x2F;index.html</a></li>
     <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
   
 </ul>
@@ -245,8 +231,8 @@
 
         
   <nav class="nav">
-    <a href="/2021/12/20/%E7%88%AC%E8%99%AB%E8%8E%B7%E5%8F%96telegram%E5%8F%91%E5%9B%BE%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9B%BE%E7%89%87%E5%86%85%E5%AE%B9/"><i class="iconfont iconleft"></i>爬虫获取telegram发图机器人图片内容</a>
-    <a href="/2021/09/15/Selenium%E6%A8%A1%E6%8B%9F%E7%BD%91%E9%A1%B5%E4%BA%A4%E4%BA%92%E5%B9%B6%E7%94%9F%E6%88%90%E6%B5%81%E9%87%8F/">Selenium模拟网页交互并生成流量<i class="iconfont iconright"></i></a>
+    <a></a>
+    <a href="/2021/12/10/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89/">Linux服务器利用V2ray访问外网（命令行）<i class="iconfont iconright"></i></a>
   </nav>
 
       </section>
@@ -293,7 +279,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89"><span class="toc-text">Linux服务器利用V2ray访问外网（命令行）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x00-%E8%83%8C%E6%99%AF"><span class="toc-text">0x00 背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-%E5%AE%9E%E7%8E%B0%E8%BF%87%E7%A8%8B"><span class="toc-text">0x01 实现过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-%E6%95%88%E6%9E%9C"><span class="toc-text">0x02 效果</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%88%AC%E8%99%AB%E8%8E%B7%E5%8F%96telegram%E5%8F%91%E5%9B%BE%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9B%BE%E7%89%87%E5%86%85%E5%AE%B9"><span class="toc-text">爬虫获取telegram发图机器人图片内容</span></a></li></ol>
   </aside>
 
         
