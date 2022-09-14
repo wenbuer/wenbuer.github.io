@@ -6,12 +6,12 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title> - Welcome To Wenbuer&#39;s Blog</title>
+  <title>CobaltStrike配置文件详解 - Welcome To Wenbuer&#39;s Blog</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="google" content="notranslate" />
   
-  <meta name="description" content="CobaltStrike配置文件Cobalt Stri...">
+  <meta name="description" content="CobaltStrike配置文件详解Cobalt St...">
   <meta name="author" content="Wenbuer">
   <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
   <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
@@ -127,6 +127,24 @@
   
 
 
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+    </div>
+    <div class="center">CobaltStrike配置文件详解</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
   
 
 <nav class="menu">
@@ -159,32 +177,32 @@
       <div class="col-xl-6"><article class="article">
   <div class="wrap">
     <section class="head">
-  <img   class="lazyload" data-original="/images/cover/wallhaven-7.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <img   class="lazyload" data-original="/images/cover/wallhaven-20.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
   <div class="head-mask">
-    <h1 class="head-title"></h1>
+    <h1 class="head-title">CobaltStrike配置文件详解</h1>
     <div class="head-info">
       <span class="post-info-item"><i class="iconfont iconcalendar"></i>September 14, 2022</span>
       
         <span class="post-info-item">
-          <i class="iconfont iconeye"></i><span id="/2022/09/14/CobaltStrike%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" class="leancloud" data-flag-title=""></span>
+          <i class="iconfont iconeye"></i><span id="/2022/09/14/CobaltStrike%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" class="leancloud" data-flag-title="CobaltStrike配置文件详解"></span>
         </span>
       
-      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3635</span>
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>3637</span>
     </div>
   </div>
 </section>
     <section class="main">
       <section class="content">
-        <h2 id="CobaltStrike配置文件"><a href="#CobaltStrike配置文件" class="headerlink" title="CobaltStrike配置文件"></a>CobaltStrike配置文件</h2><p>Cobalt Strike使用配置文件中存在的值来生成beacon payload，用户创建配置文件，并使用可扩展命令和C2配置文件语言来设置值。配置文件指定beacon将如何在事件中改变和存储数据。</p>
+        <h1 id="CobaltStrike配置文件详解"><a href="#CobaltStrike配置文件详解" class="headerlink" title="CobaltStrike配置文件详解"></a>CobaltStrike配置文件详解</h1><p>Cobalt Strike使用配置文件中存在的值来生成beacon payload，用户创建配置文件，并使用可扩展命令和C2配置文件语言来设置值。配置文件指定beacon将如何在事件中改变和存储数据。</p>
 <p>在配置文件中，选项分为全局选项和局部选项。全局选项更新全局 Beacon 设置，而本地选项是特定于事件的。一个事件中的本地选项更改不会影响其他事件的输出。</p>
 <p>配置文件分为多个部分，规定 C2 通信不同部分的值</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-comment"># this is a comment</span><br><span class="hljs-builtin-name">set</span> global_option <span class="hljs-string">&quot;value&quot;</span>;<br> <br>protocol-transaction &#123;<br>     <span class="hljs-builtin-name">set</span> local_option <span class="hljs-string">&quot;value&quot;</span>;<br> <br>    <span class="hljs-built_in"> client </span>&#123;<br>          # customize<span class="hljs-built_in"> client </span>indicators<br>     &#125;<br> <br>    <span class="hljs-built_in"> server </span>&#123;<br>          # customize<span class="hljs-built_in"> server </span>indicators<br>     &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<h3 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h3><p>全局选项对于 C2 通信来说是全局的。睡眠时间和时间抖动等选项定义了 Beacon 与团队服务器通信的频率。以下是一些带有示例值的全局选项的列表：</p>
+<h2 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h2><p>全局选项对于 C2 通信来说是全局的。睡眠时间和时间抖动等选项定义了 Beacon 与团队服务器通信的频率。以下是一些带有示例值的全局选项的列表：</p>
 <figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs gams"><span class="hljs-keyword">set</span> sample_name <span class="hljs-comment">&quot;Profile Name&quot;</span>;<br><span class="hljs-keyword">set</span> sleeptime <span class="hljs-comment">&quot;30000&quot;</span>;<br><span class="hljs-keyword">set</span> jitter    <span class="hljs-comment">&quot;20&quot;</span>;<br><span class="hljs-keyword">set</span> useragent <span class="hljs-comment">&quot;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36&quot;</span>;<br><span class="hljs-keyword">set</span> host_stage <span class="hljs-comment">&quot;false&quot;</span>;<br></code></pre></td></tr></table></figure>
 <blockquote>
 <p><a target="_blank" rel="noopener" href="https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2_profile-language.htm#_Toc65482842">Cobalt Strike 用户指南</a></p>
 </blockquote>
-<h3 id="本地配置"><a href="#本地配置" class="headerlink" title="本地配置"></a>本地配置</h3><p>另一方面，本地选项的范围仅限于每个事件。一项事件的选项不会影响另一项事件。</p>
+<h2 id="本地配置"><a href="#本地配置" class="headerlink" title="本地配置"></a>本地配置</h2><p>另一方面，本地选项的范围仅限于每个事件。一项事件的选项不会影响另一项事件。</p>
 <figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs gams"><span class="hljs-keyword">set</span> uri <span class="hljs-comment">&quot;URI_For HTTP transaction&quot;</span>;<br><span class="hljs-keyword">set</span> verb <span class="hljs-comment">&quot;POST&quot;</span>;<br><span class="hljs-keyword">set</span> uri_x86 <span class="hljs-comment">&quot;StagetURI_for_x86&quot;</span>;<br><span class="hljs-keyword">set</span> uri_x64 <span class="hljs-comment">&quot;StagetURI_for_x64&quot;</span>;<br></code></pre></td></tr></table></figure>
 <p>除了这些选项之外，配置文件还可以指定不同的协议来执行不同的操作。以下是示例以及对其用法的简要说明：</p>
 <ul>
@@ -327,6 +345,8 @@
 </section>
         
         
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Study-life/" rel="tag">Study life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Traffic-Analysis/" rel="tag">Traffic Analysis</a></li></ul> 
+
         
   <nav class="nav">
     <a></a>
@@ -377,7 +397,7 @@
           
   <aside class="toc-wrap">
     <h3 class="toc-title">文章目录：</h3>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CobaltStrike%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-text">CobaltStrike配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E5%B1%80%E9%85%8D%E7%BD%AE"><span class="toc-text">全局配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E9%85%8D%E7%BD%AE"><span class="toc-text">本地配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cobalt-Strike-%E9%BB%98%E8%AE%A4%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-text">Cobalt Strike 默认配置文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E5%88%B6%E7%9A%84-Cobalt-Strike-Profile"><span class="toc-text">定制的 Cobalt Strike Profile</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E5%B1%80%E9%80%89%E9%A1%B9"><span class="toc-text">全局选项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%A1%E6%A0%87%E9%80%9A%E8%BF%87-HTTP-GET-%E8%AF%B7%E6%B1%82%E4%BB%8E-teamserver%E8%8E%B7%E5%8F%96%E4%BB%BB%E5%8A%A1"><span class="toc-text">信标通过 HTTP GET 请求从 teamserver获取任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Beacon-%E9%80%9A%E8%BF%87-HTTP-POST-%E8%AF%B7%E6%B1%82%E5%B0%86%E4%BB%BB%E5%8A%A1%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9C%E6%8F%90%E4%BA%A4%E5%88%B0-teamserver"><span class="toc-text">Beacon 通过 HTTP POST 请求将任务执行结果提交到 teamserver</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#CobaltStrike%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E8%AF%A6%E8%A7%A3"><span class="toc-text">CobaltStrike配置文件详解</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A8%E5%B1%80%E9%85%8D%E7%BD%AE"><span class="toc-text">全局配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E9%85%8D%E7%BD%AE"><span class="toc-text">本地配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cobalt-Strike-%E9%BB%98%E8%AE%A4%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-text">Cobalt Strike 默认配置文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E5%88%B6%E7%9A%84-Cobalt-Strike-Profile"><span class="toc-text">定制的 Cobalt Strike Profile</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E5%B1%80%E9%80%89%E9%A1%B9"><span class="toc-text">全局选项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%A1%E6%A0%87%E9%80%9A%E8%BF%87-HTTP-GET-%E8%AF%B7%E6%B1%82%E4%BB%8E-teamserver%E8%8E%B7%E5%8F%96%E4%BB%BB%E5%8A%A1"><span class="toc-text">信标通过 HTTP GET 请求从 teamserver获取任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Beacon-%E9%80%9A%E8%BF%87-HTTP-POST-%E8%AF%B7%E6%B1%82%E5%B0%86%E4%BB%BB%E5%8A%A1%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9C%E6%8F%90%E4%BA%A4%E5%88%B0-teamserver"><span class="toc-text">Beacon 通过 HTTP POST 请求将任务执行结果提交到 teamserver</span></a></li></ol></li></ol></li></ol>
   </aside>
 
         
