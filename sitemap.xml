@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://wenbuer.github.io/2023/06/12/HTB-Starting-Point%E5%85%A5%E9%97%A8%E7%9F%A5%E8%AF%86%E6%95%B4%E7%90%86/</loc>
+    
+    <lastmod>2023-06-12</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://wenbuer.github.io/2022/09/14/CobaltStrike%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</loc>
     
     <lastmod>2022-09-14</lastmod>
@@ -151,7 +158,7 @@
 
   <url>
     <loc>https://wenbuer.github.io/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -159,98 +166,98 @@
   
   <url>
     <loc>https://wenbuer.github.io/tags/Study-life/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/tags/Traffic-Analysis/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/tags/HTB/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/tags/Penetration-testing/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/tags/CTF/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/tags/Daily-life/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/tags/NeSE/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/tags/Machine-Learning/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/tags/Tutorials/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/tags/tensorflow/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/tags/Study-Life/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/tags/Social-Engineering/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/tags/Daily-Life/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/tags/course/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
@@ -259,63 +266,63 @@
   
   <url>
     <loc>https://wenbuer.github.io/categories/Traffic-Analysis/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/categories/HTB/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/categories/CTF/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/categories/Daily/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/categories/Hacker/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/categories/Machine-Learning/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/categories/Security/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/categories/Social-Engineering/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://wenbuer.github.io/categories/Penetration-testing/</loc>
-    <lastmod>2022-09-14</lastmod>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
