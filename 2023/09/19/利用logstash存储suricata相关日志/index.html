@@ -1,0 +1,505 @@
+
+
+<!DOCTYPE html>
+<html lang="en" color-mode=light>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>利用logstash存储suricata相关日志 - Welcome To Wenbuer&#39;s Blog</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="google" content="notranslate" />
+  
+  <meta name="description" content="利用logstash存储suricata相关日志拉取d...">
+  <meta name="author" content="Wenbuer">
+  <link rel="icon" href="/images/icons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/images/icons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180">
+  <meta rel="mask-icon" href="/images/icons/stun-logo.svg" color="#333333">
+  
+    <meta rel="msapplication-TileImage" content="/images/icons/favicon-144x144.png">
+    <meta rel="msapplication-TileColor" content="#000000">
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+
+  
+    
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1445822_s6x2xcokxrl.css">
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+  
+
+  
+    
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/xcode.min.css" name="highlight-style" mode="light">
+
+      
+        
+        
+<link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/solarized-dark.min.css" name="highlight-style" mode="dark">
+
+      
+  
+
+  <script>
+    var CONFIG = window.CONFIG || {};
+    var ZHAOO = window.ZHAOO || {};
+    CONFIG = {
+      isHome: false,
+      fancybox: true,
+      pjax: false,
+      lazyload: {
+        enable: true,
+        only_post: 'false',
+        loading: '/images/theme/loading.gif'
+      },
+      donate: {
+        enable: true,
+        alipay: '/images/theme/alipay.jpg',
+        wechat: '/images/theme/wechatpay.jpg'
+      },
+      galleries: {
+        enable: true
+      },
+      fab: {
+        enable: true,
+        always_show: false
+      },
+      carrier: {
+        enable: true
+      },
+      daovoice: {
+        enable: false
+      },
+      preview: {
+        background: {
+          default: '/images/theme/background.jpg',
+          api: ''
+        },
+        motto: {
+          default: '我在开了灯的床头下，想问问自己的心啊。',
+          api: 'https://v2.jinrishici.com/one.json',
+          data_contents: '["data","content"]'
+        },
+      },
+      qrcode: {
+        enable: true,
+        type: 'url',
+        image: '/images/theme/qrcode.jpg',
+      },
+      toc: {
+        enable: true
+      },
+      scrollbar: {
+        model: 'normal'
+      },
+      notification: {
+        enable: false,
+        delay: 4500,
+        list: '',
+        page_white_list: '',
+        page_black_list: ''
+      }
+    }
+  </script>
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.3.0"><link rel="alternate" href="/atom.xml" title="Welcome To Wenbuer's Blog" type="application/atom+xml">
+</head>
+
+<body class="lock-screen">
+  <div class="loading"></div>
+  
+
+
+  <nav class="navbar">
+    <div class="left">
+      
+        <i class="iconfont iconqrcode j-navbar-qrcode"></i>
+      
+      
+        <i class="iconfont iconmoono" id="color-toggle" color-toggle="light"></i>
+      
+    </div>
+    <div class="center">利用logstash存储suricata相关日志</div>
+    <div class="right">
+      <i class="iconfont iconmenu j-navbar-menu"></i>
+    </div>
+    
+      <div id="qrcode-navbar"></div>
+    
+  </nav>
+
+  
+
+<nav class="menu">
+  <div class="menu-wrap">
+    <div class="menu-close">
+      <i class="iconfont iconbaseline-close-px"></i>
+    </div>
+    <ul class="menu-content"><li class="menu-item">
+        <a href="/ " class="underline "> 首页</a>
+      </li><li class="menu-item">
+        <a href="/galleries/ " class="underline "> 相册</a>
+      </li><li class="menu-item">
+        <a href="/archives/ " class="underline "> 归档</a>
+      </li><li class="menu-item">
+        <a href="/tags/ " class="underline "> 标签</a>
+      </li><li class="menu-item">
+        <a href="/categories/ " class="underline "> 分类</a>
+      </li><li class="menu-item">
+        <a href="/about/ " class="underline "> 关于</a>
+      </li></ul>
+    
+      <div class="menu-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+    
+  </div>
+</nav>
+  <main id="main">
+  <div class="article-wrap">
+    <div class="row container">
+      <div class="col-xl-3"></div>
+      <div class="col-xl-6"><article class="article">
+  <div class="wrap">
+    <section class="head">
+  <img   class="lazyload" data-original="/images/cover/wallhaven-18.png" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg=="  draggable="false">
+  <div class="head-mask">
+    <h1 class="head-title">利用logstash存储suricata相关日志</h1>
+    <div class="head-info">
+      <span class="post-info-item"><i class="iconfont iconcalendar"></i>September 19, 2023</span>
+      
+        <span class="post-info-item">
+          <i class="iconfont iconeye"></i><span id="/2023/09/19/%E5%88%A9%E7%94%A8logstash%E5%AD%98%E5%82%A8suricata%E7%9B%B8%E5%85%B3%E6%97%A5%E5%BF%97/" class="leancloud" data-flag-title="利用logstash存储suricata相关日志"></span>
+        </span>
+      
+      <span class="post-info-item"><i class="iconfont iconfont-size"></i>15697</span>
+    </div>
+  </div>
+</section>
+    <section class="main">
+      <section class="content">
+        <h1 id="利用logstash存储suricata相关日志"><a href="#利用logstash存储suricata相关日志" class="headerlink" title="利用logstash存储suricata相关日志"></a>利用logstash存储suricata相关日志</h1><h2 id="拉取docker-logstash镜像"><a href="#拉取docker-logstash镜像" class="headerlink" title="拉取docker-logstash镜像"></a>拉取docker-logstash镜像</h2><p>查看kibana和es的版本为7.10.1</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker pull docker.elastic.co/logstash/logstash:7.10.1<br></code></pre></td></tr></table></figure>
+<h2 id="运行docker-logstash"><a href="#运行docker-logstash" class="headerlink" title="运行docker-logstash"></a>运行docker-logstash</h2><h3 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker run -d --name logstash docker.elastic.co/logstash/logstash:7.10.1<br></code></pre></td></tr></table></figure>
+<h3 id="修改时区"><a href="#修改时区" class="headerlink" title="修改时区"></a>修改时区</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建目录</span><br>docker <span class="hljs-built_in">exec</span> logstash mkdir -p /usr/share/zoneinfo/Asia<br><span class="hljs-comment"># 复制文件</span><br>docker cp /usr/share/zoneinfo/Asia/Shanghai logstash:/usr/share/zoneinfo/Asia<br><span class="hljs-comment"># 建立软链接</span><br>docker <span class="hljs-built_in">exec</span> -u root logstash ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime<br><span class="hljs-comment"># 重启容器</span><br>docker restart logstash<br><span class="hljs-comment"># 查看时区</span><br>docker <span class="hljs-built_in">exec</span> logstash date -R<br></code></pre></td></tr></table></figure>
+<h3 id="文件挂载宿主机"><a href="#文件挂载宿主机" class="headerlink" title="文件挂载宿主机"></a>文件挂载宿主机</h3><p>主要配置文件目录</p>
+<p><code>/usr/share/logstash/config</code></p>
+<p><code>/usr/share/logstash/pipeline</code></p>
+<p><code>/usr/share/logstash/data</code></p>
+<blockquote>
+<p>出现一个问题，logstash不能直接挂载/config/，似乎每次重新启动都会重新生成logstash.yml</p>
+</blockquote>
+<p>将suricata的fast.json从容器中挂载到宿主机，然后将fast.json挂载进logstash容器中的<code>/usr/share/logstash/data</code></p>
+<p>启动logstash时，复制上述目录<code>/usr/share/logstash/config</code>和<code>/usr/share/logstash/pipeline</code>到宿主机本地文件夹中，然后编写docker-compose.yaml</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">version:</span> <span class="hljs-string">&#x27;3&#x27;</span><br><span class="hljs-attr">services:</span><br>  <span class="hljs-attr">suricata:</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">jasonish/suricata:latest</span><br>    <span class="hljs-attr">container_name:</span> <span class="hljs-string">suricata</span><br>    <span class="hljs-string">...</span><br>  <span class="hljs-attr">logstash:</span><br>      <span class="hljs-attr">image:</span> <span class="hljs-string">docker.elastic.co/logstash/logstash:7.10.1</span><br>      <span class="hljs-attr">container_name:</span> <span class="hljs-string">logstash</span><br>      <span class="hljs-attr">volumes:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">./logs/fast.log:/usr/share/logstash/data/fast.log</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">./logstash/config:/usr/share/logstash/config</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">./logstash/pipeline:/usr/share/logstash/pipeline</span><br>      <span class="hljs-attr">network_mode:</span> <span class="hljs-string">host</span><br></code></pre></td></tr></table></figure>
+<p>修改pipeline中的logstash.conf如下</p>
+<p>input段，导入日志文件：</p>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs puppet"><span class="hljs-keyword">input</span> &#123;<br>  file &#123;<br>    <span class="hljs-attr">path</span> =&gt; <span class="hljs-string">&quot;/usr/share/logstash/data/fast.log&quot;</span><br>    <span class="hljs-attr">start_position</span> =&gt; <span class="hljs-string">&quot;beginning&quot;</span><br>    <span class="hljs-attr">sincedb_path</span> =&gt; <span class="hljs-string">&quot;/dev/null&quot;</span><br>    <span class="hljs-attr">codec</span> =&gt; json<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>filter段，匹配日志字段：</p>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs puppet"><span class="hljs-keyword">filter</span> &#123;<br>  grok &#123;<br>    <span class="hljs-attr">match</span> =&gt; &#123;<span class="hljs-string">&quot;message&quot;</span> =&gt; <span class="hljs-string">&quot;(?&lt;log_time&gt;%&#123;MONTHNUM&#125;/%&#123;MONTHDAY&#125;/%&#123;YEAR&#125;-%&#123;TIME&#125;)  \[\*\*\] \[%&#123;DATA&#125;:%&#123;DATA:rule_id&#125;\:%&#123;DATA&#125;] %&#123;GREEDYDATA:msg&#125; \[\*\*\] \[Classification: %&#123;DATA:classifcation&#125;\] \[Priority: %&#123;INT:priority&#125;\] &#123;%&#123;DATA:protocol&#125;&#125; %&#123;IP:source_ip&#125;:%&#123;NUMBER:source_port&#125; -&gt; %&#123;IP:destination_ip&#125;:%&#123;NUMBER:destination_port&#125;&quot;</span>&#125;<br>  &#125;<br><br>  <span class="hljs-keyword">date</span> &#123;<br>    <span class="hljs-attr">match</span> =&gt; [ <span class="hljs-string">&quot;log_time&quot;</span>, <span class="hljs-string">&quot;MM/dd/yyyy-HH:mm:ss.SSSSSS&quot;</span> ]<br>    <span class="hljs-attr">target</span> =&gt; <span class="hljs-string">&quot;@timestamp&quot;</span><br>  &#125;<br>  <br>  <span class="hljs-keyword">mutate</span>&#123;<br>  	<span class="hljs-attr">remove_filed</span> =&gt; [<span class="hljs-string">&quot;message&quot;</span>,<span class="hljs-string">&quot;log_time&quot;</span>,<span class="hljs-string">&quot;path&quot;</span>]<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>output段，配置账号密码及索引</p>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs puppet"><span class="hljs-keyword">output</span> &#123;<br>  elasticsearch &#123;<br>    <span class="hljs-attr">hosts</span> =&gt; [<span class="hljs-string">&quot;localhost:9200&quot;</span>]<br>    <span class="hljs-attr">user</span> =&gt; <span class="hljs-string">&quot;*****&quot;</span><br>    <span class="hljs-attr">password</span> =&gt; <span class="hljs-string">&quot;*********&quot;</span><br>    <span class="hljs-attr">index</span> =&gt; <span class="hljs-string">&quot;suricata_fast-%&#123;+YYYY.MM.dd&#125;&quot;</span><br>  &#125;<br>  <span class="hljs-keyword">stdout</span> &#123; <span class="hljs-attr">codec</span> =&gt; rubydebug &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>修改config中的logstash.yml如下</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs yml"><span class="hljs-attr">http.host:</span> <span class="hljs-string">&quot;0.0.0.0&quot;</span><br><span class="hljs-attr">xpack.monitoring.enabled:</span> <span class="hljs-literal">true</span><br><span class="hljs-attr">xpack.monitoring.elasticsearch.username:</span> <span class="hljs-string">*****</span><br><span class="hljs-attr">xpack.monitoring.elasticsearch.password:</span> <span class="hljs-string">*********</span><br><span class="hljs-attr">xpack.monitoring.elasticsearch.hosts:</span> [ <span class="hljs-string">&quot;http://localhost:9200&quot;</span> ]<br></code></pre></td></tr></table></figure>
+<p>至此，已经完成对fast.log的解析，后续如果要增加解析字段可以解析eve.json文件</p>
+<p>单日志完整版代码</p>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs puppet"><span class="hljs-keyword">input</span> &#123;<br>  file &#123;<br>    <span class="hljs-attr">path</span> =&gt; <span class="hljs-string">&quot;/usr/share/logstash/data/fast.log&quot;</span><br>    <span class="hljs-attr">start_position</span> =&gt; <span class="hljs-string">&quot;beginning&quot;</span><br>    <span class="hljs-attr">sincedb_path</span> =&gt; <span class="hljs-string">&quot;/dev/null&quot;</span><br>  &#125;<br>&#125;<br><br><span class="hljs-keyword">filter</span> &#123;<br>  grok &#123;<br>    <span class="hljs-attr">match</span> =&gt; &#123;<span class="hljs-string">&quot;message&quot;</span> =&gt; <span class="hljs-string">&quot;(?&lt;log_time&gt;%&#123;MONTHNUM&#125;/%&#123;MONTHDAY&#125;/%&#123;YEAR&#125;-%&#123;TIME&#125;)  \[\*\*\] \[%&#123;DATA&#125;:%&#123;DATA:rule_id&#125;\:%&#123;DATA&#125;] %&#123;DATA:detected_tool&#125;: %&#123;GREEDYDATA:msg&#125; \[\*\*\] \[Classification: %&#123;DATA:classifcation&#125;\] \[Priority: %&#123;INT:priority&#125;\] &#123;%&#123;DATA:protocol&#125;&#125; %&#123;IP:source_ip&#125;:%&#123;NUMBER:source_port&#125; -&gt; %&#123;IP:destination_ip&#125;:%&#123;NUMBER:destination_port&#125;&quot;</span>&#125;<br>  &#125;<br><br>  <span class="hljs-keyword">date</span> &#123;<br>    <span class="hljs-attr">match</span> =&gt; [ <span class="hljs-string">&quot;log_time&quot;</span>, <span class="hljs-string">&quot;MM/dd/yyyy-HH:mm:ss.SSSSSS&quot;</span> ]<br>    <span class="hljs-attr">target</span> =&gt; <span class="hljs-string">&quot;@timestamp&quot;</span><br>  &#125;<br><br>  <span class="hljs-keyword">fingerprint</span> &#123;<br>    <span class="hljs-attr">source</span> =&gt; <span class="hljs-string">&quot;@timestamp&quot;</span><br>    <span class="hljs-attr">target</span> =&gt; <span class="hljs-string">&quot;[@metadata][fingerprint]&quot;</span><br>    <span class="hljs-attr">method</span> =&gt; <span class="hljs-string">&quot;SHA256&quot;</span><br>  &#125;<br><br>  <span class="hljs-keyword">mutate</span>&#123;<br>    <span class="hljs-attr">remove_field</span> =&gt; [<span class="hljs-string">&quot;message&quot;</span>,<span class="hljs-string">&quot;log_time&quot;</span>,<span class="hljs-string">&quot;path&quot;</span>]<br>  &#125;<br>&#125;<br><br><span class="hljs-keyword">output</span> &#123;<br>  elasticsearch &#123;<br>    <span class="hljs-attr">hosts</span> =&gt; [<span class="hljs-string">&quot;localhost:9200&quot;</span>]<br>    <span class="hljs-attr">user</span> =&gt; <span class="hljs-string">&quot;elastic&quot;</span><br>    <span class="hljs-attr">password</span> =&gt; <span class="hljs-string">&quot;elastic&quot;</span><br>    <span class="hljs-attr">index</span> =&gt; <span class="hljs-string">&quot;suricata_fast-%&#123;+YYYY.MM.dd&#125;&quot;</span><br>    <span class="hljs-attr">document_id</span> =&gt; <span class="hljs-string">&quot;%&#123;[@metadata][fingerprint]&#125;&quot;</span><br>  &#125;<br>  <span class="hljs-keyword">stdout</span> &#123; <span class="hljs-attr">codec</span> =&gt; rubydebug &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="多日志导入ES"><a href="#多日志导入ES" class="headerlink" title="多日志导入ES"></a>多日志导入ES</h2><blockquote>
+<p>踩坑1：想要用一个conf文件导入多个不同格式的日志，结果导致filter和output处理混乱，即时用了标识符type也是如此</p>
+<p>踩坑2：使用多个conf文件，但是没有使用标识符type，结果导致A类型的日志跑到B类型日志的索引下面且出现解析错误tag</p>
+<p>踩坑3：多行日志用multiline处理，结果发现filter没有multiline的插件模块</p>
+</blockquote>
+<p>首先进入logstash-docker的目录<code>\usr\share\logstash\bin</code>下，执行命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">./logstash-plugin install logstash-filter-multiline<br></code></pre></td></tr></table></figure>
+<p>安装完之后，编写日志grok解析语句</p>
+<p>本人的目的是想在解析fast.log的同时也解析alert-debug.log，应该该日志中包含命中流量的部分，可以更方便专业人员处理流量</p>
+<p>alert-debug.log部分内容如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs log">+&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;<br>TIME:              09&#x2F;xx&#x2F;2023-06:41:35.651026<br>PKT SRC:           wire&#x2F;pcap<br>SRC IP:            192.168.xxx.xxx<br>DST IP:            51.210.xxx.xxx<br>PROTO:             6<br>SRC PORT:          60305<br>DST PORT:          3389<br>TCP SEQ:           3604490356<br>TCP ACK:           143425542<br>FLOW:              to_server: TRUE, to_client: FALSE<br>FLOW Start TS:     09&#x2F;xx&#x2F;2023-06:41:29.389284<br>FLOW PKTS TODST:   3<br>FLOW PKTS TOSRC:   1<br>FLOW Total Bytes:  292<br>FLOW IPONLY SET:   TOSERVER: TRUE, TOCLIENT: TRUE<br>FLOW ACTION:       DROP: FALSE<br>FLOW NOINSPECTION: PACKET: FALSE, PAYLOAD: FALSE, APP_LAYER: FALSE<br>FLOW APP_LAYER:    DETECTED: FALSE, PROTO 0<br>PACKET LEN:        96<br>PACKET:<br> 0000  28 D0 F5 6D 5E 97 28 D0  F5 6A E1 E7 08 00 45 00   (..m^.(. .j....E.<br> 0010  00 52 3F C0 40 00 CC 06  CC C9 C0 A8 8C 6C 33 D2   .R?.@... .....l3.<br> 0020  21 35 EB 91 0D 3D D6 D8  28 74 08 8C 80 06 50 18   !5...&#x3D;.. (t....P.<br> 0030  FA F0 6E A4 00 00 03 00  00 2A 25 E0 00 00 00 00   ..n..... .*%.....<br> 0040  00 43 6F 6F 6B 69 65 3A  20 6D 73 74 73 68 61 73   .Cookie:  mstshas<br> 0050  68 3D 6E 6D 61 70 0D 0A  01 00 08 00 03 00 00 00   h&#x3D;nmap.. ........<br>ALERT CNT:           1<br>ALERT MSG [00]:      Scan: ET SCAN RDP Connection Attempt from Nmap<br>ALERT GID [00]:      1<br>ALERT SID [00]:      202300xxx<br>ALERT REV [00]:      1<br>ALERT CLASS [00]:    Detection of a Network Scan<br>ALERT PRIO [00]:     3<br>ALERT FOUND IN [00]: PACKET<br>ALERT IN TX [00]:    N&#x2F;A<br>PAYLOAD LEN:         42<br>PAYLOAD:<br> 0000  03 00 00 2A 25 E0 00 00  00 00 00 43 6F 6F 6B 69   ...*%... ...Cooki<br> 0010  65 3A 20 6D 73 74 73 68  61 73 68 3D 6E 6D 61 70   e: mstsh ash&#x3D;nmap<br> 0020  0D 0A 01 00 08 00 03 00  00 00                     ........ ..<br></code></pre></td></tr></table></figure>
+<p>可以看到alert-debug.log是多行日志的格式，因此我们需要利用multiline将其处理成单行格式。</p>
+<p>首先用gsub来将”\n”替换成” “，同时用”\s+”替换成” “，来用单个空格替代多个空格和换行符，然后再用multiline匹配到日志开头的+================：</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs coq">multiline&#123;<br>    <span class="hljs-built_in">pattern</span> =&gt; <span class="hljs-string">&quot;^\+================&quot;</span><br>    negate =&gt; true<br>    what =&gt; <span class="hljs-string">&quot;previous&quot;</span><br>&#125;<br><br>mutate &#123;<br>  gsub =&gt; [<br>    <span class="hljs-string">&quot;message&quot;</span>, <span class="hljs-string">&quot;\n&quot;</span>, <span class="hljs-string">&quot; &quot;</span>,<br>    <span class="hljs-string">&quot;message&quot;</span>, <span class="hljs-string">&quot;\s+&quot;</span>, <span class="hljs-string">&quot; &quot;</span><br>  ]<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>处理完之后日志内容变成如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs log">+&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D; TIME: 09&#x2F;16&#x2F;2023-06:41:35.651026 PKT SRC: wire&#x2F;pcap SRC IP: 192.168.140.108 DST IP: 51.210.33.53 PROTO: 6 SRC PORT: 60305 DST PORT: 3389 TCP SEQ: 3604490356 TCP ACK: 143425542 FLOW: to_server: TRUE, to_client: FALSE FLOW Start TS: 09&#x2F;16&#x2F;2023-06:41:29.389284 FLOW PKTS TODST: 3 FLOW PKTS TOSRC: 1 FLOW Total Bytes: 292 FLOW IPONLY SET: TOSERVER: TRUE, TOCLIENT: TRUE FLOW ACTION: DROP: FALSE FLOW NOINSPECTION: PACKET: FALSE, PAYLOAD: FALSE, APP_LAYER: FALSE FLOW APP_LAYER: DETECTED: FALSE, PROTO 0 PACKET LEN: 96 PACKET: 0000 28 D0 F5 6D 5E 97 28 D0 F5 6A E1 E7 08 00 45 00 (..m^.(. .j....E. 0010 00 52 3F C0 40 00 CC 06 CC C9 C0 A8 8C 6C 33 D2 .R?.@... .....l3. 0020 21 35 EB 91 0D 3D D6 D8 28 74 08 8C 80 06 50 18 !5...&#x3D;.. (t....P. 0030 FA F0 6E A4 00 00 03 00 00 2A 25 E0 00 00 00 00 ..n..... .*%..... 0040 00 43 6F 6F 6B 69 65 3A 20 6D 73 74 73 68 61 73 .Cookie: mstshas 0050 68 3D 6E 6D 61 70 0D 0A 01 00 08 00 03 00 00 00 h&#x3D;nmap.. ........ ALERT CNT: 1 ALERT MSG [00]: Scan: ET SCAN RDP Connection Attempt from Nmap ALERT GID [00]: 1 ALERT SID [00]: 20230055 ALERT REV [00]: 1 ALERT CLASS [00]: Detection of a Network Scan ALERT PRIO [00]: 3 ALERT FOUND IN [00]: PACKET ALERT IN TX [00]: N&#x2F;A PAYLOAD LEN: 42 PAYLOAD: 0000 03 00 00 2A 25 E0 00 00 00 00 00 43 6F 6F 6B 69 ...*%... ...Cooki 0010 65 3A 20 6D 73 74 73 68 61 73 68 3D 6E 6D 61 70 e: mstsh ash&#x3D;nmap 0020 0D 0A 01 00 08 00 03 00 00 00 ........ ..<br></code></pre></td></tr></table></figure>
+<p>grok解析内容如下,最后一段处理是因为该字段<code>STREAM DATA</code>有时会解析成<code>PAYLOAD</code>：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs groovy">\+================ <span class="hljs-attr">TIME:</span> (?&lt;log_time&gt;%&#123;MONTHNUM&#125;<span class="hljs-regexp">/%&#123;MONTHDAY&#125;/</span>%&#123;YEAR&#125;-%&#123;TIME&#125;) PKT SRC: %&#123;<span class="hljs-attr">DATA:</span>packet_source&#125; SRC <span class="hljs-attr">IP:</span> %&#123;<span class="hljs-attr">IP:</span>src_ip&#125; DST <span class="hljs-attr">IP:</span> %&#123;<span class="hljs-attr">IP:</span>dst_ip&#125; <span class="hljs-attr">PROTO:</span> %&#123;<span class="hljs-attr">NUMBER:</span>protocol&#125; SRC <span class="hljs-attr">PORT:</span> %&#123;<span class="hljs-attr">NUMBER:</span>src_port&#125; DST <span class="hljs-attr">PORT:</span> %&#123;<span class="hljs-attr">NUMBER:</span>dst_port&#125; TCP <span class="hljs-attr">SEQ:</span> %&#123;<span class="hljs-attr">NUMBER:</span>tcp_seq&#125; TCP <span class="hljs-attr">ACK:</span> %&#123;<span class="hljs-attr">NUMBER:</span>tcp_ack&#125; <span class="hljs-attr">FLOW:</span> <span class="hljs-attr">to_server:</span> %&#123;<span class="hljs-attr">DATA:</span>to_server&#125;, <span class="hljs-attr">to_client:</span> %&#123;<span class="hljs-attr">DATA:</span>to_client&#125; FLOW Start <span class="hljs-attr">TS:</span> %&#123;<span class="hljs-attr">DATESTAMP:</span>flow_start_ts&#125; FLOW PKTS <span class="hljs-attr">TODST:</span> %&#123;<span class="hljs-attr">NUMBER:</span>flow_pkts_todst&#125; FLOW PKTS <span class="hljs-attr">TOSRC:</span> %&#123;<span class="hljs-attr">NUMBER:</span>flow_pkts_tosrc&#125; FLOW Total <span class="hljs-attr">Bytes:</span> %&#123;<span class="hljs-attr">NUMBER:</span>flow_total_bytes&#125; FLOW IPONLY <span class="hljs-attr">SET:</span> <span class="hljs-attr">TOSERVER:</span> %&#123;<span class="hljs-attr">DATA:</span>iponly_toserver&#125;, <span class="hljs-attr">TOCLIENT:</span> %&#123;<span class="hljs-attr">DATA:</span>iponly_toclient&#125; FLOW <span class="hljs-attr">ACTION:</span> <span class="hljs-attr">DROP:</span> %&#123;<span class="hljs-attr">DATA:</span>flow_action_drop&#125; FLOW <span class="hljs-attr">NOINSPECTION:</span> <span class="hljs-attr">PACKET:</span> %&#123;<span class="hljs-attr">DATA:</span>noinspection_packet&#125;, <span class="hljs-attr">PAYLOAD:</span> %&#123;<span class="hljs-attr">DATA:</span>noinspection_payload&#125;, <span class="hljs-attr">APP_LAYER:</span> %&#123;<span class="hljs-attr">DATA:</span>noinspection_app_layer&#125; FLOW <span class="hljs-attr">APP_LAYER:</span> <span class="hljs-attr">DETECTED:</span> %&#123;<span class="hljs-attr">DATA:</span>app_layer_detected&#125;, PROTO %&#123;<span class="hljs-attr">NUMBER:</span>app_layer_proto&#125; PACKET <span class="hljs-attr">LEN:</span> %&#123;<span class="hljs-attr">NUMBER:</span>packet_len&#125; <span class="hljs-attr">PACKET:</span> %&#123;<span class="hljs-attr">GREEDYDATA:</span>packet_data&#125; ALERT <span class="hljs-attr">CNT:</span> %&#123;<span class="hljs-attr">NUMBER:</span>alert_count&#125; ALERT MSG \[%&#123;<span class="hljs-attr">DATA:</span>alert_msg&#125;\]: %&#123;<span class="hljs-attr">DATA:</span>alert_details&#125; ALERT GID \[%&#123;<span class="hljs-attr">NUMBER:</span>alert_gid&#125;\]: %&#123;<span class="hljs-attr">NUMBER:</span>alert_gid_value&#125; ALERT SID \[%&#123;<span class="hljs-attr">NUMBER:</span>alert_sid&#125;\]: %&#123;<span class="hljs-attr">NUMBER:</span>alert_sid_value&#125; ALERT REV \[%&#123;<span class="hljs-attr">NUMBER:</span>alert_rev&#125;\]: %&#123;<span class="hljs-attr">NUMBER:</span>alert_rev_value&#125; ALERT CLASS \[%&#123;<span class="hljs-attr">DATA:</span>alert_class&#125;\]: %&#123;<span class="hljs-attr">DATA:</span>alert_class_value&#125; ALERT PRIO \[%&#123;<span class="hljs-attr">NUMBER:</span>alert_prio&#125;\]: %&#123;<span class="hljs-attr">NUMBER:</span>alert_prio_value&#125; ALERT FOUND IN \[%&#123;<span class="hljs-attr">DATA:</span>alert_found_in&#125;\]: %&#123;<span class="hljs-attr">DATA:</span>alert_found_in_value&#125; ALERT IN TX \[%&#123;<span class="hljs-attr">DATA:</span>alert_in_tx&#125;\]: %&#123;<span class="hljs-attr">DATA:</span>alert_in_tx_value&#125; (?:(STREAM DATA <span class="hljs-attr">LEN:</span> %&#123;<span class="hljs-attr">NUMBER:</span>payload_len&#125; STREAM <span class="hljs-attr">DATA:</span> %&#123;<span class="hljs-attr">GREEDYDATA:</span>payload_data&#125;)|(PAYLOAD <span class="hljs-attr">LEN:</span> %&#123;<span class="hljs-attr">NUMBER:</span>payload_len&#125; <span class="hljs-attr">PAYLOAD:</span> %&#123;<span class="hljs-attr">GREEDYDATA:</span>payload_data&#125;))<br></code></pre></td></tr></table></figure>
+<p>再加上对<code>PACKET</code>和<code>PAYLOAD</code>的解析，完整的conf文件如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><code class="hljs conf">input &#123;<br>  file &#123;<br>    path &#x3D;&gt; &quot;&#x2F;usr&#x2F;share&#x2F;logstash&#x2F;data&#x2F;alert-debug.log&quot;<br>    start_position &#x3D;&gt; &quot;beginning&quot;<br>    sincedb_path &#x3D;&gt; &quot;&#x2F;dev&#x2F;null&quot;<br>    codec &#x3D;&gt; multiline &#123;<br>      pattern &#x3D;&gt; &quot;^\+&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&quot;<br>      negate &#x3D;&gt; true<br>      what &#x3D;&gt; &quot;previous&quot;<br>    &#125;<br>    type &#x3D;&gt; &quot;details&quot;<br>  &#125;<br>&#125;<br><br>filter &#123;<br>  if [type] &#x3D;&#x3D; &quot;details&quot; &#123;<br>  <br>    multiline&#123;<br>        pattern &#x3D;&gt; &quot;^\+&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&quot;<br>        negate &#x3D;&gt; true<br>        what &#x3D;&gt; &quot;previous&quot;<br>    &#125;<br><br>    mutate &#123;<br>      gsub &#x3D;&gt; [<br>        &quot;message&quot;, &quot;\n&quot;, &quot; &quot;,<br>        &quot;message&quot;, &quot;\s+&quot;, &quot; &quot;<br>      ]<br>    &#125;<br><br>    grok &#123;<br>      match &#x3D;&gt; &#123;<br>        &quot;message&quot; &#x3D;&gt; &quot;\+&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D; TIME: (?&lt;log_time&gt;%&#123;MONTHNUM&#125;&#x2F;%&#123;MONTHDAY&#125;&#x2F;%&#123;YEAR&#125;-%&#123;TIME&#125;) PKT SRC: %&#123;DATA:packet_source&#125; SRC IP: %&#123;IP:src_ip&#125; DST IP: %&#123;IP:dst_ip&#125; PROTO: %&#123;NUMBER:protocol&#125; SRC PORT: %&#123;NUMBER:src_port&#125; DST PORT: %&#123;NUMBER:dst_port&#125; TCP SEQ: %&#123;NUMBER:tcp_seq&#125; TCP ACK: %&#123;NUMBER:tcp_ack&#125; FLOW: to_server: %&#123;DATA:to_server&#125;, to_client: %&#123;DATA:to_client&#125; FLOW Start TS: %&#123;DATESTAMP:flow_start_timestamp&#125; FLOW PKTS TODST: %&#123;NUMBER:flow_pkts_todst&#125; FLOW PKTS TOSRC: %&#123;NUMBER:flow_pkts_tosrc&#125; FLOW Total Bytes: %&#123;NUMBER:flow_total_bytes&#125; FLOW IPONLY SET: TOSERVER: %&#123;DATA:iponly_toserver&#125;, TOCLIENT: %&#123;DATA:iponly_toclient&#125; FLOW ACTION: DROP: %&#123;DATA:flow_action_drop&#125; FLOW NOINSPECTION: PACKET: %&#123;DATA:noinspection_packet&#125;, PAYLOAD: %&#123;DATA:noinspection_payload&#125;, APP_LAYER: %&#123;DATA:noinspection_app_layer&#125; FLOW APP_LAYER: DETECTED: %&#123;DATA:app_layer_detected&#125;, PROTO %&#123;NUMBER:app_layer_proto&#125; PACKET LEN: %&#123;NUMBER:packet_len&#125; PACKET: %&#123;GREEDYDATA:packet_data&#125; ALERT CNT: %&#123;NUMBER:alert_count&#125; ALERT MSG \[%&#123;DATA&#125;\]: %&#123;DATA:detected_tool&#125;: %&#123;DATA:alert_details&#125; ALERT GID \[%&#123;NUMBER&#125;\]: %&#123;NUMBER:alert_gid&#125; ALERT SID \[%&#123;NUMBER&#125;\]: %&#123;NUMBER:alert_sid&#125; ALERT REV \[%&#123;NUMBER&#125;\]: %&#123;NUMBER:alert_rev&#125; ALERT CLASS \[%&#123;NUMBER&#125;\]: %&#123;DATA:alert_class&#125; ALERT PRIO \[%&#123;NUMBER&#125;\]: %&#123;NUMBER:alert_prio&#125; ALERT FOUND IN \[%&#123;NUMBER&#125;\]: %&#123;DATA:alert_found_in&#125; ALERT IN TX \[%&#123;NUMBER&#125;\]: %&#123;DATA:alert_in_tx&#125; (?:(STREAM DATA LEN: %&#123;NUMBER:payload_len&#125; STREAM DATA: %&#123;GREEDYDATA:payload_data&#125;)|(PAYLOAD LEN: %&#123;NUMBER:payload_len&#125; PAYLOAD: %&#123;GREEDYDATA:payload_data&#125;))&quot;<br>      &#125;<br>    &#125;<br><br>    mutate &#123;<br>      gsub &#x3D;&gt; [<br>        &quot;packet_data&quot;, &quot;(.&#123;71&#125;)&quot;, &quot;\1\n&quot;,<br>        &quot;payload_data&quot;, &quot;(.&#123;71&#125;)&quot;, &quot;\1\n&quot;<br>      ]<br>    &#125;<br><br>    date &#123;<br>      match &#x3D;&gt; [ &quot;log_time&quot;, &quot;MM&#x2F;dd&#x2F;yyyy-HH:mm:ss.SSSSSS&quot; ]<br>      target &#x3D;&gt; &quot;@timestamp&quot;<br>    &#125;<br><br>    fingerprint &#123;<br>      source &#x3D;&gt; &quot;@timestamp&quot;<br>      target &#x3D;&gt; &quot;[@metadata][fingerprint]&quot;<br>      method &#x3D;&gt; &quot;SHA256&quot;<br>    &#125;<br><br>    mutate &#123;<br>      remove_field &#x3D;&gt; [&quot;message&quot;, &quot;log_time&quot;, &quot;path&quot;]<br>    &#125;<br><br>  &#125;<br>&#125;<br><br>output &#123;<br>  if [type] &#x3D;&#x3D; &quot;details&quot; &#123;<br>    elasticsearch &#123;<br>      hosts &#x3D;&gt; [&quot;localhost:9200&quot;]<br>      user &#x3D;&gt; &quot;elastic&quot;<br>      password &#x3D;&gt; &quot;elastic&quot;<br>      index &#x3D;&gt; &quot;suricata_details-%&#123;+YYYY.MM.dd&#125;&quot;<br>      document_id &#x3D;&gt; &quot;%&#123;[@metadata][fingerprint]&#125;&quot;<br>    &#125;<br>    stdout &#123; codec &#x3D;&gt; rubydebug &#125;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+      </section>
+      <section class="extra">
+        
+          <ul class="copyright">
+  
+    <li><strong>本文作者：</strong>Wenbuer</li>
+    <li><strong>本文链接：</strong><a href="https://wenbuer.github.io/2023/09/19/%E5%88%A9%E7%94%A8logstash%E5%AD%98%E5%82%A8suricata%E7%9B%B8%E5%85%B3%E6%97%A5%E5%BF%97/index.html" title="https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2023&#x2F;09&#x2F;19&#x2F;%E5%88%A9%E7%94%A8logstash%E5%AD%98%E5%82%A8suricata%E7%9B%B8%E5%85%B3%E6%97%A5%E5%BF%97&#x2F;index.html">https:&#x2F;&#x2F;wenbuer.github.io&#x2F;2023&#x2F;09&#x2F;19&#x2F;%E5%88%A9%E7%94%A8logstash%E5%AD%98%E5%82%A8suricata%E7%9B%B8%E5%85%B3%E6%97%A5%E5%BF%97&#x2F;index.html</a></li>
+    <li><strong>版权声明：</strong>本博客所有文章均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" title="BY-NC-SA" target="_blank" rel="noopener">BY-NC-SA</a> 许可协议，转载请注明出处！</li>
+  
+</ul>
+        
+        
+          <section class="donate">
+  <div id="qrcode-donate">
+    <img   class="lazyload" data-original="/images/theme/alipay.jpg" src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==" >
+  </div>
+  <div class="icon">
+    <a href="javascript:;" id="alipay"><i class="iconfont iconalipay"></i></a>
+    <a href="javascript:;" id="wechat"><i class="iconfont iconwechat-fill"></i></a>
+  </div>
+</section>
+        
+        
+  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Log/" rel="tag">Log</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Study-life/" rel="tag">Study life</a></li></ul> 
+
+        
+  <nav class="nav">
+    <a></a>
+    <a href="/2023/08/18/Nonebot%20&%20Gocqhttp%20%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98%E5%8F%8A%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95%EF%BC%88%E4%B8%80%EF%BC%89/">Nonebot & Gocqhttp 相关问题及解决办法(一)<i class="iconfont iconright"></i></a>
+  </nav>
+
+      </section>
+      
+        <section class="comments">
+  
+    <div class="btn" id="comments-btn">查看评论</div>
+  
+  
+<div id="valine"></div>
+<script defer src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<script>
+  window.onload = function () {
+    var loadValine = function () {
+      new Valine({
+        el: '#valine',
+        app_id: "Mqlwb0z4yiDoHxvfL9ofWy6H-gzGzoHsz",
+        app_key: "LkEbh1MQI8o3VWCt8ni657QF",
+        placeholder: "雁过留痕",
+        avatar: "mp",
+        pageSize: "10",
+        lang: "zh-CN",
+      });
+    }
+    if ( true ) {
+      $("#comments-btn").on("click", function () {
+        $(this).hide();
+        loadValine();
+      });
+    } else {
+      loadValine();
+    }
+  };
+</script>
+
+</section>
+      
+    </section>
+  </div>
+</article>
+</div>
+      <div class="col-xl-3">
+        
+          
+  <aside class="toc-wrap">
+    <h3 class="toc-title">文章目录：</h3>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%A9%E7%94%A8logstash%E5%AD%98%E5%82%A8suricata%E7%9B%B8%E5%85%B3%E6%97%A5%E5%BF%97"><span class="toc-text">利用logstash存储suricata相关日志</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8B%89%E5%8F%96docker-logstash%E9%95%9C%E5%83%8F"><span class="toc-text">拉取docker-logstash镜像</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%90%E8%A1%8Cdocker-logstash"><span class="toc-text">运行docker-logstash</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C"><span class="toc-text">运行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E6%97%B6%E5%8C%BA"><span class="toc-text">修改时区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%8C%82%E8%BD%BD%E5%AE%BF%E4%B8%BB%E6%9C%BA"><span class="toc-text">文件挂载宿主机</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E6%97%A5%E5%BF%97%E5%AF%BC%E5%85%A5ES"><span class="toc-text">多日志导入ES</span></a></li></ol></li></ol>
+  </aside>
+
+        
+      </div>
+    </div>
+  </div>
+</main>
+  
+
+<footer class="footer">
+  <div class="footer-social"><a 
+        href="tencent://message/?Menu=yes&uin=475923426 "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#12B7F5'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconQQ "></i>
+      </a><a 
+        href="javascript:; "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#09BB07'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconwechat-fill "></i>
+      </a><a 
+        href="https://github.com/wenbuer "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color= '#9f7be1'" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  icongithub-fill "></i>
+      </a><a 
+        href="mailto:wenbuer_zjc@163.com "
+        target="_blank"
+        class="footer-social-item"
+        onMouseOver="this.style.color=#FF3B00" 
+        onMouseOut="this.style.color='#33333D'">
+          <i class="iconfont  iconmail"></i>
+      </a></div>
+  
+    <div class="footer-copyright"><p>Powered by <a target="_blank" href="https://hexo.io">Hexo</a>  |  Theme - <a target="_blank" href="https://github.com/izhaoo/hexo-theme-zhaoo">zhaoo</a></p></div>
+  
+</footer>
+  
+      <div class="fab fab-plus">
+    <i class="iconfont iconplus"></i>
+  </div>
+  
+  
+  <div class="fab fab-up">
+    <i class="iconfont iconcaret-up"></i>
+  </div>
+  
+  
+  
+    
+<script src="/js/color-mode.js"></script>
+
+  
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+</body>
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+
+
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+
+
+
+
+
+  
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
+
+
+
+<script src="/js/utils.js"></script>
+<script src="/js/script.js"></script>
+
+
+
+  <script>
+  $.getScript("//cdn.jsdelivr.net/npm/leancloud-storage@4.1.0/dist/av-min.js", () => {
+
+    AV.init({
+      appId: 'Mqlwb0z4yiDoHxvfL9ofWy6H-gzGzoHsz',
+      appKey: 'LkEbh1MQI8o3VWCt8ni657QF',
+      serverURLs: 'https://mqlwb0z4.lc-cn-n1-shared.com',
+    });
+
+    const showCount = (Counter) => {
+      const asyncLimit = new AsyncLimit(2);
+      $(".leancloud").each(async (e) => {
+        const url = $(".leancloud").eq(e).attr('id').trim();
+        const query = new AV.Query("Counter");
+        query.equalTo("words", url);
+        let count = await asyncLimit.run(() => query.count());
+        $(".leancloud").eq(e).text(count ? count : '--');
+      });
+    }
+
+    const addCount = (Counter) => {
+      const url = $(".leancloud").length === 1 ? $(".leancloud").attr('id').trim() : 'https://wenbuer.github.io';
+      var query = new Counter;
+      query.save({
+        words: url
+      });
+    }
+
+    $(function () {
+      const Counter = AV.Object.extend("Counter");
+      addCount(Counter);
+      showCount(Counter);
+    });
+
+  });
+</script>
+
+
+
+  <script>
+    (function () {
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      } else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <script>
+    window.ga = window.ga || function () {
+      (ga.q = ga.q || []).push(arguments)
+    };
+    ga.l = +new Date;
+    ga('create', '2260524932# id', 'auto');
+    ga('send', 'pageview');
+  </script>
+  <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+
+
+
+  
+<script encrypt="[object Object]" src="/.js"></script>
+
+
+</html>
