@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wenbuer.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="SolvedMISC0x00 嗷呜简单查一下，兽音加密，直接 https:&#x2F;&#x2F;roar.iiilab.com&#x2F; 输入内容，得到一串01数组 01数组共841位，简单的29*29，估计是二维码，简单处理一下 代码： 12345678910111213141516from PIL import Imagefrom zlib import *MAX &#x3D; 29pic &#x3D; Image.new(&quot;R">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NeSE丙队5月月赛训练">
+<meta property="og:url" content="https://wenbuer.github.io/2021/05/29/NeSE%E4%B8%99%E9%98%9F5%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/index.html">
+<meta property="og:site_name" content="WenBrew">
+<meta property="og:description" content="SolvedMISC0x00 嗷呜简单查一下，兽音加密，直接 https:&#x2F;&#x2F;roar.iiilab.com&#x2F; 输入内容，得到一串01数组 01数组共841位，简单的29*29，估计是二维码，简单处理一下 代码： 12345678910111213141516from PIL import Imagefrom zlib import *MAX &#x3D; 29pic &#x3D; Image.new(&quot;R">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://wenbuer.github.io/images/qpQNZDAvgS82I8ZQZ730rA.png">
+<meta property="og:image" content="https://wenbuer.github.io/images/LBKQmvHn6GNC0Ua4AyfRdg.png">
+<meta property="og:image" content="https://wenbuer.github.io/images/MDslJlbMsu_eKha41WrT8A.png">
+<meta property="og:image" content="https://wenbuer.github.io/images/JgoJIbhRzZJmgFQ9RleA3g.png">
+<meta property="og:image" content="https://wenbuer.github.io/images/7AyLv1btjbin34I_aZEXYQ.png">
+<meta property="article:published_time" content="2021-05-29T14:35:16.000Z">
+<meta property="article:modified_time" content="2025-09-23T13:55:02.207Z">
+<meta property="article:author" content="Wenbuer">
+<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="NeSE">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://wenbuer.github.io/images/qpQNZDAvgS82I8ZQZ730rA.png">
+
+
+<link rel="canonical" href="https://wenbuer.github.io/2021/05/29/NeSE%E4%B8%99%E9%98%9F5%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://wenbuer.github.io/2021/05/29/NeSE%E4%B8%99%E9%98%9F5%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/","path":"2021/05/29/NeSE丙队5月月赛训练/","title":"NeSE丙队5月月赛训练"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>NeSE丙队5月月赛训练 | WenBrew</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">WenBrew</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">INTJ: //todo: fix personality</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Solved"><span class="nav-number">1.</span> <span class="nav-text">Solved</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MISC"><span class="nav-number">1.1.</span> <span class="nav-text">MISC</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#0x00-%E5%97%B7%E5%91%9C"><span class="nav-number">1.1.1.</span> <span class="nav-text">0x00 嗷呜</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0x01-crypto-0range"><span class="nav-number">1.1.2.</span> <span class="nav-text">0x01 crypto_0range</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#0X02-ultra-combine"><span class="nav-number">1.1.3.</span> <span class="nav-text">0X02 ultra_combine</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CRYPTO"><span class="nav-number">1.2.</span> <span class="nav-text">CRYPTO</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#0x03-cryptobmp"><span class="nav-number">1.2.1.</span> <span class="nav-text">0x03 cryptobmp</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#unsolved"><span class="nav-number">2.</span> <span class="nav-text">unsolved</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#0x04-IFDEMSKOIVB"><span class="nav-number">2.0.1.</span> <span class="nav-text">0x04 IFDEMSKOIVB</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Wenbuer</p>
+  <div class="site-description" itemprop="description">A no-fluff blog by Wenbuer. Code, life, and everything in between.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://wenbuer.github.io/2021/05/29/NeSE%E4%B8%99%E9%98%9F5%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenbuer">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="WenBrew">
+      <meta itemprop="description" content="A no-fluff blog by Wenbuer. Code, life, and everything in between.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="NeSE丙队5月月赛训练 | WenBrew">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          NeSE丙队5月月赛训练
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-05-29 22:35:16" itemprop="dateCreated datePublished" datetime="2021-05-29T22:35:16+08:00">2021-05-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-09-23 21:55:02" itemprop="dateModified" datetime="2025-09-23T21:55:02+08:00">2025-09-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Hacker/" itemprop="url" rel="index"><span itemprop="name">Hacker</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Security/" itemprop="url" rel="index"><span itemprop="name">Security</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-嗷呜"><a href="#0x00-嗷呜" class="headerlink" title="0x00 嗷呜"></a>0x00 嗷呜</h4><p>简单查一下，兽音加密，直接 <a target="_blank" rel="noopener" href="https://roar.iiilab.com/">https://roar.iiilab.com/</a> 输入内容，得到一串01数组</p>
+<p>01数组共841位，简单的29*29，估计是二维码，简单处理一下</p>
+<p>代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">from PIL import Image</span><br><span class="line">from zlib import *</span><br><span class="line"></span><br><span class="line">MAX = 29</span><br><span class="line">pic = Image.new(&quot;RGB&quot;,(MAX,MAX))</span><br><span class="line">str =&quot;1111111011000110100000111111110000010010001110001001000001101110100101101001001010111011011101010100000001000101110110111010101000000110001011101100000101011100010110010000011111111010101010101010111111100000000100001011101100000000100010111010010001011111110010111110011000110101001011010101000010001010001110000101101001001000110001001100001010010111101001111111110101010000000111101101100000000101011001110111101101011100000000011011001000100101101110010110101100001010100111000101010000011110101001000011011000011101010010111001001000111011000110100011000000100100111101111010111100101000011110101111110100000000010010000011010001010111111110110011110010101011001100000100100010110011000110001011101011101100000111111010110111010011001101011110000010101110100001001011000100011111000001000001000011111100101111111110110010111011110101010&quot;</span><br><span class="line"></span><br><span class="line">i=0</span><br><span class="line">for y in range(0,MAX):</span><br><span class="line">    for x in range(0,MAX):</span><br><span class="line">        if(str[i] == &#x27;1&#x27;):</span><br><span class="line">            pic.putpixel([x,y],(0,0,0))</span><br><span class="line">        else:pic.putpixel([x,y],(255,255,255))</span><br><span class="line">        i = i+1</span><br><span class="line">pic.show()</span><br><span class="line">pic.save(&quot;flag.png&quot;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/qpQNZDAvgS82I8ZQZ730rA.png"></p>
+<p>flag{we_mia0_mia0_t0gether}</p>
+<h4 id="0x01-crypto-0range"><a href="#0x01-crypto-0range" class="headerlink" title="0x01 crypto_0range"></a>0x01 crypto_0range</h4><p>过于简单的签到题</p>
+<p>base64解第一行：523641</p>
+<p>第二行看前6位出现flag{的标志，直接重新排序即可得到flag{crypto_is_magical!}</p>
+<h4 id="0X02-ultra-combine"><a href="#0X02-ultra-combine" class="headerlink" title="0X02 ultra_combine"></a>0X02 ultra_combine</h4><p>1.png 无法打开，但是可以直接用Stegsolve.jar查看，文件长宽500*359，CRC32值为0x2ca75026，直接上代码爆破</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">import os</span><br><span class="line">import binascii</span><br><span class="line">import struct</span><br><span class="line">misc = open(&quot;1.png&quot;,&quot;rb&quot;).read()</span><br><span class="line"></span><br><span class="line"># 爆破宽</span><br><span class="line">for i in range(1024):</span><br><span class="line">	data = misc[12:16] + struct.pack(&#x27;&gt;i&#x27;,i)+ misc[20:29]  #IHDR数据</span><br><span class="line">	crc32 = binascii.crc32(data) &amp; 0xffffffff</span><br><span class="line">	if crc32 == 0x2ca75026: #IHDR块的crc32值</span><br><span class="line">		print(i)</span><br><span class="line">		print(&quot;hex:&quot;+hex(i))</span><br><span class="line"></span><br><span class="line"># 爆破高		</span><br><span class="line">for i in range(1024):</span><br><span class="line">    data = misc[12:20] + struct.pack(&#x27;&gt;i&#x27;,i)+ misc[24:29]</span><br><span class="line">    crc32 = binascii.crc32(data) &amp; 0xffffffff</span><br><span class="line">    if crc32 == 0x2ca75026:</span><br><span class="line">        print(i)</span><br><span class="line">        print(&quot;hex:&quot;+hex(i))</span><br></pre></td></tr></table></figure>
+
+<p>得到长宽应该为500*396，进入010editor修改，得到图1完整图片</p>
+<p><img src="/../images/LBKQmvHn6GNC0Ua4AyfRdg.png"></p>
+<p>2.zip压缩包需要密码，先猜测是伪加密，直接winrar修复文件，拿到图片。查看EXIF信息，得到如下数据</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">文件名: 2.jpg</span><br><span class="line">图片大小: 120.2KB</span><br><span class="line">修改日期: 2021/05/06 00:30:26</span><br><span class="line">图片信息: 500x500 (Jpeg,YUV444)</span><br><span class="line">软件: 2is-AllHailUltra0</span><br><span class="line">艺术家: Meitu</span><br><span class="line">拍摄日期: 2021/04/10 16:24:51</span><br><span class="line">评论: &#123;&quot;Version&quot;:&quot;1.0.0&quot;,&quot;BeautyInfo&quot;:&#123;&quot;IsAIBeauty&quot;:false,&quot;IsOldBeauty&quot;:false,&quot;IsSkinColour&quot;:false,&quot;SwitchMedicatedAcne&quot;:false,&quot;IsBrightEyes&quot;:false,&quot;IsReduceBlackEyes&quot;:false,&quot;IsSharpen&quot;:false&#125;,&quot;FaceliftInfo&quot;:&#123;&quot;IsChangeFacelift&quot;:false,&quot;IsChangeThinFace&quot;:false,&quot;IsChangeEyeLift&quot;:false,&quot;IsChangeFaceChin&quot;:false,&quot;IsChangeNose&quot;:false,&quot;IsChangeMouth&quot;:false&#125;,&quot;FilterInfo&quot;:&#123;&quot;IsUseFilter&quot;:false&#125;,&quot;ARInfo&quot;:&#123;&quot;IsUseAR&quot;:false&#125;,&quot;MakeupInfo&quot;:&#123;&quot;IsUseMakeup&quot;:false&#125;,&quot;HandlerInfo&quot;:&#123;&quot;AppName&quot;:2&#125;,&quot;SoftHairInfo&quot;:&#123;&quot;IsUseSoftHair&quot;:false&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>比较显著的信息是软件名2is-AllHailUltra0</p>
+<p>12.zip是个真实加密的压缩包，看名字应该是1.png得到的信息和2.zip得到的信息结合，经过测试压缩密码为M78AllHailUltra0，解压得到一个无后缀文件12</p>
+<p>010editor查看12文件二进制格式，具备IHDR和IEND，且文件头格式为PNG文件格式，将后缀改成.png，发现无法打开。继续查看，发现一开始的8950被改成了8059，修改回去之后得到png图片</p>
+<p><img src="/../images/MDslJlbMsu_eKha41WrT8A.png"></p>
+<p>得到flag{Easy_Combine_for_Best_Hikari}</p>
+<h3 id="CRYPTO"><a href="#CRYPTO" class="headerlink" title="CRYPTO"></a>CRYPTO</h3><h4 id="0x03-cryptobmp"><a href="#0x03-cryptobmp" class="headerlink" title="0x03 cryptobmp"></a>0x03 cryptobmp</h4><p>一道隐写题，为啥会放在加密里面？</p>
+<p>打开result.bmp图片，可以在图片中央隐约看出存在内容信息</p>
+<p>上Stegsolve.jar看图片信息和各信道信息，没有结果</p>
+<p>色盲图一样的信息，感觉需要用颜色XOR把中间内容提取出来，打开010editor，将重复的信息提取出来，然后重复填充进后面的内容，保留最后一块和文件大小不变</p>
+<p><img src="/../images/JgoJIbhRzZJmgFQ9RleA3g.png"></p>
+<p>用Stegsolve.jar异或叠加图片得到flag{c7FHe110n006}</p>
+<p><img src="/../images/7AyLv1btjbin34I_aZEXYQ.png"></p>
+<h2 id="unsolved"><a href="#unsolved" class="headerlink" title="unsolved"></a>unsolved</h2><h4 id="0x04-IFDEMSKOIVB"><a href="#0x04-IFDEMSKOIVB" class="headerlink" title="0x04 IFDEMSKOIVB"></a>0x04 IFDEMSKOIVB</h4><p>标题和正文内容都经过加密或者编码</p>
+<p>看正文内容只包含数字{2-7}字母{A-Z}推测加密为base32，解密标题为</p>
+<p>AFFINECTF</p>
+<p>看上去是仿射加密，但是缺少仿射公式，正文内容也无法用base32解密，也不能用”flag{“去逆推，暂时卡住了</p>
+<p>将正文按照出现频次最高的7G分隔，得到</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">7GATL5FR7W2W7KQIF3CDLQVAYS</span><br><span class="line">7G7DCDSDVQ7D5LSG2QZXVY</span><br><span class="line">7G6TF5KJ7KGG56VKED</span><br></pre></td></tr></table></figure>
+
+<p>按照7和G对应RFC4648的值a&#x3D;31和b&#x3D;6进行仿射加密和解密，将仿射结果用base32解密，失败</p>
+<hr>
+<p>看了wp，说是爆破标题的<code>IFDEMSKOIVBVIRQ</code>和<code>7GATL5FR7W2W7KQ</code>得出仿射参数a和b</p>
+<p>黑人问号？？？你这最后一个Q一看就没仿射啊</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CTF/" rel="tag"># CTF</a>
+              <a href="/tags/NeSE/" rel="tag"># NeSE</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/04/15/HTB%E9%80%9A%E8%BF%87%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BB%A3%E7%90%86%E8%AE%BF%E9%97%AE%E9%9D%B6%E6%9C%BA%E7%BD%91%E9%A1%B5/" rel="prev" title="HTB通过V2Ray代理访问靶机网页">
+                  <i class="fa fa-angle-left"></i> HTB通过V2Ray代理访问靶机网页
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/09/15/Selenium%E6%A8%A1%E6%8B%9F%E7%BD%91%E9%A1%B5%E4%BA%A4%E4%BA%92%E5%B9%B6%E7%94%9F%E6%88%90%E6%B5%81%E9%87%8F/" rel="next" title="Selenium自动化网页流量生成的设计与实现">
+                  Selenium自动化网页流量生成的设计与实现 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Wenbuer</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

