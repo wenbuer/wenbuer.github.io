@@ -32,7 +32,7 @@
 <meta property="og:image" content="https://wenbuer.github.io/images/20210124220644.png">
 <meta property="og:image" content="https://wenbuer.github.io/images/20210124221633.png">
 <meta property="article:published_time" content="2021-01-21T14:18:02.000Z">
-<meta property="article:modified_time" content="2025-09-23T13:36:21.199Z">
+<meta property="article:modified_time" content="2025-09-23T15:06:46.957Z">
 <meta property="article:author" content="Wenbuer">
 <meta property="article:tag" content="Social Engineering">
 <meta property="article:tag" content="Daily Life">
@@ -214,7 +214,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-09-23 21:36:21" itemprop="dateModified" datetime="2025-09-23T21:36:21+08:00">2025-09-23</time>
+      <time title="修改时间：2025-09-23 23:06:46" itemprop="dateModified" datetime="2025-09-23T23:06:46+08:00">2025-09-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -272,11 +272,11 @@
 <li>扩展分析其贴吧活动等数据</li>
 </ol>
 <h3 id="操作演示"><a href="#操作演示" class="headerlink" title="操作演示"></a>操作演示</h3><p>以其中的QQ邮箱为搜索内容，进行查询</p>
-<p><img src="/../images/20210124193648.png" alt="image-20210124193648040"></p>
+<p><img src="/images/20210124193648.png" alt="image-20210124193648040"></p>
 <p>点击进入之后，目标显示回答内容为匿名用户</p>
-<p><img src="/../images/20210124194952.png" alt="image-20210124194952597"></p>
+<p><img src="/images/20210124194952.png" alt="image-20210124194952597"></p>
 <p>关键突破点在于发现百度知道的匿名并非真正匿名。通过审查页面源码，可以找到隐藏的用户标识：</p>
-<p><img src="/../images/20210124200404.png" alt="image-20210124200404409"></p>
+<p><img src="/images/20210124200404.png" alt="image-20210124200404409"></p>
 <p>得到该目标百度信息encodeUid、uid和uname，例如：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">encodeUid</span>: <span class="string">&quot;xxx&quot;</span>,</span><br><span class="line"></span><br><span class="line"><span class="attr">uid</span>: <span class="string">&quot;123456&quot;</span>,</span><br><span class="line"></span><br><span class="line"><span class="attr">uname</span>: <span class="string">&quot;\u7528\u6237\u540d&quot;</span></span><br></pre></td></tr></table></figure>
 
@@ -292,7 +292,7 @@
 <li>通过社交关联查找其他平台账号</li>
 </ol>
 <h3 id="操作演示-1"><a href="#操作演示-1" class="headerlink" title="操作演示"></a>操作演示</h3><p>典型分享链接方式：</p>
-<p><img src="/../images/20210124220644.png" alt="image-20210124220644165"></p>
+<p><img src="/images/20210124220644.png" alt="image-20210124220644165"></p>
 <p>分享链接格式：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://y.music.163.com/m/song/569157/?userid=3979XXXXX</span><br></pre></td></tr></table></figure>
 
@@ -302,7 +302,7 @@
 <li>构造个人主页链接：<code>music.163.com/#/user/home?id=[userid]</code></li>
 <li>通过”Ta的关注”查找可能的微博关联账号</li>
 </ul>
-<p><img src="/../images/20210124221633.png" alt="image-20210124221633116"></p>
+<p><img src="/images/20210124221633.png" alt="image-20210124221633116"></p>
 <h2 id="0x04-隐私防护建议"><a href="#0x04-隐私防护建议" class="headerlink" title="0x04 隐私防护建议"></a>0x04 隐私防护建议</h2><ol>
 <li><strong>跨平台隔离</strong>：避免使用相同用户名&#x2F;头像</li>
 <li><strong>链接分享</strong>：慎用自带用户ID的分享功能</li>
