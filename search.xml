@@ -243,6 +243,66 @@
       </tags>
   </entry>
   <entry>
+    <title>HacktheBox注册挑战</title>
+    <url>/2021/03/13/HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98/</url>
+    <content><![CDATA[<h3 id="HacktheBox注册挑战"><a href="#HacktheBox注册挑战" class="headerlink" title="HacktheBox注册挑战"></a>HacktheBox注册挑战</h3><p>HacktheBox是一个在线靶场，近期准备考OSCP，准备拿靶场练练手。</p>
+<p>HacktheBox的注册有一定的门槛，在这里记录一下解决过程。</p>
+<p><img src="/%5Cimages%5C20210313162402.png" alt="注册页面1"></p>
+<p>点击HACK YOUR WAY IN</p>
+<p><img src="/%5Cimages%5C20210313162502.png" alt="注册页面2"></p>
+<p>在注册页面首先需要输入code，我们先看hint，点击Click Here</p>
+<p><img src="/%5Cimages%5C20210313162644.png" alt="注册码线索"></p>
+<p>提示我们需要检测console</p>
+<p>打开控制台，看到这样的信息</p>
+<img src="\images\20210313162823.png" alt="console信息" style="zoom: 67%;" />
+
+<p>提示我们需要找一个有趣的js文件，进入sources下的page查看调用的js文件，找到一个带有注释的js，提示我们这个js可能被混淆了</p>
+<img src="\images\20210313163055.png" alt="js文件" style="zoom:67%;" />
+
+<p>这个js的内容为eval类型的混淆，经过代码格式化后，eval中function的内容如下</p>
+<img src="\images\20210313163251.png" alt="js中function代码" style="zoom:50%;" />
+
+<p>包含6个参数，并且给了参数的内容</p>
+<p>这边给出两种解混淆的方案</p>
+<ul>
+<li>直接查找反混淆网站，因为是eval类型，反混淆比较容易<ul>
+<li>eval类型的js反混淆网站：<a href="https://www.bm8.com.cn/jsConfusion/">https://www.bm8.com.cn/jsConfusion/</a></li>
+</ul>
+</li>
+<li>vs运行一遍，在最后return p的地方下一个断点，直接查看p的内容<ul>
+<li><img src="/%5Cimages%5C20210313171250.png" alt="vs调试"></li>
+</ul>
+</li>
+</ul>
+<p>最后得到eval的执行内容</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">makeInviteCode</span>(<span class="params"></span>) &#123;</span><br><span class="line">    $.<span class="title function_">ajax</span>(&#123;</span><br><span class="line">        <span class="attr">type</span>: <span class="string">&quot;POST&quot;</span>,</span><br><span class="line">        <span class="attr">dataType</span>: <span class="string">&quot;json&quot;</span>,</span><br><span class="line">        <span class="attr">url</span>: <span class="string">&#x27;/api/invite/how/to/generate&#x27;</span>,</span><br><span class="line">        <span class="attr">success</span>: <span class="keyword">function</span> (<span class="params">a</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(a)</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">error</span>: <span class="keyword">function</span> (<span class="params">a</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(a)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据执行内容要求我们用POST访问&#x2F;api&#x2F;invite&#x2F;how&#x2F;to&#x2F;generate</p>
+<p>用hackbar执行（或者postman）</p>
+<img src="\images\20210313164219.png" alt="how-to-generate" style="zoom: 67%;" />
+
+<p>得到如图json内容，该内容可能会改变为ROT13解密方式，但结果应该是一致的</p>
+<p>复制data内容，用hackbar解base64内容</p>
+<img src="\images\20210313164520.png" alt="hackbar解base64" style="zoom:67%;" />
+
+<p>提示我们需要再用post访问&#x2F;api&#x2F;invite&#x2F;generate</p>
+<p>访问获取json内容为</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313164702.png" alt="注册码code1"></p>
+<p>很容易看出这是base64，重复上述操作，用hackbar解密base64内容得到注册码（该注册码是动态变化的）</p>
+<p><code>JBIXF-QDULC-CEBFM-OTBAW-DKHYP</code></p>
+<p>填入之后就可以注册了</p>
+]]></content>
+      <categories>
+        <category>CTF</category>
+        <category>Hacker</category>
+        <category>Security</category>
+      </categories>
+      <tags>
+        <tag>Study life</tag>
+        <tag>CTF</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>HTB-Archetype WriteUp</title>
     <url>/2021/04/13/HTB-Archetype%20WriteUp/</url>
     <content><![CDATA[<h2 id="HTB-Archetype-WriteUp"><a href="#HTB-Archetype-WriteUp" class="headerlink" title="HTB-Archetype WriteUp"></a>HTB-Archetype WriteUp</h2><h3 id="nmap-扫描"><a href="#nmap-扫描" class="headerlink" title="nmap 扫描"></a>nmap 扫描</h3><p><code>nmap -sV -sC 10.10.10.27</code></p>
@@ -443,159 +503,6 @@
       </tags>
   </entry>
   <entry>
-    <title>HacktheBox注册挑战</title>
-    <url>/2021/03/13/HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98/</url>
-    <content><![CDATA[<h3 id="HacktheBox注册挑战"><a href="#HacktheBox注册挑战" class="headerlink" title="HacktheBox注册挑战"></a>HacktheBox注册挑战</h3><p>HacktheBox是一个在线靶场，近期准备考OSCP，准备拿靶场练练手。</p>
-<p>HacktheBox的注册有一定的门槛，在这里记录一下解决过程。</p>
-<p><img src="/%5Cimages%5C20210313162402.png" alt="注册页面1"></p>
-<p>点击HACK YOUR WAY IN</p>
-<p><img src="/%5Cimages%5C20210313162502.png" alt="注册页面2"></p>
-<p>在注册页面首先需要输入code，我们先看hint，点击Click Here</p>
-<p><img src="/%5Cimages%5C20210313162644.png" alt="注册码线索"></p>
-<p>提示我们需要检测console</p>
-<p>打开控制台，看到这样的信息</p>
-<img src="\images\20210313162823.png" alt="console信息" style="zoom: 67%;" />
-
-<p>提示我们需要找一个有趣的js文件，进入sources下的page查看调用的js文件，找到一个带有注释的js，提示我们这个js可能被混淆了</p>
-<img src="\images\20210313163055.png" alt="js文件" style="zoom:67%;" />
-
-<p>这个js的内容为eval类型的混淆，经过代码格式化后，eval中function的内容如下</p>
-<img src="\images\20210313163251.png" alt="js中function代码" style="zoom:50%;" />
-
-<p>包含6个参数，并且给了参数的内容</p>
-<p>这边给出两种解混淆的方案</p>
-<ul>
-<li>直接查找反混淆网站，因为是eval类型，反混淆比较容易<ul>
-<li>eval类型的js反混淆网站：<a href="https://www.bm8.com.cn/jsConfusion/">https://www.bm8.com.cn/jsConfusion/</a></li>
-</ul>
-</li>
-<li>vs运行一遍，在最后return p的地方下一个断点，直接查看p的内容<ul>
-<li><img src="/%5Cimages%5C20210313171250.png" alt="vs调试"></li>
-</ul>
-</li>
-</ul>
-<p>最后得到eval的执行内容</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">makeInviteCode</span>(<span class="params"></span>) &#123;</span><br><span class="line">    $.<span class="title function_">ajax</span>(&#123;</span><br><span class="line">        <span class="attr">type</span>: <span class="string">&quot;POST&quot;</span>,</span><br><span class="line">        <span class="attr">dataType</span>: <span class="string">&quot;json&quot;</span>,</span><br><span class="line">        <span class="attr">url</span>: <span class="string">&#x27;/api/invite/how/to/generate&#x27;</span>,</span><br><span class="line">        <span class="attr">success</span>: <span class="keyword">function</span> (<span class="params">a</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(a)</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">error</span>: <span class="keyword">function</span> (<span class="params">a</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(a)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>根据执行内容要求我们用POST访问&#x2F;api&#x2F;invite&#x2F;how&#x2F;to&#x2F;generate</p>
-<p>用hackbar执行（或者postman）</p>
-<img src="\images\20210313164219.png" alt="how-to-generate" style="zoom: 67%;" />
-
-<p>得到如图json内容，该内容可能会改变为ROT13解密方式，但结果应该是一致的</p>
-<p>复制data内容，用hackbar解base64内容</p>
-<img src="\images\20210313164520.png" alt="hackbar解base64" style="zoom:67%;" />
-
-<p>提示我们需要再用post访问&#x2F;api&#x2F;invite&#x2F;generate</p>
-<p>访问获取json内容为</p>
-<p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313164702.png" alt="注册码code1"></p>
-<p>很容易看出这是base64，重复上述操作，用hackbar解密base64内容得到注册码（该注册码是动态变化的）</p>
-<p><code>JBIXF-QDULC-CEBFM-OTBAW-DKHYP</code></p>
-<p>填入之后就可以注册了</p>
-]]></content>
-      <categories>
-        <category>CTF</category>
-        <category>Hacker</category>
-        <category>Security</category>
-      </categories>
-      <tags>
-        <tag>Study life</tag>
-        <tag>CTF</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux服务器利用V2ray访问外网（命令行）</title>
-    <url>/2021/12/10/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89/</url>
-    <content><![CDATA[<h2 id="Linux服务器利用V2ray访问外网（命令行）"><a href="#Linux服务器利用V2ray访问外网（命令行）" class="headerlink" title="Linux服务器利用V2ray访问外网（命令行）"></a>Linux服务器利用V2ray访问外网（命令行）</h2><h3 id="0x00-背景"><a href="#0x00-背景" class="headerlink" title="0x00 背景"></a>0x00 背景</h3><p>在用go-cqhttp+flask框架实现自定义QQ机器人功能时，想要利用爬虫获取TG机器人的相关发布内容，面临的首个问题就是服务器需要访问外网。</p>
-<p>我手上有很多外网的代理链接，但是很可惜的是这些并不是我自己的VPS服务器；且在我本身linux服务器不带用图形界面，因此无法使用ssr和v2rayN等简洁的代理服务。</p>
-<p>因此，如何在只有命令行的条件下将已有的代理链接变成v2ray客户端配置并访问外网即是本文的主要内容。</p>
-<h3 id="0x01-实现过程"><a href="#0x01-实现过程" class="headerlink" title="0x01 实现过程"></a>0x01 实现过程</h3><p>选择一个已有的代理，获取V2ray的订阅链接。</p>
-<p>这个链接是一个订阅的url，直接在浏览器输入后，即可下载订阅链接的txt文件。</p>
-<p>打开之后是一个base64编码的内容，直接解码。</p>
-<p><img src="/images/image-20211205225346933.png" alt="image-20211205225346933"></p>
-<p>可以看到有vmess:&#x2F;&#x2F;开头的base64内容，如果选择继续解码，你会得到一个json字段，如图。</p>
-<p><img src="/images/image-20211205225721126.png" alt="image-20211205225721126"></p>
-<p>用这些字段确实可以根据v2ray客户端配置的格式补充得到配置文件，但是过于麻烦。</p>
-<p>我们直接将vmess:&#x2F;&#x2F;的内容复制到windows上的v2rayN里面，然后选择“导出所选服务器为服务端配置”。</p>
-<p><img src="/images/image-20211205230049835.png" alt="image-20211205230049835"></p>
-<p>然后将这个配置文件上传到我们的linux服务器上即可，启动时带上-config参数导入配置文件。（linux的V2ray相关配置可以看之前的文章）</p>
-<p><code>v2ray -config /usr/local/etc/v2ray/v2ray.json </code></p>
-<p><img src="/images/image-20211205230342197.png" alt="image-20211205230342197"></p>
-<p>可以看到V2ray已经正常启动。</p>
-<p>接下来需要在另一个命令行窗口中将流量转发到1080端口即可实现代理，输入命令行。</p>
-<p><code>export http_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
-<p><code>export https_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
-<blockquote>
-<p>注意：该代理只作用在当前终端窗口，不会影响服务器环境</p>
-</blockquote>
-<h3 id="0x02-效果"><a href="#0x02-效果" class="headerlink" title="0x02 效果"></a>0x02 效果</h3><p><img src="/images/image-20211205231153326.png" alt="image-20211205231153326"></p>
-<p>命令行代理已经实现，接下来即可开始实现TG爬虫功能了</p>
-]]></content>
-      <categories>
-        <category>Daily</category>
-      </categories>
-      <tags>
-        <tag>Daily life</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>NeSE丙队1月月赛训练</title>
-    <url>/2021/01/22/NeSE%E4%B8%99%E9%98%9F1%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
-    <content><![CDATA[<h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-misc1"><a href="#0x00-misc1" class="headerlink" title="0x00 misc1"></a>0x00 misc1</h4><p>签到题</p>
-<p>直接下载png文件，打开是一个二维码，直接扫码得到</p>
-<p>flag{B1ue_Bing0}</p>
-<h4 id="0x01-stego"><a href="#0x01-stego" class="headerlink" title="0x01 stego"></a>0x01 stego</h4><p>下载文件stego.png</p>
-<p>打开是一个放假通知，用binwalk查看内容</p>
-<p><img src="/images/20210125095532.png" alt="image-20210125095532"></p>
-<p>可以得到这个png含有zip文件，根据图种特点，直接修改后缀.zip，有一个文件名为1的文件，直接打开得到</p>
-<p>flag{ez_z1p_st3g0}</p>
-<h3 id="WEB"><a href="#WEB" class="headerlink" title="WEB"></a>WEB</h3><h4 id="0x02-admin"><a href="#0x02-admin" class="headerlink" title="0x02 admin"></a>0x02 admin</h4><p>跳转进入网页显示不是admin，无法获取flag</p>
-<p>利用burpsuite抓包看到jwt_token，格式为{header}.{payload}.{verify signature}</p>
-<p>前两个用base64解密，得到header&#x3D;{“alg”:”HS256”,”type”:”JWT”}，payload&#x3D;{“user”:”tourist”} <del>大概是这样，忘记了</del></p>
-<p>jwt_token后面跟着key&#x3D;blueNeSE，verify signature的验证的公式为</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">HMACSHA256(</span><br><span class="line">  base64UrlEncode(header) + &quot;.&quot; +</span><br><span class="line">  base64UrlEncode(payload),</span><br><span class="line">  key</span><br><span class="line">) </span><br></pre></td></tr></table></figure>
-
-<p>通过jwt网站<a href="https://jwt.io/%E8%AE%A1%E7%AE%97%E9%AA%8C%E8%AF%81key%E7%A1%AE%E5%AE%9E%E4%B8%BAblueNeSE%EF%BC%8C%E6%9B%B4%E6%94%B9payload%E4%B8%BA%7B%22user%22:%22admin%22%7D%EF%BC%8C%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E9%AA%8C%E8%AF%81%E7%9A%84jwt_token">https://jwt.io/计算验证key确实为blueNeSE，更改payload为{&quot;user&quot;:&quot;admin&quot;}，自动生成验证的jwt_token</a></p>
-<p>修改jwt_token重放包，得到flag<del>忘了</del></p>
-<h3 id="Crypto"><a href="#Crypto" class="headerlink" title="Crypto"></a>Crypto</h3><h4 id="0x03-jefferson-wheel"><a href="#0x03-jefferson-wheel" class="headerlink" title="0x03 jefferson wheel"></a>0x03 jefferson wheel</h4><p>加密表为</p>
-<p>ZWAXJGDLUBVIQHKEPNTCRMOSFY&gt;<br>KPBRLNACZDTEXMJQOYHGVSFUWI&gt;<br>BDMAIZVNHSJUWFRTEQGYXPLOCK&gt;<br>RPLHDVNGFCUKTEBSXQYIZMJWAO&gt;<br>IHFRLABEUOTSGJVDKZPMNCQWXY&gt;<br>AMKGHBWPNYCJIFZDRUSLOQXVET&gt;<br>GWTHMPYBXIZULVKSRAFDCEONJQ&gt;<br>NOZUTWDCVRJLXKISYFAPMEGHBQ&gt;<br>XPLTDSRFGENYVUBMCQWAOIKZHJ&gt;<br>UDNAJFBOWCGVRSTZQKELMXYIHP&gt;<br>MNCVBXZQWERTPOIUYALSKDJFHG&gt;<br>LVNCMXZPQOWEJURYTASBKIDFHG&gt;<br>JZQAWVXCDERFSBGTYHNUMKILOP&gt;<br>KQDLOEJPCNFXBIWZGRYMTVHSUA&gt;<br>PVLUBFJSXOWAYGNEIDZTMHCRQK&gt;</p>
-<p>根据密钥[5-9-14-13-1-7-2-12-4-10-6-3-11-15-8]，重组加密表，得到新表为</p>
-<p>IHFRLABEUOTSGJVDKZPMNCQWXY&gt;<br>XPLTDSRFGENYVUBMCQWAOIKZHJ&gt;<br>KQDLOEJPCNFXBIWZGRYMTVHSUA&gt;<br>JZQAWVXCDERFSBGTYHNUMKILOP&gt;<br>ZWAXJGDLUBVIQHKEPNTCRMOSFY&gt;<br>GWTHMPYBXIZULVKSRAFDCEONJQ&gt;<br>KPBRLNACZDTEXMJQOYHGVSFUWI&gt;<br>LVNCMXZPQOWEJURYTASBKIDFHG&gt;<br>RPLHDVNGFCUKTEBSXQYIZMJWAO&gt;<br>UDNAJFBOWCGVRSTZQKELMXYIHP&gt;<br>AMKGHBWPNYCJIFZDRUSLOQXVET&gt;<br>BDMAIZVNHSJUWFRTEQGYXPLOCK&gt;<br>MNCVBXZQWERTPOIUYALSKDJFHG&gt;<br>PVLUBFJSXOWAYGNEIDZTMHCRQK&gt;<br>NOZUTWDCVRJLXKISYFAPMEGHBQ&gt;</p>
-<p>根据密文[Q-J-K-B-P-P-X-D-G-G-F-T-V-U-G]，转动新表得到</p>
-<p>QWXYIHFRLABEUOTSGJVDKZPMNC<br>JXPLTDSRFGENYVUBMCQWAOIKZH<br>KQDLOEJPCNFXBIWZGRYMTVHSUA<br>BGTYHNUMKILOPJZQAWVXCDERFS<br>PNTCRMOSFYZWAXJGDLUBVIQHKE<br>PYBXIZULVKSRAFDCEONJQGWTHM<br>XMJQOYHGVSFUWIKPBRLNACZDTE<br>DFHGLVNCMXZPQOWEJURYTASBKI<br>GFCUKTEBSXQYIZMJWAORPLHDVN<br>GVRSTZQKELMXYIHPUDNAJFBOWC<br>FZDRUSLOQXVETAMKGHBWPNYCJI<br>TEQGYXPLOCKBDMAIZVNHSJUWFR<br>VBXZQWERTPOIUYALSKDJFHGMNC<br>UBFJSXOWAYGNEIDZTMHCRQKPVL<br>GHBQNOZUTWDCVRJLXKISYFAPME</p>
-<p>根据语义，最后一列为flag{chasemeincircle}<del>忘了是大写还是小写</del></p>
-<h4 id="0x04-广播"><a href="#0x04-广播" class="headerlink" title="0x04 广播"></a>0x04 广播</h4><p>下载broadcast.zip和hint.txt</p>
-<p>zip压缩文件内容加密，根据hint.txt得知密码为18位，且是简单的编码方式</p>
-<p>猜测关键词为broadcast，共9位，推测为十六进制编码（十进制会产生1位数对3位数，base64则是1位对4&#x2F;3位）</p>
-<p>利用62726f616463617374解压成功，得到{c3 c2 c1 n3 n2 n1}，根据题目也可以看出为RSA广播攻击</p>
-<p>编写对应的代码如下</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"><span class="comment"># coding:utf8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> struct <span class="keyword">import</span> pack, unpack</span><br><span class="line"><span class="keyword">import</span> zlib</span><br><span class="line"><span class="keyword">import</span> gmpy2 <span class="keyword">as</span> gmpy</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_parse_number</span>(<span class="params">number</span>):</span><br><span class="line">    string = <span class="string">&quot;%x&quot;</span> % number</span><br><span class="line">    <span class="comment">#if len(string) != 64:</span></span><br><span class="line">    <span class="comment">#    return &quot;&quot;</span></span><br><span class="line">    erg = []</span><br><span class="line">    <span class="keyword">while</span> string != <span class="string">&#x27;&#x27;</span>:</span><br><span class="line">        erg = erg + [<span class="built_in">chr</span>(<span class="built_in">int</span>(string[:<span class="number">2</span>], <span class="number">16</span>))]</span><br><span class="line">        string = string[<span class="number">2</span>:]</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>.join(erg)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">extended_gcd</span>(<span class="params">a, b</span>):</span><br><span class="line">    x,y = <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    lastx, lasty = <span class="number">1</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> b:</span><br><span class="line">        a, (q, b) = b, <span class="built_in">divmod</span>(a,b)</span><br><span class="line">        x, lastx = lastx-q*x, x</span><br><span class="line">        y, lasty = lasty-q*y, y</span><br><span class="line">    <span class="keyword">return</span> (lastx, lasty, a)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">chinese_remainder_theorem</span>(<span class="params">items</span>):</span><br><span class="line">  N = <span class="number">1</span></span><br><span class="line">  <span class="keyword">for</span> a, n <span class="keyword">in</span> items:</span><br><span class="line">    N *= n</span><br><span class="line">  result = <span class="number">0</span></span><br><span class="line">  <span class="keyword">for</span> a, n <span class="keyword">in</span> items:</span><br><span class="line">    m = N//n</span><br><span class="line">    r, s, d = extended_gcd(n, m)</span><br><span class="line">    <span class="keyword">if</span> d != <span class="number">1</span>:</span><br><span class="line">      N=N/n</span><br><span class="line">      <span class="keyword">continue</span></span><br><span class="line">      <span class="comment">#raise &quot;Input not pairwise co-prime&quot;</span></span><br><span class="line">    result += a*s*m</span><br><span class="line">  <span class="keyword">return</span> result % N, N</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">c1 = m**e mod n1</span></span><br><span class="line"><span class="string">c2 = m**e mod n2</span></span><br><span class="line"><span class="string">c3 = m**e mod n3</span></span><br><span class="line"><span class="string">. .</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">sessions=[&#123;<span class="string">&quot;c&quot;</span>: <span class="number">2664456240866799628123354002961100780678777039452838534772316015487055657626151267255765909925238851052963177690615857269355367306531947285275658480119132176458619666356498982335615976520110220831553046336962209497199269751531446896806745547821273188359881207253304353340193045529947532321421316207582669186966262885925510852080336597611720270953364182776647640895915836757533572112922353511839592221769714011077657473370681864919378759906166093497668584965809250367719086157929143483067084526466393322021886107145372853920384593331401647566014964198106822275155018727443981449124990082600675418608431513247974233406</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">16158503998777337192674807945908821386693302597406387444349699542598095897285692091211476083809918750897861769264465663579793991679314429752295361957446059739359063103544638030154853387212724326557655148019702164400877330186327609348721648084613268414555203577183573889217351893673924371072333289354228674760315294504839359655489521012677566131327841053678744664608889174603997019849103346541029516404589134950647019313518381914869229067797614481107128126689730344210547636672896855115883318917823168989617075675281028751941660136853501327782175932311318584187206520215509966133929719351504589815606927966176149195779</span>&#125;,</span><br><span class="line">&#123;<span class="string">&quot;c&quot;</span>: <span class="number">8141444293590939926339140123606008320647283862734921035349993152736573212703175057344759120176139012159033736316173682242298057686577598027916977530077029856485627175379314811877501994761319423200265287785759453820095015807444949214265244900640835658881784054368646315441712319010363526404565445161985028402390954712866106921908734210919493250702187032275110124875570931002934221972634821225056433936935859313342958691599902102787445475305941582660308223893978598257522846759968671416599167447071747751521028177865487587852125772706197522666828868692341809398348371017535491453879955859658955741930595458023438100360</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">32317006071311007300714876688669951960444102669715484032130345427525853843244805988476588891865958825360448605290048592734632332583370763153757718383572299749209540231288997719992234568181178226221179583987114390330645720300200969658014581064237644699938356963972432409945268139827411216302358245968648685631852162149417921884611499140034180764281310426002777325893540359517405108625457448469440495488988134588122686723870538630903173922667307922091719215351000831684798921623126319342120005518066740737893055076255035167681805650095125693219744392056464805973406041558289941338164246139243161281441192654245812544809</span>&#125;,</span><br><span class="line">&#123;<span class="string">&quot;c&quot;</span>: <span class="number">32186692144821382556216414197036084450002406028322550030603281663242416068106078282460625499374288627277856236842632516201785581944392028997860442197688447471167439623993997293924922369564496861634056297046007484347428266405265850123438755524763475428402354354249708937585215741306623413807430961934859288170402397120084830356448790691150552044932030386388033322020053166574933222485614505111408006503260110878032569297769908686840698298294276083052356237977129947951638366162505197545851558874564120929824886880546857109477962821888212631753191393081515047983305638857450728393479191251293759249543719567211830591890</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">32317006071311007300714876688669951960444102669715484032130345427524655138867890893197201411522913463688717960921898019494119559150490921095088152386448283120630877367300996091750197750389652106796057638384067568276792218642619756161838094338476170470581645852036305042887575891768950486750990609730626074204953069170365351039844202147563211921699195999562457720327836338730130880314152322204629124008956222526289905774520564846695102147923912430235289375056683956240708354173616548191256839933106531936657610976268878493644409501763510589523424550621212340120772084161285303618671573000124518317607283263174664732027</span>&#125;]</span><br><span class="line"></span><br><span class="line">data = []</span><br><span class="line"><span class="keyword">for</span> session <span class="keyword">in</span> sessions:</span><br><span class="line">    e=session[<span class="string">&#x27;e&#x27;</span>]</span><br><span class="line">    n=session[<span class="string">&#x27;n&#x27;</span>]</span><br><span class="line">    msg=session[<span class="string">&#x27;c&#x27;</span>]</span><br><span class="line">    data += [(msg, n)]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Please wait, performing CRT&quot;</span>)</span><br><span class="line">x, n = chinese_remainder_theorem(data)</span><br><span class="line">e=session[<span class="string">&#x27;e&#x27;</span>]</span><br><span class="line">realnum = gmpy.iroot(x,e)[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(realnum)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>得到最终结果</p>
-<p>134491505866050799518149049116410640504801097393689986282578875171467764060356652949245541838134430726585819015055443577486765212620027434842249657064471879286694101508916323731138545953360768175582990398279608814586282578875171467764060356652949245541838134430727023319615912208504801097393689986282578875</p>
-<p><strong>根据Crypto第二题ez_crypto下flag取后9位的提示，得到flag为</strong></p>
-<p>flag{282578875}</p>
-<p><del>很离谱吗？是的，很离谱，更离谱的是ez_cypto怎么算都是m&#x3D;512347890123，尝试提交flag几十遍都是错的</del></p>
-<h2 id="Unsolved-Problem"><a href="#Unsolved-Problem" class="headerlink" title="Unsolved Problem"></a>Unsolved Problem</h2><h3 id="MISC-1"><a href="#MISC-1" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x05-misc2"><a href="#0x05-misc2" class="headerlink" title="0x05 misc2"></a>0x05 misc2</h4><p>图种格式，拆分为png+2*rar，png内容”secret is here”，rar内容5characters.txt加密</p>
-<p>png：</p>
-<p>没有找出更多隐写相关的线索</p>
-<p>5characters.txt：</p>
-<p>推测解压密码为5位字符，爆破时间需要2天多，放弃；内容为13位，推测为flag{XXXXXXX}，CRC32绕过需要7位，放弃</p>
-<h3 id="Crypto-1"><a href="#Crypto-1" class="headerlink" title="Crypto"></a>Crypto</h3><h4 id="0x06-base"><a href="#0x06-base" class="headerlink" title="0x06 base"></a>0x06 base</h4><p>hint.txt内容为16，推测为base16</p>
-<p>base.txt内容为brainfuck加密和3538，解密之后为base和3538，将3538用base16（十六进制）解密后为58，合起来内容为base58，这是一种bitcoin的编码方式</p>
-<p>然后没了，试了一堆都试不出来</p>
-<h4 id="0x07-ez-cypto"><a href="#0x07-ez-cypto" class="headerlink" title="0x07 ez_cypto"></a>0x07 ez_cypto</h4><p>挺离谱的，RSA共模攻击，求出m&#x3D;512347890123，提示flag为后9位，我也挺想知道flag是啥的</p>
-]]></content>
-      <categories>
-        <category>CTF</category>
-        <category>Hacker</category>
-        <category>Security</category>
-      </categories>
-      <tags>
-        <tag>CTF</tag>
-        <tag>NeSE</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>NeSE丙队3月月赛训练</title>
     <url>/2021/03/14/NeSE%E4%B8%99%E9%98%9F3%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
     <content><![CDATA[<h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-misc-log-pcap"><a href="#0x00-misc-log-pcap" class="headerlink" title="0x00 misc_log&amp;pcap"></a>0x00 misc_log&amp;pcap</h4><p><strong>题目：</strong></p>
@@ -742,60 +649,96 @@
       </tags>
   </entry>
   <entry>
-    <title>Selenium自动化网页流量生成的设计与实现</title>
-    <url>/2021/09/15/Selenium%E6%A8%A1%E6%8B%9F%E7%BD%91%E9%A1%B5%E4%BA%A4%E4%BA%92%E5%B9%B6%E7%94%9F%E6%88%90%E6%B5%81%E9%87%8F/</url>
-    <content><![CDATA[<h2 id="项目背景"><a href="#项目背景" class="headerlink" title="项目背景"></a>项目背景</h2><p>在网络流量分析研究中，构建真实的用户访问行为模型需要大量正常的网页交互流量。本系统通过Selenium自动化技术模拟真实用户行为，访问ChinaZ站长之家排名前500的网站，自动生成高质量的流量数据用于恶意流量分析研究。</p>
-<h2 id="系统架构"><a href="#系统架构" class="headerlink" title="系统架构"></a>系统架构</h2><h3 id="1-ChinaZ网站排名信息爬取模块"><a href="#1-ChinaZ网站排名信息爬取模块" class="headerlink" title="1. ChinaZ网站排名信息爬取模块"></a>1. ChinaZ网站排名信息爬取模块</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Author: wenbuer</span></span><br><span class="line"><span class="comment"># @Date:   2021-09-13 14:45:30</span></span><br><span class="line"><span class="comment"># @Last Modified by:   W3n13uE2</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-09-13 15:53:46</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> requests.exceptions <span class="keyword">import</span> RequestException</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将爬取的代理设置成浏览器,针对一些反爬网站</span></span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;user-agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取一页的内容</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_one_page</span>(<span class="params">targetUrl</span>):</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        response = requests.get(targetUrl, headers)</span><br><span class="line">        <span class="keyword">if</span> (response.status_code == <span class="number">200</span>):  <span class="comment"># 状态码 =200 ,说明爬取正常</span></span><br><span class="line">            parse_one_page(response.content.decode())</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">    <span class="keyword">except</span> RequestException:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 通过正则表达式获取需要的数据</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">parse_one_page</span>(<span class="params">target_text</span>):</span><br><span class="line">    pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;&lt;a href=&quot;.*? target=&quot;_blank&quot; class=&quot;pr10 fz14&quot;&gt;(.*?)&lt;/a&gt;&#x27;</span>)</span><br><span class="line">    pattern2 = re.<span class="built_in">compile</span>(<span class="string">r&#x27;&lt;span class=&quot;col-gray&quot;&gt;(.*?)&lt;/span&gt;&#x27;</span>)</span><br><span class="line">    myList = pattern.findall(target_text)</span><br><span class="line">    myList2 = pattern2.findall(target_text)[<span class="number">1</span>:]</span><br><span class="line">    result.extend(myList)</span><br><span class="line">    result2.extend(myList2)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 爬取每一页内容</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">crawl_each_url</span>():</span><br><span class="line">    get_one_page(<span class="string">&quot;https://top.chinaz.com/all/&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>, <span class="number">51</span>):</span><br><span class="line">        get_one_page(<span class="string">f&quot;https://top.chinaz.com/all/index_<span class="subst">&#123;i&#125;</span>.html&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将数据保存到当前路径下的 &quot;中国网站排名.txt&quot;</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">write_to_file</span>(<span class="params">result_text,result_text2</span>):</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;chinaz.txt&quot;</span>, <span class="string">&quot;a&quot;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">500</span>):</span><br><span class="line">            f.write(<span class="string">f&quot;<span class="subst">&#123;i+<span class="number">1</span>&#125;</span>,<span class="subst">&#123;result_text[i]&#125;</span>,<span class="subst">&#123;result_text2[i]&#125;</span>\n&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    result = []</span><br><span class="line">    result2 = []</span><br><span class="line">    crawl_each_url()</span><br><span class="line">    write_to_file(result,result2)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="2-Selenium自动化流量生成模块"><a href="#2-Selenium自动化流量生成模块" class="headerlink" title="2. Selenium自动化流量生成模块"></a>2. Selenium自动化流量生成模块</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Author: wenbuer</span></span><br><span class="line"><span class="comment"># @Date:   2021-09-13 10:55:12</span></span><br><span class="line"><span class="comment"># @Last Modified by:   W3n13uE2</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-09-13 19:40:32</span></span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="keyword">from</span> scapy.sendrecv <span class="keyword">import</span> sniff</span><br><span class="line"><span class="keyword">from</span> scapy.<span class="built_in">all</span> <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyThread</span>(threading.Thread):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, ids, url, timeout, browser</span>):</span><br><span class="line">        threading.Thread.__init__(<span class="variable language_">self</span>)</span><br><span class="line">        <span class="variable language_">self</span>.ids = ids  <span class="comment"># 线程ID，控制线程职责(捕获数据、自动化访问)</span></span><br><span class="line">        <span class="variable language_">self</span>.url = url  <span class="comment"># 需要访问的URL</span></span><br><span class="line">        <span class="variable language_">self</span>.timeout = timeout  <span class="comment"># 访问完成大概需要的时间</span></span><br><span class="line">        <span class="variable language_">self</span>.browser = browser  <span class="comment"># 浏览器</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="variable language_">self</span>.name)</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">run</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.ids:</span><br><span class="line">            <span class="comment"># 控制浏览器访问</span></span><br><span class="line">            automated_access(<span class="variable language_">self</span>.url, <span class="variable language_">self</span>.browser, <span class="variable language_">self</span>.timeout)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="comment"># 收集数据包</span></span><br><span class="line">            collect_pcap(<span class="variable language_">self</span>.timeout, <span class="variable language_">self</span>.url, <span class="variable language_">self</span>.browser)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">collect_pcap</span>(<span class="params">timeout, url, browser</span>):</span><br><span class="line">    data = sniff(timeout=timeout)  <span class="comment"># 可以加filter过滤</span></span><br><span class="line">    file_name = url.replace(<span class="string">&#x27;:&#x27;</span>, <span class="string">&#x27;&#x27;</span>).replace(<span class="string">&#x27;.&#x27;</span>, <span class="string">&#x27;&#x27;</span>).replace(<span class="string">&#x27;//&#x27;</span>, <span class="string">&#x27;&#x27;</span>)  <span class="comment"># 保存的文件名</span></span><br><span class="line">    writer = PcapWriter(<span class="string">&quot;%s-%s.pcap&quot;</span> % (browser, file_name))</span><br><span class="line">    writer.write(data)</span><br><span class="line">    writer.flush()</span><br><span class="line"> </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">new_window</span>(<span class="params">driver, timeout</span>):</span><br><span class="line">    url_handle = driver.current_window_handle  <span class="comment"># 获取当前窗口句柄</span></span><br><span class="line">    <span class="keyword">for</span> link <span class="keyword">in</span> driver.find_elements_by_xpath(<span class="string">&#x27;//a&#x27;</span>):</span><br><span class="line">        a = link.get_attribute(<span class="string">&#x27;href&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> a == <span class="string">&quot;javascript:;&quot;</span> <span class="keyword">or</span> a == driver.current_url:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        next_url = a</span><br><span class="line">        js = <span class="string">&#x27;window.open(&quot;%s&quot;)&#x27;</span>%next_url</span><br><span class="line">        driver.execute_script(js)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    time.sleep(timeout)  <span class="comment"># 线程休眠，保证浏览器充分访问完之后再关闭浏览器</span></span><br><span class="line">    driver.close()  <span class="comment"># 关闭对应窗口</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">automated_access</span>(<span class="params">url, browser, timeout</span>):</span><br><span class="line">    <span class="keyword">if</span> browser == <span class="string">&#x27;Chrome&#x27;</span>:</span><br><span class="line">        options = webdriver.ChromeOptions()</span><br><span class="line">        options.add_experimental_option(<span class="string">&#x27;excludeSwitches&#x27;</span>, [<span class="string">&#x27;enable-automation&#x27;</span>])</span><br><span class="line">        options.add_experimental_option(<span class="string">&#x27;useAutomationExtension&#x27;</span>, <span class="literal">False</span>) <span class="comment"># 屏蔽网站对Selenium的检测</span></span><br><span class="line">        driver = webdriver.Chrome(options=options)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            url = <span class="string">&quot;http://&quot;</span>+url</span><br><span class="line">            driver.get(url)  <span class="comment"># 访问URL</span></span><br><span class="line">            time.sleep(timeout)  <span class="comment"># 线程休眠，保证浏览器充分访问完之后再关闭浏览器</span></span><br><span class="line">            new_window(driver,new_window_timeout)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(e.args)</span><br><span class="line">        driver.quit()  <span class="comment"># 退出浏览器</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        options = webdriver.FirefoxOptions()</span><br><span class="line">        profile = webdriver.FirefoxProfile()</span><br><span class="line">        profile.set_preference(<span class="string">&quot;dom.webdriver.enabled&quot;</span>, <span class="literal">False</span>)  <span class="comment"># 设置非driver驱动</span></span><br><span class="line">        profile.set_preference(<span class="string">&#x27;useAutomationExtension&#x27;</span>, <span class="literal">False</span>) <span class="comment">#关闭自动化提示</span></span><br><span class="line">        profile.update_preferences()    <span class="comment">#更新设置</span></span><br><span class="line">        driver = webdriver.Firefox(firefox_options=options ,firefox_profile=profile)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            url = <span class="string">&quot;http://&quot;</span>+url </span><br><span class="line">            driver.get(url)</span><br><span class="line">            time.sleep(timeout)</span><br><span class="line">            new_window(driver,new_window_timeout)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(e.args)</span><br><span class="line">        driver.quit()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;finished.&#x27;</span>)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    webname,website = [],[]</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;chinaz.txt&quot;</span>,<span class="string">&quot;r&quot;</span>,encoding=<span class="string">&quot;utf-8&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        line = f.readline().rstrip(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">        <span class="keyword">while</span> line:</span><br><span class="line">            webname.extend([line.split(<span class="string">&#x27;,&#x27;</span>)[<span class="number">1</span>]])</span><br><span class="line">            website.extend([line.split(<span class="string">&#x27;,&#x27;</span>)[<span class="number">2</span>]])</span><br><span class="line">            line = f.readline().rstrip(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">    url_list = website  <span class="comment"># url列表</span></span><br><span class="line">    browser = [<span class="string">&#x27;Chrome&#x27;</span>, <span class="string">&#x27;Firefox&#x27;</span>]  <span class="comment"># 浏览器列表</span></span><br><span class="line">    timeout = <span class="number">5</span>  <span class="comment"># 浏览器访问网站的时间</span></span><br><span class="line">    new_window_timeout = <span class="number">10</span> <span class="comment"># 浏览下一个网站的时间</span></span><br><span class="line">    <span class="keyword">for</span> url <span class="keyword">in</span> url_list:</span><br><span class="line">        <span class="keyword">for</span> bro <span class="keyword">in</span> browser:</span><br><span class="line">            thread1 = MyThread(<span class="number">0</span>, url, timeout, bro)</span><br><span class="line">            thread1.start()  <span class="comment"># 启动子线程</span></span><br><span class="line">            thread2 = MyThread(<span class="number">1</span>, url, timeout, bro)</span><br><span class="line">            thread2.start()</span><br><span class="line">            thread1.join()  <span class="comment"># 父线程等待子线程</span></span><br><span class="line">            thread2.join()</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Exit the main thread &quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<h2 id="关键技术点"><a href="#关键技术点" class="headerlink" title="关键技术点"></a>关键技术点</h2><ol>
-<li><strong>反检测机制</strong>：<ul>
-<li>Chrome使用<code>--disable-blink-features=AutomationControlled</code></li>
-<li>Firefox设置<code>dom.webdriver.enabled</code>为False</li>
-<li>移除自动化扩展标识</li>
-</ul>
-</li>
-<li><strong>高效流量捕捉</strong>：<ul>
-<li>Scapy库实现网络层流量捕获</li>
-<li>多线程并发处理提高效率</li>
-<li>智能命名保存pcap文件</li>
-</ul>
-</li>
-<li><strong>真实用户模拟</strong>：<ul>
-<li>随机选择页面链接进行二次访问</li>
-<li>合理的浏览时间间隔</li>
-<li>多种浏览器配置模拟不同用户设备</li>
-</ul>
-</li>
-</ol>
-<h2 id="系统优化方向"><a href="#系统优化方向" class="headerlink" title="系统优化方向"></a>系统优化方向</h2><ol>
-<li><strong>行为多样性增强</strong>：<ul>
-<li>添加鼠标移动轨迹模拟</li>
-<li>实现页面滚动行为</li>
-<li>随机点击非链接元素</li>
-</ul>
-</li>
-<li><strong>性能提升</strong>：<ul>
-<li>采用浏览器池减少初始化开销</li>
-<li>异步IO处理提高并发能力</li>
-<li>分布式部署方案</li>
-</ul>
-</li>
-<li><strong>数据分析集成</strong>：<ul>
-<li>实时流量特征提取</li>
-<li>访问行为模式分析</li>
-<li>异常检测告警机制</li>
-</ul>
-</li>
-</ol>
+    <title>Linux服务器利用V2ray访问外网（命令行）</title>
+    <url>/2021/12/10/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89/</url>
+    <content><![CDATA[<h2 id="Linux服务器利用V2ray访问外网（命令行）"><a href="#Linux服务器利用V2ray访问外网（命令行）" class="headerlink" title="Linux服务器利用V2ray访问外网（命令行）"></a>Linux服务器利用V2ray访问外网（命令行）</h2><h3 id="0x00-背景"><a href="#0x00-背景" class="headerlink" title="0x00 背景"></a>0x00 背景</h3><p>在用go-cqhttp+flask框架实现自定义QQ机器人功能时，想要利用爬虫获取TG机器人的相关发布内容，面临的首个问题就是服务器需要访问外网。</p>
+<p>我手上有很多外网的代理链接，但是很可惜的是这些并不是我自己的VPS服务器；且在我本身linux服务器不带用图形界面，因此无法使用ssr和v2rayN等简洁的代理服务。</p>
+<p>因此，如何在只有命令行的条件下将已有的代理链接变成v2ray客户端配置并访问外网即是本文的主要内容。</p>
+<h3 id="0x01-实现过程"><a href="#0x01-实现过程" class="headerlink" title="0x01 实现过程"></a>0x01 实现过程</h3><p>选择一个已有的代理，获取V2ray的订阅链接。</p>
+<p>这个链接是一个订阅的url，直接在浏览器输入后，即可下载订阅链接的txt文件。</p>
+<p>打开之后是一个base64编码的内容，直接解码。</p>
+<p><img src="/images/image-20211205225346933.png" alt="image-20211205225346933"></p>
+<p>可以看到有vmess:&#x2F;&#x2F;开头的base64内容，如果选择继续解码，你会得到一个json字段，如图。</p>
+<p><img src="/images/image-20211205225721126.png" alt="image-20211205225721126"></p>
+<p>用这些字段确实可以根据v2ray客户端配置的格式补充得到配置文件，但是过于麻烦。</p>
+<p>我们直接将vmess:&#x2F;&#x2F;的内容复制到windows上的v2rayN里面，然后选择“导出所选服务器为服务端配置”。</p>
+<p><img src="/images/image-20211205230049835.png" alt="image-20211205230049835"></p>
+<p>然后将这个配置文件上传到我们的linux服务器上即可，启动时带上-config参数导入配置文件。（linux的V2ray相关配置可以看之前的文章）</p>
+<p><code>v2ray -config /usr/local/etc/v2ray/v2ray.json </code></p>
+<p><img src="/images/image-20211205230342197.png" alt="image-20211205230342197"></p>
+<p>可以看到V2ray已经正常启动。</p>
+<p>接下来需要在另一个命令行窗口中将流量转发到1080端口即可实现代理，输入命令行。</p>
+<p><code>export http_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
+<p><code>export https_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
+<blockquote>
+<p>注意：该代理只作用在当前终端窗口，不会影响服务器环境</p>
+</blockquote>
+<h3 id="0x02-效果"><a href="#0x02-效果" class="headerlink" title="0x02 效果"></a>0x02 效果</h3><p><img src="/images/image-20211205231153326.png" alt="image-20211205231153326"></p>
+<p>命令行代理已经实现，接下来即可开始实现TG爬虫功能了</p>
 ]]></content>
       <categories>
-        <category>Traffic Analysis</category>
+        <category>Daily</category>
       </categories>
       <tags>
-        <tag>Study life</tag>
-        <tag>Traffic Analysis</tag>
+        <tag>Daily life</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NeSE丙队1月月赛训练</title>
+    <url>/2021/01/22/NeSE%E4%B8%99%E9%98%9F1%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
+    <content><![CDATA[<h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-misc1"><a href="#0x00-misc1" class="headerlink" title="0x00 misc1"></a>0x00 misc1</h4><p>签到题</p>
+<p>直接下载png文件，打开是一个二维码，直接扫码得到</p>
+<p>flag{B1ue_Bing0}</p>
+<h4 id="0x01-stego"><a href="#0x01-stego" class="headerlink" title="0x01 stego"></a>0x01 stego</h4><p>下载文件stego.png</p>
+<p>打开是一个放假通知，用binwalk查看内容</p>
+<p><img src="/images/20210125095532.png" alt="image-20210125095532"></p>
+<p>可以得到这个png含有zip文件，根据图种特点，直接修改后缀.zip，有一个文件名为1的文件，直接打开得到</p>
+<p>flag{ez_z1p_st3g0}</p>
+<h3 id="WEB"><a href="#WEB" class="headerlink" title="WEB"></a>WEB</h3><h4 id="0x02-admin"><a href="#0x02-admin" class="headerlink" title="0x02 admin"></a>0x02 admin</h4><p>跳转进入网页显示不是admin，无法获取flag</p>
+<p>利用burpsuite抓包看到jwt_token，格式为{header}.{payload}.{verify signature}</p>
+<p>前两个用base64解密，得到header&#x3D;{“alg”:”HS256”,”type”:”JWT”}，payload&#x3D;{“user”:”tourist”} <del>大概是这样，忘记了</del></p>
+<p>jwt_token后面跟着key&#x3D;blueNeSE，verify signature的验证的公式为</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">HMACSHA256(</span><br><span class="line">  base64UrlEncode(header) + &quot;.&quot; +</span><br><span class="line">  base64UrlEncode(payload),</span><br><span class="line">  key</span><br><span class="line">) </span><br></pre></td></tr></table></figure>
+
+<p>通过jwt网站<a href="https://jwt.io/%E8%AE%A1%E7%AE%97%E9%AA%8C%E8%AF%81key%E7%A1%AE%E5%AE%9E%E4%B8%BAblueNeSE%EF%BC%8C%E6%9B%B4%E6%94%B9payload%E4%B8%BA%7B%22user%22:%22admin%22%7D%EF%BC%8C%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E9%AA%8C%E8%AF%81%E7%9A%84jwt_token">https://jwt.io/计算验证key确实为blueNeSE，更改payload为{&quot;user&quot;:&quot;admin&quot;}，自动生成验证的jwt_token</a></p>
+<p>修改jwt_token重放包，得到flag<del>忘了</del></p>
+<h3 id="Crypto"><a href="#Crypto" class="headerlink" title="Crypto"></a>Crypto</h3><h4 id="0x03-jefferson-wheel"><a href="#0x03-jefferson-wheel" class="headerlink" title="0x03 jefferson wheel"></a>0x03 jefferson wheel</h4><p>加密表为</p>
+<p>ZWAXJGDLUBVIQHKEPNTCRMOSFY&gt;<br>KPBRLNACZDTEXMJQOYHGVSFUWI&gt;<br>BDMAIZVNHSJUWFRTEQGYXPLOCK&gt;<br>RPLHDVNGFCUKTEBSXQYIZMJWAO&gt;<br>IHFRLABEUOTSGJVDKZPMNCQWXY&gt;<br>AMKGHBWPNYCJIFZDRUSLOQXVET&gt;<br>GWTHMPYBXIZULVKSRAFDCEONJQ&gt;<br>NOZUTWDCVRJLXKISYFAPMEGHBQ&gt;<br>XPLTDSRFGENYVUBMCQWAOIKZHJ&gt;<br>UDNAJFBOWCGVRSTZQKELMXYIHP&gt;<br>MNCVBXZQWERTPOIUYALSKDJFHG&gt;<br>LVNCMXZPQOWEJURYTASBKIDFHG&gt;<br>JZQAWVXCDERFSBGTYHNUMKILOP&gt;<br>KQDLOEJPCNFXBIWZGRYMTVHSUA&gt;<br>PVLUBFJSXOWAYGNEIDZTMHCRQK&gt;</p>
+<p>根据密钥[5-9-14-13-1-7-2-12-4-10-6-3-11-15-8]，重组加密表，得到新表为</p>
+<p>IHFRLABEUOTSGJVDKZPMNCQWXY&gt;<br>XPLTDSRFGENYVUBMCQWAOIKZHJ&gt;<br>KQDLOEJPCNFXBIWZGRYMTVHSUA&gt;<br>JZQAWVXCDERFSBGTYHNUMKILOP&gt;<br>ZWAXJGDLUBVIQHKEPNTCRMOSFY&gt;<br>GWTHMPYBXIZULVKSRAFDCEONJQ&gt;<br>KPBRLNACZDTEXMJQOYHGVSFUWI&gt;<br>LVNCMXZPQOWEJURYTASBKIDFHG&gt;<br>RPLHDVNGFCUKTEBSXQYIZMJWAO&gt;<br>UDNAJFBOWCGVRSTZQKELMXYIHP&gt;<br>AMKGHBWPNYCJIFZDRUSLOQXVET&gt;<br>BDMAIZVNHSJUWFRTEQGYXPLOCK&gt;<br>MNCVBXZQWERTPOIUYALSKDJFHG&gt;<br>PVLUBFJSXOWAYGNEIDZTMHCRQK&gt;<br>NOZUTWDCVRJLXKISYFAPMEGHBQ&gt;</p>
+<p>根据密文[Q-J-K-B-P-P-X-D-G-G-F-T-V-U-G]，转动新表得到</p>
+<p>QWXYIHFRLABEUOTSGJVDKZPMNC<br>JXPLTDSRFGENYVUBMCQWAOIKZH<br>KQDLOEJPCNFXBIWZGRYMTVHSUA<br>BGTYHNUMKILOPJZQAWVXCDERFS<br>PNTCRMOSFYZWAXJGDLUBVIQHKE<br>PYBXIZULVKSRAFDCEONJQGWTHM<br>XMJQOYHGVSFUWIKPBRLNACZDTE<br>DFHGLVNCMXZPQOWEJURYTASBKI<br>GFCUKTEBSXQYIZMJWAORPLHDVN<br>GVRSTZQKELMXYIHPUDNAJFBOWC<br>FZDRUSLOQXVETAMKGHBWPNYCJI<br>TEQGYXPLOCKBDMAIZVNHSJUWFR<br>VBXZQWERTPOIUYALSKDJFHGMNC<br>UBFJSXOWAYGNEIDZTMHCRQKPVL<br>GHBQNOZUTWDCVRJLXKISYFAPME</p>
+<p>根据语义，最后一列为flag{chasemeincircle}<del>忘了是大写还是小写</del></p>
+<h4 id="0x04-广播"><a href="#0x04-广播" class="headerlink" title="0x04 广播"></a>0x04 广播</h4><p>下载broadcast.zip和hint.txt</p>
+<p>zip压缩文件内容加密，根据hint.txt得知密码为18位，且是简单的编码方式</p>
+<p>猜测关键词为broadcast，共9位，推测为十六进制编码（十进制会产生1位数对3位数，base64则是1位对4&#x2F;3位）</p>
+<p>利用62726f616463617374解压成功，得到{c3 c2 c1 n3 n2 n1}，根据题目也可以看出为RSA广播攻击</p>
+<p>编写对应的代码如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"><span class="comment"># coding:utf8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> struct <span class="keyword">import</span> pack, unpack</span><br><span class="line"><span class="keyword">import</span> zlib</span><br><span class="line"><span class="keyword">import</span> gmpy2 <span class="keyword">as</span> gmpy</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_parse_number</span>(<span class="params">number</span>):</span><br><span class="line">    string = <span class="string">&quot;%x&quot;</span> % number</span><br><span class="line">    <span class="comment">#if len(string) != 64:</span></span><br><span class="line">    <span class="comment">#    return &quot;&quot;</span></span><br><span class="line">    erg = []</span><br><span class="line">    <span class="keyword">while</span> string != <span class="string">&#x27;&#x27;</span>:</span><br><span class="line">        erg = erg + [<span class="built_in">chr</span>(<span class="built_in">int</span>(string[:<span class="number">2</span>], <span class="number">16</span>))]</span><br><span class="line">        string = string[<span class="number">2</span>:]</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>.join(erg)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">extended_gcd</span>(<span class="params">a, b</span>):</span><br><span class="line">    x,y = <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    lastx, lasty = <span class="number">1</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> b:</span><br><span class="line">        a, (q, b) = b, <span class="built_in">divmod</span>(a,b)</span><br><span class="line">        x, lastx = lastx-q*x, x</span><br><span class="line">        y, lasty = lasty-q*y, y</span><br><span class="line">    <span class="keyword">return</span> (lastx, lasty, a)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">chinese_remainder_theorem</span>(<span class="params">items</span>):</span><br><span class="line">  N = <span class="number">1</span></span><br><span class="line">  <span class="keyword">for</span> a, n <span class="keyword">in</span> items:</span><br><span class="line">    N *= n</span><br><span class="line">  result = <span class="number">0</span></span><br><span class="line">  <span class="keyword">for</span> a, n <span class="keyword">in</span> items:</span><br><span class="line">    m = N//n</span><br><span class="line">    r, s, d = extended_gcd(n, m)</span><br><span class="line">    <span class="keyword">if</span> d != <span class="number">1</span>:</span><br><span class="line">      N=N/n</span><br><span class="line">      <span class="keyword">continue</span></span><br><span class="line">      <span class="comment">#raise &quot;Input not pairwise co-prime&quot;</span></span><br><span class="line">    result += a*s*m</span><br><span class="line">  <span class="keyword">return</span> result % N, N</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">c1 = m**e mod n1</span></span><br><span class="line"><span class="string">c2 = m**e mod n2</span></span><br><span class="line"><span class="string">c3 = m**e mod n3</span></span><br><span class="line"><span class="string">. .</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">sessions=[&#123;<span class="string">&quot;c&quot;</span>: <span class="number">2664456240866799628123354002961100780678777039452838534772316015487055657626151267255765909925238851052963177690615857269355367306531947285275658480119132176458619666356498982335615976520110220831553046336962209497199269751531446896806745547821273188359881207253304353340193045529947532321421316207582669186966262885925510852080336597611720270953364182776647640895915836757533572112922353511839592221769714011077657473370681864919378759906166093497668584965809250367719086157929143483067084526466393322021886107145372853920384593331401647566014964198106822275155018727443981449124990082600675418608431513247974233406</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">16158503998777337192674807945908821386693302597406387444349699542598095897285692091211476083809918750897861769264465663579793991679314429752295361957446059739359063103544638030154853387212724326557655148019702164400877330186327609348721648084613268414555203577183573889217351893673924371072333289354228674760315294504839359655489521012677566131327841053678744664608889174603997019849103346541029516404589134950647019313518381914869229067797614481107128126689730344210547636672896855115883318917823168989617075675281028751941660136853501327782175932311318584187206520215509966133929719351504589815606927966176149195779</span>&#125;,</span><br><span class="line">&#123;<span class="string">&quot;c&quot;</span>: <span class="number">8141444293590939926339140123606008320647283862734921035349993152736573212703175057344759120176139012159033736316173682242298057686577598027916977530077029856485627175379314811877501994761319423200265287785759453820095015807444949214265244900640835658881784054368646315441712319010363526404565445161985028402390954712866106921908734210919493250702187032275110124875570931002934221972634821225056433936935859313342958691599902102787445475305941582660308223893978598257522846759968671416599167447071747751521028177865487587852125772706197522666828868692341809398348371017535491453879955859658955741930595458023438100360</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">32317006071311007300714876688669951960444102669715484032130345427525853843244805988476588891865958825360448605290048592734632332583370763153757718383572299749209540231288997719992234568181178226221179583987114390330645720300200969658014581064237644699938356963972432409945268139827411216302358245968648685631852162149417921884611499140034180764281310426002777325893540359517405108625457448469440495488988134588122686723870538630903173922667307922091719215351000831684798921623126319342120005518066740737893055076255035167681805650095125693219744392056464805973406041558289941338164246139243161281441192654245812544809</span>&#125;,</span><br><span class="line">&#123;<span class="string">&quot;c&quot;</span>: <span class="number">32186692144821382556216414197036084450002406028322550030603281663242416068106078282460625499374288627277856236842632516201785581944392028997860442197688447471167439623993997293924922369564496861634056297046007484347428266405265850123438755524763475428402354354249708937585215741306623413807430961934859288170402397120084830356448790691150552044932030386388033322020053166574933222485614505111408006503260110878032569297769908686840698298294276083052356237977129947951638366162505197545851558874564120929824886880546857109477962821888212631753191393081515047983305638857450728393479191251293759249543719567211830591890</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">32317006071311007300714876688669951960444102669715484032130345427524655138867890893197201411522913463688717960921898019494119559150490921095088152386448283120630877367300996091750197750389652106796057638384067568276792218642619756161838094338476170470581645852036305042887575891768950486750990609730626074204953069170365351039844202147563211921699195999562457720327836338730130880314152322204629124008956222526289905774520564846695102147923912430235289375056683956240708354173616548191256839933106531936657610976268878493644409501763510589523424550621212340120772084161285303618671573000124518317607283263174664732027</span>&#125;]</span><br><span class="line"></span><br><span class="line">data = []</span><br><span class="line"><span class="keyword">for</span> session <span class="keyword">in</span> sessions:</span><br><span class="line">    e=session[<span class="string">&#x27;e&#x27;</span>]</span><br><span class="line">    n=session[<span class="string">&#x27;n&#x27;</span>]</span><br><span class="line">    msg=session[<span class="string">&#x27;c&#x27;</span>]</span><br><span class="line">    data += [(msg, n)]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Please wait, performing CRT&quot;</span>)</span><br><span class="line">x, n = chinese_remainder_theorem(data)</span><br><span class="line">e=session[<span class="string">&#x27;e&#x27;</span>]</span><br><span class="line">realnum = gmpy.iroot(x,e)[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(realnum)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>得到最终结果</p>
+<p>134491505866050799518149049116410640504801097393689986282578875171467764060356652949245541838134430726585819015055443577486765212620027434842249657064471879286694101508916323731138545953360768175582990398279608814586282578875171467764060356652949245541838134430727023319615912208504801097393689986282578875</p>
+<p><strong>根据Crypto第二题ez_crypto下flag取后9位的提示，得到flag为</strong></p>
+<p>flag{282578875}</p>
+<p><del>很离谱吗？是的，很离谱，更离谱的是ez_cypto怎么算都是m&#x3D;512347890123，尝试提交flag几十遍都是错的</del></p>
+<h2 id="Unsolved-Problem"><a href="#Unsolved-Problem" class="headerlink" title="Unsolved Problem"></a>Unsolved Problem</h2><h3 id="MISC-1"><a href="#MISC-1" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x05-misc2"><a href="#0x05-misc2" class="headerlink" title="0x05 misc2"></a>0x05 misc2</h4><p>图种格式，拆分为png+2*rar，png内容”secret is here”，rar内容5characters.txt加密</p>
+<p>png：</p>
+<p>没有找出更多隐写相关的线索</p>
+<p>5characters.txt：</p>
+<p>推测解压密码为5位字符，爆破时间需要2天多，放弃；内容为13位，推测为flag{XXXXXXX}，CRC32绕过需要7位，放弃</p>
+<h3 id="Crypto-1"><a href="#Crypto-1" class="headerlink" title="Crypto"></a>Crypto</h3><h4 id="0x06-base"><a href="#0x06-base" class="headerlink" title="0x06 base"></a>0x06 base</h4><p>hint.txt内容为16，推测为base16</p>
+<p>base.txt内容为brainfuck加密和3538，解密之后为base和3538，将3538用base16（十六进制）解密后为58，合起来内容为base58，这是一种bitcoin的编码方式</p>
+<p>然后没了，试了一堆都试不出来</p>
+<h4 id="0x07-ez-cypto"><a href="#0x07-ez-cypto" class="headerlink" title="0x07 ez_cypto"></a>0x07 ez_cypto</h4><p>挺离谱的，RSA共模攻击，求出m&#x3D;512347890123，提示flag为后9位，我也挺想知道flag是啥的</p>
+]]></content>
+      <categories>
+        <category>CTF</category>
+        <category>Hacker</category>
+        <category>Security</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+        <tag>NeSE</tag>
       </tags>
   </entry>
   <entry>
@@ -851,6 +794,63 @@
       <tags>
         <tag>CTF</tag>
         <tag>NeSE</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Selenium自动化网页流量生成的设计与实现</title>
+    <url>/2021/09/15/Selenium%E6%A8%A1%E6%8B%9F%E7%BD%91%E9%A1%B5%E4%BA%A4%E4%BA%92%E5%B9%B6%E7%94%9F%E6%88%90%E6%B5%81%E9%87%8F/</url>
+    <content><![CDATA[<h2 id="项目背景"><a href="#项目背景" class="headerlink" title="项目背景"></a>项目背景</h2><p>在网络流量分析研究中，构建真实的用户访问行为模型需要大量正常的网页交互流量。本系统通过Selenium自动化技术模拟真实用户行为，访问ChinaZ站长之家排名前500的网站，自动生成高质量的流量数据用于恶意流量分析研究。</p>
+<h2 id="系统架构"><a href="#系统架构" class="headerlink" title="系统架构"></a>系统架构</h2><h3 id="1-ChinaZ网站排名信息爬取模块"><a href="#1-ChinaZ网站排名信息爬取模块" class="headerlink" title="1. ChinaZ网站排名信息爬取模块"></a>1. ChinaZ网站排名信息爬取模块</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Author: wenbuer</span></span><br><span class="line"><span class="comment"># @Date:   2021-09-13 14:45:30</span></span><br><span class="line"><span class="comment"># @Last Modified by:   W3n13uE2</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-09-13 15:53:46</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> requests.exceptions <span class="keyword">import</span> RequestException</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将爬取的代理设置成浏览器,针对一些反爬网站</span></span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;user-agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取一页的内容</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_one_page</span>(<span class="params">targetUrl</span>):</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        response = requests.get(targetUrl, headers)</span><br><span class="line">        <span class="keyword">if</span> (response.status_code == <span class="number">200</span>):  <span class="comment"># 状态码 =200 ,说明爬取正常</span></span><br><span class="line">            parse_one_page(response.content.decode())</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">    <span class="keyword">except</span> RequestException:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 通过正则表达式获取需要的数据</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">parse_one_page</span>(<span class="params">target_text</span>):</span><br><span class="line">    pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;&lt;a href=&quot;.*? target=&quot;_blank&quot; class=&quot;pr10 fz14&quot;&gt;(.*?)&lt;/a&gt;&#x27;</span>)</span><br><span class="line">    pattern2 = re.<span class="built_in">compile</span>(<span class="string">r&#x27;&lt;span class=&quot;col-gray&quot;&gt;(.*?)&lt;/span&gt;&#x27;</span>)</span><br><span class="line">    myList = pattern.findall(target_text)</span><br><span class="line">    myList2 = pattern2.findall(target_text)[<span class="number">1</span>:]</span><br><span class="line">    result.extend(myList)</span><br><span class="line">    result2.extend(myList2)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 爬取每一页内容</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">crawl_each_url</span>():</span><br><span class="line">    get_one_page(<span class="string">&quot;https://top.chinaz.com/all/&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>, <span class="number">51</span>):</span><br><span class="line">        get_one_page(<span class="string">f&quot;https://top.chinaz.com/all/index_<span class="subst">&#123;i&#125;</span>.html&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将数据保存到当前路径下的 &quot;中国网站排名.txt&quot;</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">write_to_file</span>(<span class="params">result_text,result_text2</span>):</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;chinaz.txt&quot;</span>, <span class="string">&quot;a&quot;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">500</span>):</span><br><span class="line">            f.write(<span class="string">f&quot;<span class="subst">&#123;i+<span class="number">1</span>&#125;</span>,<span class="subst">&#123;result_text[i]&#125;</span>,<span class="subst">&#123;result_text2[i]&#125;</span>\n&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    result = []</span><br><span class="line">    result2 = []</span><br><span class="line">    crawl_each_url()</span><br><span class="line">    write_to_file(result,result2)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-Selenium自动化流量生成模块"><a href="#2-Selenium自动化流量生成模块" class="headerlink" title="2. Selenium自动化流量生成模块"></a>2. Selenium自动化流量生成模块</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Author: wenbuer</span></span><br><span class="line"><span class="comment"># @Date:   2021-09-13 10:55:12</span></span><br><span class="line"><span class="comment"># @Last Modified by:   W3n13uE2</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-09-13 19:40:32</span></span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="keyword">from</span> scapy.sendrecv <span class="keyword">import</span> sniff</span><br><span class="line"><span class="keyword">from</span> scapy.<span class="built_in">all</span> <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyThread</span>(threading.Thread):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, ids, url, timeout, browser</span>):</span><br><span class="line">        threading.Thread.__init__(<span class="variable language_">self</span>)</span><br><span class="line">        <span class="variable language_">self</span>.ids = ids  <span class="comment"># 线程ID，控制线程职责(捕获数据、自动化访问)</span></span><br><span class="line">        <span class="variable language_">self</span>.url = url  <span class="comment"># 需要访问的URL</span></span><br><span class="line">        <span class="variable language_">self</span>.timeout = timeout  <span class="comment"># 访问完成大概需要的时间</span></span><br><span class="line">        <span class="variable language_">self</span>.browser = browser  <span class="comment"># 浏览器</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="variable language_">self</span>.name)</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">run</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.ids:</span><br><span class="line">            <span class="comment"># 控制浏览器访问</span></span><br><span class="line">            automated_access(<span class="variable language_">self</span>.url, <span class="variable language_">self</span>.browser, <span class="variable language_">self</span>.timeout)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="comment"># 收集数据包</span></span><br><span class="line">            collect_pcap(<span class="variable language_">self</span>.timeout, <span class="variable language_">self</span>.url, <span class="variable language_">self</span>.browser)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">collect_pcap</span>(<span class="params">timeout, url, browser</span>):</span><br><span class="line">    data = sniff(timeout=timeout)  <span class="comment"># 可以加filter过滤</span></span><br><span class="line">    file_name = url.replace(<span class="string">&#x27;:&#x27;</span>, <span class="string">&#x27;&#x27;</span>).replace(<span class="string">&#x27;.&#x27;</span>, <span class="string">&#x27;&#x27;</span>).replace(<span class="string">&#x27;//&#x27;</span>, <span class="string">&#x27;&#x27;</span>)  <span class="comment"># 保存的文件名</span></span><br><span class="line">    writer = PcapWriter(<span class="string">&quot;%s-%s.pcap&quot;</span> % (browser, file_name))</span><br><span class="line">    writer.write(data)</span><br><span class="line">    writer.flush()</span><br><span class="line"> </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">new_window</span>(<span class="params">driver, timeout</span>):</span><br><span class="line">    url_handle = driver.current_window_handle  <span class="comment"># 获取当前窗口句柄</span></span><br><span class="line">    <span class="keyword">for</span> link <span class="keyword">in</span> driver.find_elements_by_xpath(<span class="string">&#x27;//a&#x27;</span>):</span><br><span class="line">        a = link.get_attribute(<span class="string">&#x27;href&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> a == <span class="string">&quot;javascript:;&quot;</span> <span class="keyword">or</span> a == driver.current_url:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        next_url = a</span><br><span class="line">        js = <span class="string">&#x27;window.open(&quot;%s&quot;)&#x27;</span>%next_url</span><br><span class="line">        driver.execute_script(js)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    time.sleep(timeout)  <span class="comment"># 线程休眠，保证浏览器充分访问完之后再关闭浏览器</span></span><br><span class="line">    driver.close()  <span class="comment"># 关闭对应窗口</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">automated_access</span>(<span class="params">url, browser, timeout</span>):</span><br><span class="line">    <span class="keyword">if</span> browser == <span class="string">&#x27;Chrome&#x27;</span>:</span><br><span class="line">        options = webdriver.ChromeOptions()</span><br><span class="line">        options.add_experimental_option(<span class="string">&#x27;excludeSwitches&#x27;</span>, [<span class="string">&#x27;enable-automation&#x27;</span>])</span><br><span class="line">        options.add_experimental_option(<span class="string">&#x27;useAutomationExtension&#x27;</span>, <span class="literal">False</span>) <span class="comment"># 屏蔽网站对Selenium的检测</span></span><br><span class="line">        driver = webdriver.Chrome(options=options)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            url = <span class="string">&quot;http://&quot;</span>+url</span><br><span class="line">            driver.get(url)  <span class="comment"># 访问URL</span></span><br><span class="line">            time.sleep(timeout)  <span class="comment"># 线程休眠，保证浏览器充分访问完之后再关闭浏览器</span></span><br><span class="line">            new_window(driver,new_window_timeout)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(e.args)</span><br><span class="line">        driver.quit()  <span class="comment"># 退出浏览器</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        options = webdriver.FirefoxOptions()</span><br><span class="line">        profile = webdriver.FirefoxProfile()</span><br><span class="line">        profile.set_preference(<span class="string">&quot;dom.webdriver.enabled&quot;</span>, <span class="literal">False</span>)  <span class="comment"># 设置非driver驱动</span></span><br><span class="line">        profile.set_preference(<span class="string">&#x27;useAutomationExtension&#x27;</span>, <span class="literal">False</span>) <span class="comment">#关闭自动化提示</span></span><br><span class="line">        profile.update_preferences()    <span class="comment">#更新设置</span></span><br><span class="line">        driver = webdriver.Firefox(firefox_options=options ,firefox_profile=profile)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            url = <span class="string">&quot;http://&quot;</span>+url </span><br><span class="line">            driver.get(url)</span><br><span class="line">            time.sleep(timeout)</span><br><span class="line">            new_window(driver,new_window_timeout)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(e.args)</span><br><span class="line">        driver.quit()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;finished.&#x27;</span>)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    webname,website = [],[]</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;chinaz.txt&quot;</span>,<span class="string">&quot;r&quot;</span>,encoding=<span class="string">&quot;utf-8&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        line = f.readline().rstrip(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">        <span class="keyword">while</span> line:</span><br><span class="line">            webname.extend([line.split(<span class="string">&#x27;,&#x27;</span>)[<span class="number">1</span>]])</span><br><span class="line">            website.extend([line.split(<span class="string">&#x27;,&#x27;</span>)[<span class="number">2</span>]])</span><br><span class="line">            line = f.readline().rstrip(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">    url_list = website  <span class="comment"># url列表</span></span><br><span class="line">    browser = [<span class="string">&#x27;Chrome&#x27;</span>, <span class="string">&#x27;Firefox&#x27;</span>]  <span class="comment"># 浏览器列表</span></span><br><span class="line">    timeout = <span class="number">5</span>  <span class="comment"># 浏览器访问网站的时间</span></span><br><span class="line">    new_window_timeout = <span class="number">10</span> <span class="comment"># 浏览下一个网站的时间</span></span><br><span class="line">    <span class="keyword">for</span> url <span class="keyword">in</span> url_list:</span><br><span class="line">        <span class="keyword">for</span> bro <span class="keyword">in</span> browser:</span><br><span class="line">            thread1 = MyThread(<span class="number">0</span>, url, timeout, bro)</span><br><span class="line">            thread1.start()  <span class="comment"># 启动子线程</span></span><br><span class="line">            thread2 = MyThread(<span class="number">1</span>, url, timeout, bro)</span><br><span class="line">            thread2.start()</span><br><span class="line">            thread1.join()  <span class="comment"># 父线程等待子线程</span></span><br><span class="line">            thread2.join()</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Exit the main thread &quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="关键技术点"><a href="#关键技术点" class="headerlink" title="关键技术点"></a>关键技术点</h2><ol>
+<li><strong>反检测机制</strong>：<ul>
+<li>Chrome使用<code>--disable-blink-features=AutomationControlled</code></li>
+<li>Firefox设置<code>dom.webdriver.enabled</code>为False</li>
+<li>移除自动化扩展标识</li>
+</ul>
+</li>
+<li><strong>高效流量捕捉</strong>：<ul>
+<li>Scapy库实现网络层流量捕获</li>
+<li>多线程并发处理提高效率</li>
+<li>智能命名保存pcap文件</li>
+</ul>
+</li>
+<li><strong>真实用户模拟</strong>：<ul>
+<li>随机选择页面链接进行二次访问</li>
+<li>合理的浏览时间间隔</li>
+<li>多种浏览器配置模拟不同用户设备</li>
+</ul>
+</li>
+</ol>
+<h2 id="系统优化方向"><a href="#系统优化方向" class="headerlink" title="系统优化方向"></a>系统优化方向</h2><ol>
+<li><strong>行为多样性增强</strong>：<ul>
+<li>添加鼠标移动轨迹模拟</li>
+<li>实现页面滚动行为</li>
+<li>随机点击非链接元素</li>
+</ul>
+</li>
+<li><strong>性能提升</strong>：<ul>
+<li>采用浏览器池减少初始化开销</li>
+<li>异步IO处理提高并发能力</li>
+<li>分布式部署方案</li>
+</ul>
+</li>
+<li><strong>数据分析集成</strong>：<ul>
+<li>实时流量特征提取</li>
+<li>访问行为模式分析</li>
+<li>异常检测告警机制</li>
+</ul>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Traffic Analysis</category>
+      </categories>
+      <tags>
+        <tag>Study life</tag>
+        <tag>Traffic Analysis</tag>
       </tags>
   </entry>
   <entry>
