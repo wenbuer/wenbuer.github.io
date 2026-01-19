@@ -394,6 +394,80 @@
       </tags>
   </entry>
   <entry>
+    <title>HTB通过V2Ray代理访问靶机网页</title>
+    <url>/2021/04/15/HTB%E9%80%9A%E8%BF%87%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BB%A3%E7%90%86%E8%AE%BF%E9%97%AE%E9%9D%B6%E6%9C%BA%E7%BD%91%E9%A1%B5/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="HTB通过服务器代理访问靶机网页"><a href="#HTB通过服务器代理访问靶机网页" class="headerlink" title="HTB通过服务器代理访问靶机网页"></a>HTB通过服务器代理访问靶机网页</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在之前搭建openvpn访问HTB的文章中，我用的是ubuntu服务器，且没有桌面系统。这篇文章的出现是在攻击靶机的过程中需要访问靶场的网页，因为没有桌面系统，我打算将网页转发到本机上来做。</p>
+<p>一开始考虑的是图形转发，X11的Xmanager尝试了一下，占用带宽太大，输入一个ip需要半分钟的反应时间，因此放弃。</p>
+<p>然后尝试了vnc的图形转发，不同于Xmanager通过端口转发UI界面，vnc是远程连入操作系统，相当于单独开了一个连接窗口。</p>
+<p>但是vnc的安装还需要gnome之类的桌面系统，这和我一开始使用服务器的想法背道而驰。安装期间还搞崩了我的服务器，差点直接提交工单重置。因此安装尝试完之后也放弃了这种方法。</p>
+<p>之后考虑的是流量转发，利用v2ray直接转发本机流量，交给服务器代理访问，这种方式也证明用很好的效果。</p>
+<p>下面记录了·一下我的操作过程。</p>
+<h3 id="V2ray搭建"><a href="#V2ray搭建" class="headerlink" title="V2ray搭建"></a>V2ray搭建</h3><h4 id="时间校准"><a href="#时间校准" class="headerlink" title="时间校准"></a>时间校准</h4><p><code>date -R</code></p>
+<p>查看服务器时间，确保与主机时间误差不超过90s，不同时区的服务器时间确保经过转换之后不超过90s</p>
+<p>如果时间不准确，用</p>
+<p><code>date --set=&quot;XXXX-XX-XX XX:XX:XX&quot;</code></p>
+<p>来设置时间</p>
+<h4 id="服务器安装"><a href="#服务器安装" class="headerlink" title="服务器安装"></a>服务器安装</h4><p>下载安装脚本</p>
+<p><code>wget https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh</code></p>
+<p>安装v2ray</p>
+<p><code>bash install-release.sh</code></p>
+<p>启动v2ray</p>
+<p><code>systemctl start v2ray</code></p>
+<p>设置开机启动</p>
+<p><code>systemctl enable v2ray</code></p>
+<p>查看v2ray状态</p>
+<p><code>systemctl status v2ray</code></p>
+<p>如果显示确实在运行，状态没问题，就可以停下v2ray进行config的配置</p>
+<p>停止v2ray</p>
+<p><code>systemctl stop v2ray</code></p>
+<h4 id="客户端安装"><a href="#客户端安装" class="headerlink" title="客户端安装"></a>客户端安装</h4><p>windows在<a href="https://github.com/v2fly/v2ray-core/releases%E4%B8%8B%E8%BD%BD%E6%96%B0%E7%89%88%E7%9A%84v2ray-windows-64.zip%E5%AE%89%E8%A3%85%E5%8C%85%EF%BC%8C%E8%A7%A3%E5%8E%8B%E5%8D%B3%E5%8F%AF">https://github.com/v2fly/v2ray-core/releases下载新版的v2ray-windows-64.zip安装包，解压即可</a></p>
+<p>然后设置一下浏览器代理</p>
+<p>本机是chrome浏览器，推荐使用Proxy SwitchyOmega这个插件，能更加方便的切换代理设置</p>
+<p><a href="/images/image-20210415090617478.png" class="gallery-item"><img src="/images/image-20210415090617478.png"></a></p>
+<p>点击选项，然后点击左侧新建情景模式</p>
+<a href="/images/image-20210415090742885.png" class="gallery-item"><img src="/images/image-20210415090742885.png" style="zoom:50%;" /></a>
+
+<p>创建完之后，填写如下</p>
+<p><a href="/images/image-20210415091207398.png" class="gallery-item"><img src="/images/image-20210415091207398.png"></a></p>
+<p>然后点击左侧应用选项进行保存</p>
+<h4 id="VMess服务端配置"><a href="#VMess服务端配置" class="headerlink" title="VMess服务端配置"></a>VMess服务端配置</h4><p>生成自己的uuid</p>
+<p><code>cat /proc/sys/kernel/random/uuid &gt; 1.txt</code></p>
+<p>编辑config.json</p>
+<p><code>vim /usr/local/etc/v2ray/config.json</code></p>
+<p>删除注释内容</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;inbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="string">&quot;yourport&quot;</span><span class="punctuation">,</span> <span class="comment">// 服务器监听端口,自选,删除引号</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;vmess&quot;</span><span class="punctuation">,</span>    <span class="comment">// 主传入协议</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;clients&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">          <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;XXXXXXX-XXXX-XXXX-XXXXX-XXXXXXXX&quot;</span><span class="punctuation">,</span>  <span class="comment">// 用户 ID，客户端与服务器必须相同，复制之前生成的uuid</span></span><br><span class="line">            <span class="attr">&quot;alterId&quot;</span><span class="punctuation">:</span> <span class="number">64</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;outbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;freedom&quot;</span><span class="punctuation">,</span>  <span class="comment">// 主传出协议</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="VMess客户端配置"><a href="#VMess客户端配置" class="headerlink" title="VMess客户端配置"></a>VMess客户端配置</h4><p>修改安装包解压之后的config.json，记得删除注释</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;inbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="number">1080</span><span class="punctuation">,</span> <span class="comment">// 监听端口</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;socks&quot;</span><span class="punctuation">,</span> <span class="comment">// 入口协议为 SOCKS 5</span></span><br><span class="line">      <span class="attr">&quot;sniffing&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;enabled&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;destOverride&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;http&quot;</span><span class="punctuation">,</span> <span class="string">&quot;tls&quot;</span><span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;auth&quot;</span><span class="punctuation">:</span> <span class="string">&quot;noauth&quot;</span>  <span class="comment">//socks的认证设置，noauth 代表不认证，由于 socks 通常在客户端使用，所以这里不认证</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;outbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;vmess&quot;</span><span class="punctuation">,</span> <span class="comment">// 出口协议</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;vnext&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">          <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;address&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_server_ip&quot;</span><span class="punctuation">,</span> <span class="comment">// 服务器地址，请修改为你自己的服务器 IP 或域名</span></span><br><span class="line">            <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your port&quot;</span><span class="punctuation">,</span>  <span class="comment">// 服务器端口，删除引号</span></span><br><span class="line">            <span class="attr">&quot;users&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">              <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;XXXXXXX-XXXX-XXXX-XXXXX-XXXXXXXX&quot;</span><span class="punctuation">,</span>  <span class="comment">// 用户 ID，客户端与服务器必须相同，复制之前生成的uuid</span></span><br><span class="line">                <span class="attr">&quot;alterId&quot;</span><span class="punctuation">:</span> <span class="number">64</span> <span class="comment">// 此处的值也应当与服务器相同</span></span><br><span class="line">              <span class="punctuation">&#125;</span></span><br><span class="line">            <span class="punctuation">]</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h4><p>数据包流程是</p>
+<p><code>&#123;浏览器&#125; &lt;--(socks)--&gt; &#123;V2Ray 客户端 inbound &lt;-&gt; V2Ray 客户端 outbound&#125; &lt;--(VMess)--&gt;  &#123;V2Ray 服务器 inbound &lt;-&gt; V2Ray 服务器 outbound&#125; &lt;--(Freedom)--&gt; &#123;目标网站&#125;</code></p>
+<p>检查服务器config</p>
+<p><code>/usr/local/bin/v2ray -test -config /usr/local/etc/v2ray/config.json</code></p>
+<p>服务器开启v2ray</p>
+<p><code>systemctl start v2ray</code></p>
+<p>客户端打开v2ray.exe</p>
+<p>浏览器切换代理模式</p>
+<p>即可访问HTB靶机网页（记得服务器要开放安全组端口）</p>
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>]]></content>
+      <categories>
+        <category>HTB</category>
+        <category>Hacker</category>
+        <category>Security</category>
+        <category>Penetration testing</category>
+      </categories>
+      <tags>
+        <tag>Study life</tag>
+        <tag>HTB</tag>
+        <tag>Penetration testing</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>HacktheBox注册挑战</title>
     <url>/2021/03/13/HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98/</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h3 id="HacktheBox注册挑战"><a href="#HacktheBox注册挑战" class="headerlink" title="HacktheBox注册挑战"></a>HacktheBox注册挑战</h3><p>HacktheBox是一个在线靶场，近期准备考OSCP，准备拿靶场练练手。</p>
@@ -559,80 +633,6 @@
       <tags>
         <tag>CTF</tag>
         <tag>NeSE</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>HTB通过V2Ray代理访问靶机网页</title>
-    <url>/2021/04/15/HTB%E9%80%9A%E8%BF%87%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BB%A3%E7%90%86%E8%AE%BF%E9%97%AE%E9%9D%B6%E6%9C%BA%E7%BD%91%E9%A1%B5/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="HTB通过服务器代理访问靶机网页"><a href="#HTB通过服务器代理访问靶机网页" class="headerlink" title="HTB通过服务器代理访问靶机网页"></a>HTB通过服务器代理访问靶机网页</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在之前搭建openvpn访问HTB的文章中，我用的是ubuntu服务器，且没有桌面系统。这篇文章的出现是在攻击靶机的过程中需要访问靶场的网页，因为没有桌面系统，我打算将网页转发到本机上来做。</p>
-<p>一开始考虑的是图形转发，X11的Xmanager尝试了一下，占用带宽太大，输入一个ip需要半分钟的反应时间，因此放弃。</p>
-<p>然后尝试了vnc的图形转发，不同于Xmanager通过端口转发UI界面，vnc是远程连入操作系统，相当于单独开了一个连接窗口。</p>
-<p>但是vnc的安装还需要gnome之类的桌面系统，这和我一开始使用服务器的想法背道而驰。安装期间还搞崩了我的服务器，差点直接提交工单重置。因此安装尝试完之后也放弃了这种方法。</p>
-<p>之后考虑的是流量转发，利用v2ray直接转发本机流量，交给服务器代理访问，这种方式也证明用很好的效果。</p>
-<p>下面记录了·一下我的操作过程。</p>
-<h3 id="V2ray搭建"><a href="#V2ray搭建" class="headerlink" title="V2ray搭建"></a>V2ray搭建</h3><h4 id="时间校准"><a href="#时间校准" class="headerlink" title="时间校准"></a>时间校准</h4><p><code>date -R</code></p>
-<p>查看服务器时间，确保与主机时间误差不超过90s，不同时区的服务器时间确保经过转换之后不超过90s</p>
-<p>如果时间不准确，用</p>
-<p><code>date --set=&quot;XXXX-XX-XX XX:XX:XX&quot;</code></p>
-<p>来设置时间</p>
-<h4 id="服务器安装"><a href="#服务器安装" class="headerlink" title="服务器安装"></a>服务器安装</h4><p>下载安装脚本</p>
-<p><code>wget https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh</code></p>
-<p>安装v2ray</p>
-<p><code>bash install-release.sh</code></p>
-<p>启动v2ray</p>
-<p><code>systemctl start v2ray</code></p>
-<p>设置开机启动</p>
-<p><code>systemctl enable v2ray</code></p>
-<p>查看v2ray状态</p>
-<p><code>systemctl status v2ray</code></p>
-<p>如果显示确实在运行，状态没问题，就可以停下v2ray进行config的配置</p>
-<p>停止v2ray</p>
-<p><code>systemctl stop v2ray</code></p>
-<h4 id="客户端安装"><a href="#客户端安装" class="headerlink" title="客户端安装"></a>客户端安装</h4><p>windows在<a href="https://github.com/v2fly/v2ray-core/releases%E4%B8%8B%E8%BD%BD%E6%96%B0%E7%89%88%E7%9A%84v2ray-windows-64.zip%E5%AE%89%E8%A3%85%E5%8C%85%EF%BC%8C%E8%A7%A3%E5%8E%8B%E5%8D%B3%E5%8F%AF">https://github.com/v2fly/v2ray-core/releases下载新版的v2ray-windows-64.zip安装包，解压即可</a></p>
-<p>然后设置一下浏览器代理</p>
-<p>本机是chrome浏览器，推荐使用Proxy SwitchyOmega这个插件，能更加方便的切换代理设置</p>
-<p><a href="/images/image-20210415090617478.png" class="gallery-item"><img src="/images/image-20210415090617478.png"></a></p>
-<p>点击选项，然后点击左侧新建情景模式</p>
-<a href="/images/image-20210415090742885.png" class="gallery-item"><img src="/images/image-20210415090742885.png" style="zoom:50%;" /></a>
-
-<p>创建完之后，填写如下</p>
-<p><a href="/images/image-20210415091207398.png" class="gallery-item"><img src="/images/image-20210415091207398.png"></a></p>
-<p>然后点击左侧应用选项进行保存</p>
-<h4 id="VMess服务端配置"><a href="#VMess服务端配置" class="headerlink" title="VMess服务端配置"></a>VMess服务端配置</h4><p>生成自己的uuid</p>
-<p><code>cat /proc/sys/kernel/random/uuid &gt; 1.txt</code></p>
-<p>编辑config.json</p>
-<p><code>vim /usr/local/etc/v2ray/config.json</code></p>
-<p>删除注释内容</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;inbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="string">&quot;yourport&quot;</span><span class="punctuation">,</span> <span class="comment">// 服务器监听端口,自选,删除引号</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;vmess&quot;</span><span class="punctuation">,</span>    <span class="comment">// 主传入协议</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;clients&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">          <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;XXXXXXX-XXXX-XXXX-XXXXX-XXXXXXXX&quot;</span><span class="punctuation">,</span>  <span class="comment">// 用户 ID，客户端与服务器必须相同，复制之前生成的uuid</span></span><br><span class="line">            <span class="attr">&quot;alterId&quot;</span><span class="punctuation">:</span> <span class="number">64</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;outbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;freedom&quot;</span><span class="punctuation">,</span>  <span class="comment">// 主传出协议</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h4 id="VMess客户端配置"><a href="#VMess客户端配置" class="headerlink" title="VMess客户端配置"></a>VMess客户端配置</h4><p>修改安装包解压之后的config.json，记得删除注释</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;inbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="number">1080</span><span class="punctuation">,</span> <span class="comment">// 监听端口</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;socks&quot;</span><span class="punctuation">,</span> <span class="comment">// 入口协议为 SOCKS 5</span></span><br><span class="line">      <span class="attr">&quot;sniffing&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;enabled&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;destOverride&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;http&quot;</span><span class="punctuation">,</span> <span class="string">&quot;tls&quot;</span><span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;auth&quot;</span><span class="punctuation">:</span> <span class="string">&quot;noauth&quot;</span>  <span class="comment">//socks的认证设置，noauth 代表不认证，由于 socks 通常在客户端使用，所以这里不认证</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;outbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;vmess&quot;</span><span class="punctuation">,</span> <span class="comment">// 出口协议</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;vnext&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">          <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;address&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_server_ip&quot;</span><span class="punctuation">,</span> <span class="comment">// 服务器地址，请修改为你自己的服务器 IP 或域名</span></span><br><span class="line">            <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your port&quot;</span><span class="punctuation">,</span>  <span class="comment">// 服务器端口，删除引号</span></span><br><span class="line">            <span class="attr">&quot;users&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">              <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;XXXXXXX-XXXX-XXXX-XXXXX-XXXXXXXX&quot;</span><span class="punctuation">,</span>  <span class="comment">// 用户 ID，客户端与服务器必须相同，复制之前生成的uuid</span></span><br><span class="line">                <span class="attr">&quot;alterId&quot;</span><span class="punctuation">:</span> <span class="number">64</span> <span class="comment">// 此处的值也应当与服务器相同</span></span><br><span class="line">              <span class="punctuation">&#125;</span></span><br><span class="line">            <span class="punctuation">]</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h4 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h4><p>数据包流程是</p>
-<p><code>&#123;浏览器&#125; &lt;--(socks)--&gt; &#123;V2Ray 客户端 inbound &lt;-&gt; V2Ray 客户端 outbound&#125; &lt;--(VMess)--&gt;  &#123;V2Ray 服务器 inbound &lt;-&gt; V2Ray 服务器 outbound&#125; &lt;--(Freedom)--&gt; &#123;目标网站&#125;</code></p>
-<p>检查服务器config</p>
-<p><code>/usr/local/bin/v2ray -test -config /usr/local/etc/v2ray/config.json</code></p>
-<p>服务器开启v2ray</p>
-<p><code>systemctl start v2ray</code></p>
-<p>客户端打开v2ray.exe</p>
-<p>浏览器切换代理模式</p>
-<p>即可访问HTB靶机网页（记得服务器要开放安全组端口）</p>
-</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
-        var options = {
-            selector: '.gallery-item'
-        };
-        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
-        }</script>]]></content>
-      <categories>
-        <category>HTB</category>
-        <category>Hacker</category>
-        <category>Security</category>
-        <category>Penetration testing</category>
-      </categories>
-      <tags>
-        <tag>Study life</tag>
-        <tag>HTB</tag>
-        <tag>Penetration testing</tag>
       </tags>
   </entry>
   <entry>
@@ -925,6 +925,58 @@
 <script data-pjax src="/lib/hbe.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css">]]></content>
   </entry>
   <entry>
+    <title>基于Telegram机器人的图片爬虫</title>
+    <url>/2021/12/20/%E7%88%AC%E8%99%AB%E8%8E%B7%E5%8F%96telegram%E5%8F%91%E5%9B%BE%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9B%BE%E7%89%87%E5%86%85%E5%AE%B9/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="项目概述"><a href="#项目概述" class="headerlink" title="项目概述"></a>项目概述</h2><p>本文将详细介绍如何通过Python爬虫技术，从Telegram的图片机器人获取图片内容，并将这些图片集成到QQ机器人中实现跨平台转发功能。</p>
+<h2 id="技术实现流程"><a href="#技术实现流程" class="headerlink" title="技术实现流程"></a>技术实现流程</h2><h3 id="1-获取Telegram图片链接"><a href="#1-获取Telegram图片链接" class="headerlink" title="1. 获取Telegram图片链接"></a>1. 获取Telegram图片链接</h3><p>首先通过Telegram客户端操作获取目标机器人的图片分享链接：</p>
+<ol>
+<li>选择需要爬取的机器人消息</li>
+<li>点击”转发”选项</li>
+<li>选择”复制链接”</li>
+</ol>
+<p><a href="/images/image-20211220103054655.png" title="image-20211220103054655" class="gallery-item"><img src="/images/image-20211220103054655.png" alt="image-20211220103054655"></a></p>
+<p>典型链接格式为：<code>https://t.me/botmzt/XXXX?single</code>，其中<code>XXXX</code>为图片的唯一数字编号。</p>
+<h3 id="2-分析图片存放机制"><a href="#2-分析图片存放机制" class="headerlink" title="2. 分析图片存放机制"></a>2. 分析图片存放机制</h3><p>通过浏览器开发者工具分析图片加载过程：</p>
+<ol>
+<li>在浏览器中打开获得的链接</li>
+<li>按F12打开开发者工具</li>
+<li>切换到”网络(Network)”标签</li>
+<li>观察图片资源的实际请求地址</li>
+</ol>
+<p><a href="/images/image-20211220123312110.png" title="image-20211220123312110" class="gallery-item"><img src="/images/image-20211220123312110.png" alt="image-20211220123312110"></a></p>
+<p>可以发现实际图片请求常带有<code>embed=1&amp;single=1</code>参数。</p>
+<h3 id="3-实现爬虫代码"><a href="#3-实现爬虫代码" class="headerlink" title="3. 实现爬虫代码"></a>3. 实现爬虫代码</h3><p>基于Python实现完整的爬虫功能：</p>
+<p>然后分析<a href="https://t.me/botmzt/XXXX?embed=1&single=1%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E6%89%BE%E5%88%B0%E5%9B%BE%E7%89%87%E5%AF%B9%E5%BA%94%E7%9A%84url%E3%80%82%E5%90%8C%E6%97%B6%E6%89%BE%E5%88%B0%E6%97%A0%E5%9B%BE%E7%89%87%E6%97%B6%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%88%A4%E5%88%AB%E6%9D%A1%E4%BB%B6">https://t.me/botmzt/XXXX?embed=1&amp;single=1的源码，找到图片对应的url。同时找到无图片时的源码，作为一个判别条件</a></p>
+<p>通过之前文章的代理内容，我们可以写爬虫代码直接下载图片内容</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding:UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="comment"># 配置部分</span></span><br><span class="line">prefix_url = <span class="string">&quot;https://t.me/botmzt/&quot;</span></span><br><span class="line">suffix_url = <span class="string">&quot;?embed=1&amp;single=1&quot;</span></span><br><span class="line">file_url = <span class="string">&quot;./picCache/&quot;</span></span><br><span class="line">proxies = &#123;</span><br><span class="line">    <span class="string">&#x27;http&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;https&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Connection&#x27;</span>: <span class="string">&#x27;close&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TelegramImageCrawler</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.session = requests.Session()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_latest_image_num</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;获取最新的图片编号&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 实现省略.</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">download_image</span>(<span class="params">self, image_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;下载指定编号的图片&quot;&quot;&quot;</span></span><br><span class="line">        target_url = <span class="string">f&quot;<span class="subst">&#123;prefix_url&#125;</span><span class="subst">&#123;image_num&#125;</span><span class="subst">&#123;suffix_url&#125;</span>&quot;</span></span><br><span class="line">        response = <span class="variable language_">self</span>.session.get(target_url, proxies=proxies, headers=headers)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> response.status_code != <span class="number">200</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">            </span><br><span class="line">        soup = BeautifulSoup(response.text, <span class="string">&#x27;lxml&#x27;</span>)</span><br><span class="line">        pic_data = soup.find_all(<span class="string">&#x27;a&#x27;</span>, attrs=&#123;<span class="string">&#x27;class&#x27;</span>: <span class="string">&#x27;js-message_photo&#x27;</span>&#125;)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> pic_data:</span><br><span class="line">            img_style = pic_data[<span class="number">0</span>][<span class="string">&#x27;style&#x27;</span>]</span><br><span class="line">            img_url = re.search(<span class="string">&#x27;https:.*?jpg&#x27;</span>, img_style).group()</span><br><span class="line">            </span><br><span class="line">            img_data = <span class="variable language_">self</span>.session.get(img_url, proxies=proxies, headers=headers).content</span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">f&#x27;/data/images/<span class="subst">&#123;image_num&#125;</span>.jpg&#x27;</span>, <span class="string">&#x27;wb+&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(img_data)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">batch_download</span>(<span class="params">self, start_num, end_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;批量下载图片&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(start_num, end_num+<span class="number">1</span>):</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;正在下载图片 #<span class="subst">&#123;num&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="variable language_">self</span>.download_image(num)</span><br></pre></td></tr></table></figure>
+
+<h2 id="关键技术点"><a href="#关键技术点" class="headerlink" title="关键技术点"></a>关键技术点</h2><ol>
+<li><strong>代理配置</strong>：使用SOCKS5代理访问Telegram</li>
+<li><strong>异常处理</strong>：检测<code>tgme_widget_message_error</code>类判断无效消息</li>
+<li><strong>图片识别</strong>：通过BeautifulSoup解析DOM结构获取图片URL</li>
+<li><strong>文件存储</strong>：将下载的图片按编号保存到本地</li>
+</ol>
+<h2 id="系统集成"><a href="#系统集成" class="headerlink" title="系统集成"></a>系统集成</h2><p>将爬虫功能集成到go-cqhttp机器人的基本思路：</p>
+<ol>
+<li>设置定时任务定期检查新图片</li>
+<li>下载新图片到本地存储</li>
+<li>通过QQ机器人接口发送图片</li>
+<li>记录已处理的图片编号防止重复</li>
+</ol>
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>]]></content>
+      <categories>
+        <category>Daily</category>
+      </categories>
+      <tags>
+        <tag>Daily life</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>社工案例思路——无交互日常篇</title>
     <url>/2021/01/21/%E7%A4%BE%E5%B7%A5%E6%A1%88%E4%BE%8B%E6%80%9D%E8%B7%AF%E2%80%94%E2%80%94%E6%97%A0%E4%BA%A4%E4%BA%92%E6%97%A5%E5%B8%B8%E7%AF%87/</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h1 id="社工案例思路-被动信息收集篇"><a href="#社工案例思路-被动信息收集篇" class="headerlink" title="社工案例思路-被动信息收集篇"></a>社工案例思路-被动信息收集篇</h1><h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>“互联网时代没有隐私”已经成为普遍认知。本文将分享基于社会工程学的被动信息收集方法，在不与目标产生直接交互的情况下，如何通过常见应用平台构建详细的人物画像。所有技术手法均属于被动分析范畴，避免采用钓鱼邮件等主动攻击手段。</p>
@@ -1007,58 +1059,6 @@
       <tags>
         <tag>Social Engineering</tag>
         <tag>Daily Life</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>基于Telegram机器人的图片爬虫</title>
-    <url>/2021/12/20/%E7%88%AC%E8%99%AB%E8%8E%B7%E5%8F%96telegram%E5%8F%91%E5%9B%BE%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9B%BE%E7%89%87%E5%86%85%E5%AE%B9/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="项目概述"><a href="#项目概述" class="headerlink" title="项目概述"></a>项目概述</h2><p>本文将详细介绍如何通过Python爬虫技术，从Telegram的图片机器人获取图片内容，并将这些图片集成到QQ机器人中实现跨平台转发功能。</p>
-<h2 id="技术实现流程"><a href="#技术实现流程" class="headerlink" title="技术实现流程"></a>技术实现流程</h2><h3 id="1-获取Telegram图片链接"><a href="#1-获取Telegram图片链接" class="headerlink" title="1. 获取Telegram图片链接"></a>1. 获取Telegram图片链接</h3><p>首先通过Telegram客户端操作获取目标机器人的图片分享链接：</p>
-<ol>
-<li>选择需要爬取的机器人消息</li>
-<li>点击”转发”选项</li>
-<li>选择”复制链接”</li>
-</ol>
-<p><a href="/images/image-20211220103054655.png" title="image-20211220103054655" class="gallery-item"><img src="/images/image-20211220103054655.png" alt="image-20211220103054655"></a></p>
-<p>典型链接格式为：<code>https://t.me/botmzt/XXXX?single</code>，其中<code>XXXX</code>为图片的唯一数字编号。</p>
-<h3 id="2-分析图片存放机制"><a href="#2-分析图片存放机制" class="headerlink" title="2. 分析图片存放机制"></a>2. 分析图片存放机制</h3><p>通过浏览器开发者工具分析图片加载过程：</p>
-<ol>
-<li>在浏览器中打开获得的链接</li>
-<li>按F12打开开发者工具</li>
-<li>切换到”网络(Network)”标签</li>
-<li>观察图片资源的实际请求地址</li>
-</ol>
-<p><a href="/images/image-20211220123312110.png" title="image-20211220123312110" class="gallery-item"><img src="/images/image-20211220123312110.png" alt="image-20211220123312110"></a></p>
-<p>可以发现实际图片请求常带有<code>embed=1&amp;single=1</code>参数。</p>
-<h3 id="3-实现爬虫代码"><a href="#3-实现爬虫代码" class="headerlink" title="3. 实现爬虫代码"></a>3. 实现爬虫代码</h3><p>基于Python实现完整的爬虫功能：</p>
-<p>然后分析<a href="https://t.me/botmzt/XXXX?embed=1&single=1%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E6%89%BE%E5%88%B0%E5%9B%BE%E7%89%87%E5%AF%B9%E5%BA%94%E7%9A%84url%E3%80%82%E5%90%8C%E6%97%B6%E6%89%BE%E5%88%B0%E6%97%A0%E5%9B%BE%E7%89%87%E6%97%B6%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%88%A4%E5%88%AB%E6%9D%A1%E4%BB%B6">https://t.me/botmzt/XXXX?embed=1&amp;single=1的源码，找到图片对应的url。同时找到无图片时的源码，作为一个判别条件</a></p>
-<p>通过之前文章的代理内容，我们可以写爬虫代码直接下载图片内容</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding:UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="comment"># 配置部分</span></span><br><span class="line">prefix_url = <span class="string">&quot;https://t.me/botmzt/&quot;</span></span><br><span class="line">suffix_url = <span class="string">&quot;?embed=1&amp;single=1&quot;</span></span><br><span class="line">file_url = <span class="string">&quot;./picCache/&quot;</span></span><br><span class="line">proxies = &#123;</span><br><span class="line">    <span class="string">&#x27;http&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;https&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Connection&#x27;</span>: <span class="string">&#x27;close&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TelegramImageCrawler</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.session = requests.Session()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_latest_image_num</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;获取最新的图片编号&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 实现省略.</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">download_image</span>(<span class="params">self, image_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;下载指定编号的图片&quot;&quot;&quot;</span></span><br><span class="line">        target_url = <span class="string">f&quot;<span class="subst">&#123;prefix_url&#125;</span><span class="subst">&#123;image_num&#125;</span><span class="subst">&#123;suffix_url&#125;</span>&quot;</span></span><br><span class="line">        response = <span class="variable language_">self</span>.session.get(target_url, proxies=proxies, headers=headers)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> response.status_code != <span class="number">200</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">            </span><br><span class="line">        soup = BeautifulSoup(response.text, <span class="string">&#x27;lxml&#x27;</span>)</span><br><span class="line">        pic_data = soup.find_all(<span class="string">&#x27;a&#x27;</span>, attrs=&#123;<span class="string">&#x27;class&#x27;</span>: <span class="string">&#x27;js-message_photo&#x27;</span>&#125;)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> pic_data:</span><br><span class="line">            img_style = pic_data[<span class="number">0</span>][<span class="string">&#x27;style&#x27;</span>]</span><br><span class="line">            img_url = re.search(<span class="string">&#x27;https:.*?jpg&#x27;</span>, img_style).group()</span><br><span class="line">            </span><br><span class="line">            img_data = <span class="variable language_">self</span>.session.get(img_url, proxies=proxies, headers=headers).content</span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">f&#x27;/data/images/<span class="subst">&#123;image_num&#125;</span>.jpg&#x27;</span>, <span class="string">&#x27;wb+&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(img_data)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">batch_download</span>(<span class="params">self, start_num, end_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;批量下载图片&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(start_num, end_num+<span class="number">1</span>):</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;正在下载图片 #<span class="subst">&#123;num&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="variable language_">self</span>.download_image(num)</span><br></pre></td></tr></table></figure>
-
-<h2 id="关键技术点"><a href="#关键技术点" class="headerlink" title="关键技术点"></a>关键技术点</h2><ol>
-<li><strong>代理配置</strong>：使用SOCKS5代理访问Telegram</li>
-<li><strong>异常处理</strong>：检测<code>tgme_widget_message_error</code>类判断无效消息</li>
-<li><strong>图片识别</strong>：通过BeautifulSoup解析DOM结构获取图片URL</li>
-<li><strong>文件存储</strong>：将下载的图片按编号保存到本地</li>
-</ol>
-<h2 id="系统集成"><a href="#系统集成" class="headerlink" title="系统集成"></a>系统集成</h2><p>将爬虫功能集成到go-cqhttp机器人的基本思路：</p>
-<ol>
-<li>设置定时任务定期检查新图片</li>
-<li>下载新图片到本地存储</li>
-<li>通过QQ机器人接口发送图片</li>
-<li>记录已处理的图片编号防止重复</li>
-</ol>
-</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
-        var options = {
-            selector: '.gallery-item'
-        };
-        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
-        }</script>]]></content>
-      <categories>
-        <category>Daily</category>
-      </categories>
-      <tags>
-        <tag>Daily life</tag>
       </tags>
   </entry>
 </search>
