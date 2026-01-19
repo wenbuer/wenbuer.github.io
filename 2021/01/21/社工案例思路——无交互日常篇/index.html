@@ -578,7 +578,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="社工案例思路-被动信息收集篇"><a href="#社工案例思路-被动信息收集篇" class="headerlink" title="社工案例思路-被动信息收集篇"></a>社工案例思路-被动信息收集篇</h1><h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>“互联网时代没有隐私”已经成为普遍认知。本文将分享基于社会工程学的被动信息收集方法，在不与目标产生直接交互的情况下，如何通过常见应用平台构建详细的人物画像。所有技术手法均属于被动分析范畴，避免采用钓鱼邮件等主动攻击手段。</p>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h1 id="社工案例思路-被动信息收集篇"><a href="#社工案例思路-被动信息收集篇" class="headerlink" title="社工案例思路-被动信息收集篇"></a>社工案例思路-被动信息收集篇</h1><h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>“互联网时代没有隐私”已经成为普遍认知。本文将分享基于社会工程学的被动信息收集方法，在不与目标产生直接交互的情况下，如何通过常见应用平台构建详细的人物画像。所有技术手法均属于被动分析范畴，避免采用钓鱼邮件等主动攻击手段。</p>
 <h2 id="0x01-人物画像"><a href="#0x01-人物画像" class="headerlink" title="0x01 人物画像"></a>0x01 人物画像</h2><p>人物画像可以从简单到复杂分为多个层次：</p>
 <p><strong>基础信息层</strong>：</p>
 <ul>
@@ -607,11 +607,11 @@
 <li>扩展分析其贴吧活动等数据</li>
 </ol>
 <h3 id="操作演示"><a href="#操作演示" class="headerlink" title="操作演示"></a>操作演示</h3><p>以其中的QQ邮箱为搜索内容，进行查询</p>
-<p><img src="/images/20210124193648.png" alt="image-20210124193648040"></p>
+<p><a href="/images/20210124193648.png" title="image-20210124193648040" class="gallery-item"><img src="/images/20210124193648.png" alt="image-20210124193648040"></a></p>
 <p>点击进入之后，目标显示回答内容为匿名用户</p>
-<p><img src="/images/20210124194952.png" alt="image-20210124194952597"></p>
+<p><a href="/images/20210124194952.png" title="image-20210124194952597" class="gallery-item"><img src="/images/20210124194952.png" alt="image-20210124194952597"></a></p>
 <p>关键突破点在于发现百度知道的匿名并非真正匿名。通过审查页面源码，可以找到隐藏的用户标识：</p>
-<p><img src="/images/20210124200404.png" alt="image-20210124200404409"></p>
+<p><a href="/images/20210124200404.png" title="image-20210124200404409" class="gallery-item"><img src="/images/20210124200404.png" alt="image-20210124200404409"></a></p>
 <p>得到该目标百度信息encodeUid、uid和uname，例如：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">encodeUid</span>: <span class="string">&quot;xxx&quot;</span>,</span><br><span class="line"></span><br><span class="line"><span class="attr">uid</span>: <span class="string">&quot;123456&quot;</span>,</span><br><span class="line"></span><br><span class="line"><span class="attr">uname</span>: <span class="string">&quot;\u7528\u6237\u540d&quot;</span></span><br></pre></td></tr></table></figure>
 
@@ -627,7 +627,7 @@
 <li>通过社交关联查找其他平台账号</li>
 </ol>
 <h3 id="操作演示-1"><a href="#操作演示-1" class="headerlink" title="操作演示"></a>操作演示</h3><p>典型分享链接方式：</p>
-<p><img src="/images/20210124220644.png" alt="image-20210124220644165"></p>
+<p><a href="/images/20210124220644.png" title="image-20210124220644165" class="gallery-item"><img src="/images/20210124220644.png" alt="image-20210124220644165"></a></p>
 <p>分享链接格式：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://y.music.163.com/m/song/569157/?userid=3979XXXXX</span><br></pre></td></tr></table></figure>
 
@@ -637,14 +637,19 @@
 <li>构造个人主页链接：<code>music.163.com/#/user/home?id=[userid]</code></li>
 <li>通过”Ta的关注”查找可能的微博关联账号</li>
 </ul>
-<p><img src="/images/20210124221633.png" alt="image-20210124221633116"></p>
+<p><a href="/images/20210124221633.png" title="image-20210124221633116" class="gallery-item"><img src="/images/20210124221633.png" alt="image-20210124221633116"></a></p>
 <h2 id="0x04-隐私防护建议"><a href="#0x04-隐私防护建议" class="headerlink" title="0x04 隐私防护建议"></a>0x04 隐私防护建议</h2><ol>
 <li><strong>跨平台隔离</strong>：避免使用相同用户名&#x2F;头像</li>
 <li><strong>链接分享</strong>：慎用自带用户ID的分享功能</li>
 <li><strong>信息审查</strong>：定期检查各平台的公开信息</li>
 <li><strong>安全意识</strong>：了解常见社工手法</li>
 </ol>
-
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>
     </div>
 
     
@@ -741,7 +746,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-count">14</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

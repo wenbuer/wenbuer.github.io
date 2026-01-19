@@ -583,22 +583,22 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="HacktheBox注册挑战"><a href="#HacktheBox注册挑战" class="headerlink" title="HacktheBox注册挑战"></a>HacktheBox注册挑战</h3><p>HacktheBox是一个在线靶场，近期准备考OSCP，准备拿靶场练练手。</p>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h3 id="HacktheBox注册挑战"><a href="#HacktheBox注册挑战" class="headerlink" title="HacktheBox注册挑战"></a>HacktheBox注册挑战</h3><p>HacktheBox是一个在线靶场，近期准备考OSCP，准备拿靶场练练手。</p>
 <p>HacktheBox的注册有一定的门槛，在这里记录一下解决过程。</p>
-<p><img src="/images/20210313162402.png" alt="注册页面1"></p>
+<p><a href="/images/20210313162402.png" title="注册页面1" class="gallery-item"><img src="/images/20210313162402.png" alt="注册页面1"></a></p>
 <p>点击HACK YOUR WAY IN</p>
-<p><img src="/images/20210313162502.png" alt="注册页面2"></p>
+<p><a href="/images/20210313162502.png" title="注册页面2" class="gallery-item"><img src="/images/20210313162502.png" alt="注册页面2"></a></p>
 <p>在注册页面首先需要输入code，我们先看hint，点击Click Here</p>
-<p><img src="/images/20210313162644.png" alt="注册码线索"></p>
+<p><a href="/images/20210313162644.png" title="注册码线索" class="gallery-item"><img src="/images/20210313162644.png" alt="注册码线索"></a></p>
 <p>提示我们需要检测console</p>
 <p>打开控制台，看到这样的信息</p>
-<img src="/images/20210313162823.png" alt="console信息" style="zoom: 67%;" />
+<a href="/images/20210313162823.png" title="console信息" class="gallery-item"><img src="/images/20210313162823.png" alt="console信息" style="zoom: 67%;" /></a>
 
 <p>提示我们需要找一个有趣的js文件，进入sources下的page查看调用的js文件，找到一个带有注释的js，提示我们这个js可能被混淆了</p>
-<img src="/images/20210313163055.png" alt="js文件" style="zoom:67%;" />
+<a href="/images/20210313163055.png" title="js文件" class="gallery-item"><img src="/images/20210313163055.png" alt="js文件" style="zoom:67%;" /></a>
 
 <p>这个js的内容为eval类型的混淆，经过代码格式化后，eval中function的内容如下</p>
-<img src="/images/20210313163251.png" alt="js中function代码" style="zoom:50%;" />
+<a href="/images/20210313163251.png" title="js中function代码" class="gallery-item"><img src="/images/20210313163251.png" alt="js中function代码" style="zoom:50%;" /></a>
 
 <p>包含6个参数，并且给了参数的内容</p>
 <p>这边给出两种解混淆的方案</p>
@@ -608,7 +608,7 @@
 </ul>
 </li>
 <li>vs运行一遍，在最后return p的地方下一个断点，直接查看p的内容<ul>
-<li><img src="/images/20210313171250.png" alt="vs调试"></li>
+<li><a href="/images/20210313171250.png" title="vs调试" class="gallery-item"><img src="/images/20210313171250.png" alt="vs调试"></a></li>
 </ul>
 </li>
 </ul>
@@ -617,19 +617,24 @@
 
 <p>根据执行内容要求我们用POST访问&#x2F;api&#x2F;invite&#x2F;how&#x2F;to&#x2F;generate</p>
 <p>用hackbar执行（或者postman）</p>
-<img src="/images/20210313164219.png" alt="how-to-generate" style="zoom: 67%;" />
+<a href="/images/20210313164219.png" title="how-to-generate" class="gallery-item"><img src="/images/20210313164219.png" alt="how-to-generate" style="zoom: 67%;" /></a>
 
 <p>得到如图json内容，该内容可能会改变为ROT13解密方式，但结果应该是一致的</p>
 <p>复制data内容，用hackbar解base64内容</p>
-<img src="/images/20210313164520.png" alt="hackbar解base64" style="zoom:67%;" />
+<a href="/images/20210313164520.png" title="hackbar解base64" class="gallery-item"><img src="/images/20210313164520.png" alt="hackbar解base64" style="zoom:67%;" /></a>
 
 <p>提示我们需要再用post访问&#x2F;api&#x2F;invite&#x2F;generate</p>
 <p>访问获取json内容为</p>
-<p><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313164702.png" alt="注册码code1"></p>
+<p><a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313164702.png" title="注册码code1" class="gallery-item"><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313164702.png" alt="注册码code1"></a></p>
 <p>很容易看出这是base64，重复上述操作，用hackbar解密base64内容得到注册码（该注册码是动态变化的）</p>
 <p><code>JBIXF-QDULC-CEBFM-OTBAW-DKHYP</code></p>
 <p>填入之后就可以注册了</p>
-
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>
     </div>
 
     
@@ -729,7 +734,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-count">14</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

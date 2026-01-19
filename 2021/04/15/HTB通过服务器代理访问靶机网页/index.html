@@ -581,7 +581,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="HTB通过服务器代理访问靶机网页"><a href="#HTB通过服务器代理访问靶机网页" class="headerlink" title="HTB通过服务器代理访问靶机网页"></a>HTB通过服务器代理访问靶机网页</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在之前搭建openvpn访问HTB的文章中，我用的是ubuntu服务器，且没有桌面系统。这篇文章的出现是在攻击靶机的过程中需要访问靶场的网页，因为没有桌面系统，我打算将网页转发到本机上来做。</p>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="HTB通过服务器代理访问靶机网页"><a href="#HTB通过服务器代理访问靶机网页" class="headerlink" title="HTB通过服务器代理访问靶机网页"></a>HTB通过服务器代理访问靶机网页</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在之前搭建openvpn访问HTB的文章中，我用的是ubuntu服务器，且没有桌面系统。这篇文章的出现是在攻击靶机的过程中需要访问靶场的网页，因为没有桌面系统，我打算将网页转发到本机上来做。</p>
 <p>一开始考虑的是图形转发，X11的Xmanager尝试了一下，占用带宽太大，输入一个ip需要半分钟的反应时间，因此放弃。</p>
 <p>然后尝试了vnc的图形转发，不同于Xmanager通过端口转发UI界面，vnc是远程连入操作系统，相当于单独开了一个连接窗口。</p>
 <p>但是vnc的安装还需要gnome之类的桌面系统，这和我一开始使用服务器的想法背道而驰。安装期间还搞崩了我的服务器，差点直接提交工单重置。因此安装尝试完之后也放弃了这种方法。</p>
@@ -608,12 +608,12 @@
 <h4 id="客户端安装"><a href="#客户端安装" class="headerlink" title="客户端安装"></a>客户端安装</h4><p>windows在<a target="_blank" rel="noopener" href="https://github.com/v2fly/v2ray-core/releases%E4%B8%8B%E8%BD%BD%E6%96%B0%E7%89%88%E7%9A%84v2ray-windows-64.zip%E5%AE%89%E8%A3%85%E5%8C%85%EF%BC%8C%E8%A7%A3%E5%8E%8B%E5%8D%B3%E5%8F%AF">https://github.com/v2fly/v2ray-core/releases下载新版的v2ray-windows-64.zip安装包，解压即可</a></p>
 <p>然后设置一下浏览器代理</p>
 <p>本机是chrome浏览器，推荐使用Proxy SwitchyOmega这个插件，能更加方便的切换代理设置</p>
-<p><img src="/images/image-20210415090617478.png"></p>
+<p><a href="/images/image-20210415090617478.png" class="gallery-item"><img src="/images/image-20210415090617478.png"></a></p>
 <p>点击选项，然后点击左侧新建情景模式</p>
-<img src="/images/image-20210415090742885.png" style="zoom:50%;" />
+<a href="/images/image-20210415090742885.png" class="gallery-item"><img src="/images/image-20210415090742885.png" style="zoom:50%;" /></a>
 
 <p>创建完之后，填写如下</p>
-<p><img src="/images/image-20210415091207398.png"></p>
+<p><a href="/images/image-20210415091207398.png" class="gallery-item"><img src="/images/image-20210415091207398.png"></a></p>
 <p>然后点击左侧应用选项进行保存</p>
 <h4 id="VMess服务端配置"><a href="#VMess服务端配置" class="headerlink" title="VMess服务端配置"></a>VMess服务端配置</h4><p>生成自己的uuid</p>
 <p><code>cat /proc/sys/kernel/random/uuid &gt; 1.txt</code></p>
@@ -634,7 +634,12 @@
 <p>客户端打开v2ray.exe</p>
 <p>浏览器切换代理模式</p>
 <p>即可访问HTB靶机网页（记得服务器要开放安全组端口）</p>
-
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>
     </div>
 
     
@@ -735,7 +740,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-count">14</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

