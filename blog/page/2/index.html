@@ -207,6 +207,224 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://wenbuer.github.io/2021/03/14/NeSE%E4%B8%99%E9%98%9F3%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/my-avatar.gif">
+      <meta itemprop="name" content="Wenbuer">
+      <meta itemprop="description" content="A no-fluff blog by Wenbuer. Code, life, and everything in between.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="WenBrew">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/03/14/NeSE%E4%B8%99%E9%98%9F3%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/" class="post-title-link" itemprop="url">NeSE丙队3月月赛训练</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-14 20:19:07" itemprop="dateCreated datePublished" datetime="2021-03-14T20:19:07+08:00">2021-03-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-09-23 23:06:49" itemprop="dateModified" datetime="2025-09-23T23:06:49+08:00">2025-09-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CTF/" itemprop="url" rel="index"><span itemprop="name">CTF</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hacker/" itemprop="url" rel="index"><span itemprop="name">Hacker</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Security/" itemprop="url" rel="index"><span itemprop="name">Security</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-misc-log-pcap"><a href="#0x00-misc-log-pcap" class="headerlink" title="0x00 misc_log&amp;pcap"></a>0x00 misc_log&amp;pcap</h4><p><strong>题目：</strong></p>
+<p>一个sql注入日志head.log和usb鼠标流量tail.pcap</p>
+<p><strong>sql注入日志：</strong></p>
+<p>直接看最后几十行格式为</p>
+<p><code>172.17.0.1 - - [22/Nov/2020:02:50:52 +0000] &quot;GET /vulnerabilities/sqli_blind/?id=2&#39; AND ORD(MID((SELECT IFNULL(CAST(flag AS CHAR),0x20) FROM dvwa.flag_is_here ORDER BY flag LIMIT 0,1),1,1))%3E64 AND &#39;RCKM&#39;=&#39;RCKM&amp;Submit=Submit HTTP/1.1&quot; 200 </code></p>
+<p>其中%3E是’&gt;’，只要找到每个字符中最后为404状态码的注入ascii码就行</p>
+<p>结果为：<code>115、113、108、109、52、112、95、49、110</code></p>
+<p>转化为ASCII码为前半部分flag: <code>sqlm4p_1n</code></p>
+<p><strong>tail.pcap：</strong></p>
+<p>每个流量的usbdata长度为33，不属于鼠标和键盘流量的长度</p>
+<p>推测是添加了冗余数据</p>
+<p>利用tshark直接读取usbdata</p>
+<p><code>tshark -r tail.pcap -T fields -e usb.capdata &gt; usbdata.txt</code></p>
+<p>删除前面部分长度不定的数据</p>
+<p>因为提取出来的数据不带冒号，一般的解码脚本按照有冒号的数据进行解码，所以这边用python代码给它添加上冒号</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">f=<span class="built_in">open</span>(<span class="string">&#x27;usbdata.txt&#x27;</span>,<span class="string">&#x27;r&#x27;</span>)</span><br><span class="line">fi=<span class="built_in">open</span>(<span class="string">&#x27;out.txt&#x27;</span>,<span class="string">&#x27;w&#x27;</span>)</span><br><span class="line"><span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">    a=f.readline().strip()</span><br><span class="line">    <span class="keyword">if</span> a:</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(a) ==<span class="number">12</span>: <span class="comment"># 正常鼠标流量的话len改为8，但是本题有冗余数据</span></span><br><span class="line">            out=<span class="string">&#x27;&#x27;</span></span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="built_in">len</span>(a),<span class="number">2</span>):</span><br><span class="line">                <span class="keyword">if</span> i+<span class="number">2</span> != <span class="built_in">len</span>(a):</span><br><span class="line">                    out+=a[i]+a[i+<span class="number">1</span>]+<span class="string">&quot;:&quot;</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    out+=a[i]+a[i+<span class="number">1</span>]</span><br><span class="line">            fi.write(out)</span><br><span class="line">            fi.write(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">fi.close()</span><br></pre></td></tr></table></figure>
+
+<p>然后根据data数据格式，判断首尾字节都是多余的，在使用脚本并绘图时对其进行相应的处理</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line">keys = <span class="built_in">open</span>(<span class="string">&#x27;out.txt&#x27;</span>,<span class="string">&#x27;r&#x27;</span>) </span><br><span class="line">posx = <span class="number">0</span> </span><br><span class="line">posy = <span class="number">0</span> </span><br><span class="line">plt.figure(<span class="string">&#x27;letmeseewhatitis&#x27;</span>)</span><br><span class="line">x_list = []</span><br><span class="line">y_list = []</span><br><span class="line">ax = plt.gca()</span><br><span class="line"><span class="comment">#设置x轴、y轴名称</span></span><br><span class="line">ax.set_xlabel(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">ax.set_ylabel(<span class="string">&#x27;y&#x27;</span>)</span><br><span class="line"><span class="comment">#画散点图，以x_list中的值为横坐标，以y_list中的值为纵坐标</span></span><br><span class="line"><span class="comment">#参数c指定点的颜色，s指定点的大小,alpha指定点的透明度</span></span><br><span class="line">ax.scatter(x_list, y_list, c=<span class="string">&#x27;r&#x27;</span>, s=<span class="number">20</span>, alpha=<span class="number">0.5</span>)</span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> keys: </span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(line) == <span class="number">18</span> :</span><br><span class="line">        line = line[<span class="number">3</span>:-<span class="number">4</span>] <span class="comment">#处理冗余数据</span></span><br><span class="line">    <span class="built_in">print</span>(line)</span><br><span class="line">    x = <span class="built_in">int</span>(line[<span class="number">3</span>:<span class="number">5</span>],<span class="number">16</span>)</span><br><span class="line">    y = <span class="built_in">int</span>(line[<span class="number">6</span>:<span class="number">8</span>],<span class="number">16</span>) </span><br><span class="line">    <span class="keyword">if</span> x &gt; <span class="number">127</span> : </span><br><span class="line">        x -= <span class="number">256</span> </span><br><span class="line">    <span class="keyword">if</span> y &gt; <span class="number">127</span> : </span><br><span class="line">        y -= <span class="number">256</span> </span><br><span class="line">    <span class="built_in">print</span>(x,y)</span><br><span class="line">    posx += x </span><br><span class="line">    posy += y </span><br><span class="line">    btn_flag = <span class="built_in">int</span>(line[<span class="number">0</span>:<span class="number">2</span>],<span class="number">16</span>)  <span class="comment"># 1 for left , 2 for right , 0 for nothing </span></span><br><span class="line">    <span class="keyword">if</span> btn_flag == <span class="number">1</span>:</span><br><span class="line">        x_list.append(posx)</span><br><span class="line">        y_list.append(posy)</span><br><span class="line">keys.close()</span><br><span class="line"></span><br><span class="line">ax.scatter(x_list, y_list, c=<span class="string">&#x27;r&#x27;</span>, s=<span class="number">20</span>, alpha=<span class="number">0.5</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+
+<a href="/images/20210314204212.png" class="gallery-item"><img src="/images/20210314204212.png" style="zoom:50%;" /></a>
+
+<p>将其翻转镜像之后</p>
+<a href="/images/20210314204306.png" class="gallery-item"><img src="/images/20210314204306.png" style="zoom: 67%;" /></a>
+
+<p>得到后半部分flag：<code>m15c</code></p>
+<p>结合得到flag：flag{sqlm4p_1n_m15c}</p>
+<h3 id="CRYPTO"><a href="#CRYPTO" class="headerlink" title="CRYPTO"></a>CRYPTO</h3><h4 id="0x01-easy-crypto"><a href="#0x01-easy-crypto" class="headerlink" title="0x01 easy_crypto"></a>0x01 easy_crypto</h4><p><strong>题目：</strong></p>
+<p>小明使用某种加密算法加密了flag，他使用另一种加密方式保存了密钥，请根据给出的两组CODE，解码出flag。<br>hint: flag{xxxx}。</p>
+<p>CODE1: U2FsdGVkX1+LfMJfzt54pKO9O&#x2F;BZCaEixcnwUCHkxaJMQHsl5gPq0Q&#x3D;&#x3D;</p>
+<p>CODE2: 882041088210880410210884</p>
+<p><strong>CODE2</strong>：</p>
+<p>根据题目可知code2是加密之后的密钥，一开始考虑为进制转换，尝试无果</p>
+<p>发现CODE2的每一位都是2的幂次，尝试二进制幂次加密</p>
+<p>编写代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">a=<span class="string">&quot;882041088210880410210884&quot;</span></span><br><span class="line">a=a.split(<span class="string">&quot;0&quot;</span>)</span><br><span class="line">flag=<span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="built_in">len</span>(a)):</span><br><span class="line">     <span class="built_in">str</span> = a[i]</span><br><span class="line">     <span class="built_in">list</span>=[]</span><br><span class="line">     <span class="built_in">sum</span>=<span class="number">0</span></span><br><span class="line">     <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">str</span>:</span><br><span class="line">        <span class="built_in">list</span>.append(j)</span><br><span class="line">        length = <span class="built_in">len</span>(<span class="built_in">list</span>)</span><br><span class="line">     <span class="keyword">for</span> k <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,length):</span><br><span class="line">        <span class="built_in">sum</span>+=<span class="built_in">int</span>(<span class="built_in">list</span>[k])</span><br><span class="line">     flag+=<span class="built_in">chr</span>(<span class="built_in">sum</span>+<span class="number">64</span>)</span><br><span class="line"><span class="built_in">print</span>(flag)</span><br></pre></td></tr></table></figure>
+
+<p>得到密钥为：RESPECT</p>
+<p><strong>CODE1：</strong></p>
+<p>CODE1有个明显特征U2FsdGVkX1，是Salted_的base64，一般出现在AES和DES中</p>
+<p>利用密钥RESPECT解密，AES无法解密</p>
+<p>DES解密得到<code>flag&#123;niuniankuaile&#125;</code></p>
+<h3 id="REVERSE"><a href="#REVERSE" class="headerlink" title="REVERSE"></a>REVERSE</h3><h4 id="0x02-sequence"><a href="#0x02-sequence" class="headerlink" title="0x02 sequence"></a>0x02 sequence</h4><p><strong>题目：</strong></p>
+<p>一个ELF文件</p>
+<p><strong>题解：</strong></p>
+<p>IDA打开，在main函数中还原伪代码</p>
+<a href="/images/20210314205402.png" class="gallery-item"><img src="/images/20210314205402.png" style="zoom: 67%;" /></a>
+
+<p>main功能包括</p>
+<ul>
+<li>输入一个input传递给v8，v8长度为18</li>
+<li>&amp;v10-112即是&amp;v8</li>
+<li>要求v8数组经过off_40B0字符串变换后，与aCtfThis_is_fla数组保持一致</li>
+<li>aCtfThis_is_fla即是flag</li>
+</ul>
+<p>找到aCtfThis_is_fla数组，其内容为</p>
+<p><code>ctf&#123;this_is_flag2&#125;</code></p>
+<p>off_40B0是一个字符串，内容为</p>
+<p><code>&quot;u^&gt;d@!y2THOG/tgQ&#39;%P~8k#.NZw4*EMc+U)l5=r0KL$_&amp;D\\,x9-AB|sa?RmeS3\&quot;ibfj;CF o`J]6XhV:n7WI(q1[z&#125;v&lt;&#123;Yp&quot;</code></p>
+<p>定义off_40B为a，aCtfThis_is_fla为b，v8为flag，其中三者关系为</p>
+<p><code>b[i]=a[flag[i]-32]</code></p>
+<p>编写python脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a = <span class="string">&quot;u^&gt;d@!y2THOG/tgQ&#x27;%P~8k#.NZw4*EMc+U)l5=r0KL$_&amp;D\\,x9-AB|sa?RmeS3\&quot;ibfj;CF o`J]6XhV:n7WI(q1[z&#125;v&lt;&#123;Yp&quot;</span></span><br><span class="line">b = <span class="string">&quot;ctf&#123;this_is_flag2&#125;&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> b:</span><br><span class="line">	<span class="built_in">print</span>(<span class="built_in">chr</span>(a.index(i)+<span class="number">32</span>),end=<span class="string">&#x27;&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>得到<code>flag&#123;?-a|-m_VK_VKaCW.&#39;y&#125;</code></p>
+<h4 id="0x03-flagin5"><a href="#0x03-flagin5" class="headerlink" title="0x03 flagin5"></a>0x03 flagin5</h4><p><strong>题目：</strong></p>
+<p>一个Pyinstaller贪吃蛇小程序</p>
+<p><strong>题解：</strong></p>
+<p>尝试用cheater engine定位分数所在地址，然后直接修改分数，发现无法定位</p>
+<p>浪费很多时间，<del>主要是更新windows花了三个小时</del>，重新做题</p>
+<p>思考题目含义flag in 5，用string.exe查找程序字符串，也没找到5这个文件和相关的东西</p>
+<p>查询Pyinstaller相关内容，然后下载了<code>pyinstxtractor.py</code>准备解包试试</p>
+<p>解包完之后发现5这个文件</p>
+<p>直接用010 Editor打开</p>
+<p><a href="/images/20210314211501.png" class="gallery-item"><img src="/images/20210314211501.png"></a></p>
+<p>得到<code>flag&#123;Wow_So_Amazing!!&#125;</code></p>
+<h4 id="0x04-Easy-Go-Trojan"><a href="#0x04-Easy-Go-Trojan" class="headerlink" title="0x04 Easy-Go-Trojan"></a>0x04 Easy-Go-Trojan</h4><p><strong>题目：</strong></p>
+<p><strong>题解：</strong></p>
+<p>先用Detect It Easy查壳</p>
+<a href="/images/20210314223833.png" class="gallery-item"><img src="/images/20210314223833.png" style="zoom:67%;" /></a>
+
+<p>发现有upx压缩壳，用upx.exe脱壳</p>
+<p><a href="/images/20210314224104.png" class="gallery-item"><img src="/images/20210314224104.png"></a></p>
+<p>goexp.exe丢进ida和dbg中（要关掉杀毒软件）</p>
+<p><strong>ida：</strong></p>
+<p>找到main_main函数入口</p>
+<p>反汇编后伪代码如下</p>
+<a href="/images/20210314230038.png" class="gallery-item"><img src="/images/20210314230038.png" style="zoom:67%;" /></a>
+
+<p>可以看到在main_main执行过程中，有一个必定退出的if语句，argc参数数要不小于65535，这个需要我们在动态执行时跳过</p>
+<p>函数功能时为shellcode分配一个空间，并将其复制到内存中，然后执行shellcode</p>
+<p>我们还需要在SysinternalsSuite中找到Procmon.exe工具，设置过滤器如图所示，点击add和apply·</p>
+<p><a href="/images/20210314231355.png" class="gallery-item"><img src="/images/20210314231355.png"></a></p>
+<p><strong>dbg：</strong></p>
+<p>在main_main函数入口0x468F90处下一个断点，点击运行，然后单步运行到0x468FD0处，将RIP直接跳转至0x468FE1，然后继续执行</p>
+<p><a href="/images/20210314231050.png" class="gallery-item"><img src="/images/20210314231050.png"></a></p>
+<p>在Procmon.exe监控处可以看到目的ip和端口</p>
+<a href="/images/20210314231125.png" class="gallery-item"><img src="/images/20210314231125.png" style="zoom:67%;" /></a>
+
+<p>得到<code>flag&#123;47.93.231.121:18080&#125;</code></p>
+<h4 id="0x05-Maze"><a href="#0x05-Maze" class="headerlink" title="0x05 Maze"></a>0x05 Maze</h4><p><strong>题目：</strong></p>
+<p>一个迷宫输入wasd的exe程序</p>
+<p><strong>题解：</strong></p>
+<p>exe打开后显示内容</p>
+<a href="/images/20210314215758.png" class="gallery-item"><img src="/images/20210314215758.png" style="zoom: 80%;" /></a>
+
+<p>本题其实可以根据题目意思和exe内容直接猜出flag</p>
+<p>将exe第一行内容拼装成一个迷宫，然后进行wasd移动</p>
+<p>正常的逆向解法</p>
+<p>IDA导入wasd.exe，找到start函数入口</p>
+<p><a href="/images/20210314220131.png" class="gallery-item"><img src="/images/20210314220131.png"></a></p>
+<p>call与jmp判断为vs编译程序，进入jmp寻找main函数</p>
+<p>main函数的特征为3个push和1个call，在loc_401408处找到_p__argv和_p__argc，以及main函数入口的特征</p>
+<p><a href="/images/20210314220419.png" class="gallery-item"><img src="/images/20210314220419.png"></a></p>
+<p>跳转之后，发现无法创建function和反编译，在后面发现有干扰ida的指令</p>
+<p><a href="/images/20210314220630.png" class="gallery-item"><img src="/images/20210314220630.png"></a></p>
+<p>jnz跳转loc_40116E+2，而jmp拼接了不存在的地址0E085D960h</p>
+<a href="/images/20210314221054.png" class="gallery-item"><img src="/images/20210314221054.png" style="zoom:67%;" /></a>
+
+<p>具体行为如下图所示</p>
+<p><a href="/images/20210314221312.png" class="gallery-item"><img src="/images/20210314221312.png"></a></p>
+<p>修改HEX将E9 ED改为90 90的NOP指令后恢复正常</p>
+<a href="/images/20210314221441.png" class="gallery-item"><img src="/images/20210314221441.png" style="zoom:67%;" /></a>
+
+<p>回到loc 401100处，创建function，然后反编译，得到伪代码如下图</p>
+<a href="/images/20210314221640.png" class="gallery-item"><img src="/images/20210314221640.png" style="zoom:67%;" /></a>
+
+<p>aSD为迷宫字符串，拼接得到迷宫为</p>
+<p><a href="/images/20210314222142.png" class="gallery-item"><img src="/images/20210314222142.png"></a></p>
+<p>点击运行wasd.exe，输入<code>sssdddwwwddddddsssaaaw</code>后</p>
+<p><a href="/images/20210314222333.png" class="gallery-item"><img src="/images/20210314222333.png"></a></p>
+<p>因此，得到<code>flag&#123;sssdddwwwddddddsssaaaw&#125;</code></p>
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://wenbuer.github.io/2021/03/13/HTB-VPN%E9%85%8D%E7%BD%AE/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -796,7 +1014,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-count">15</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
