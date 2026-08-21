@@ -1045,4 +1045,198 @@
         <tag>Daily Life</tag>
       </tags>
   </entry>
+  <entry>
+    <title>[deepseek-harness]微信聊天记录提取与分析</title>
+    <url>/2026/08/22/%5Bdeepseek-harness%5D%E5%BE%AE%E4%BF%A1%E8%81%8A%E5%A4%A9%E8%AE%B0%E5%BD%95%E6%8F%90%E5%8F%96%E4%B8%8E%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>微信聊天记录属于个人数字资产的一部分，但导出和留存一直不太方便。网络上有一个开源项目 <a href="https://github.com/LifeArchiveProject/WeChatDataAnalysis">LifeArchiveProject&#x2F;WeChatDataAnalysis</a>（官网：<a href="https://lifearchiveproject.github.io/WeChatDataAnalysis/%EF%BC%89%EF%BC%8C%E8%A7%A3%E5%86%B3%E4%BA%86%E5%BE%AE%E4%BF%A1%E6%9C%AC%E5%9C%B0%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E8%AF%BB%E5%8F%96%E4%B8%8E%E8%A7%A3%E5%AF%86%E9%97%AE%E9%A2%98%EF%BC%8C%E7%90%86%E5%BF%B5%E6%98%AF%22%E4%BD%A0%E7%9A%84%E5%BE%AE%E4%BF%A1%E6%95%B0%E6%8D%AE%EF%BC%8C%E7%94%B1%E4%BD%A0%E7%95%99%E5%AD%98%22%E3%80%82">https://lifearchiveproject.github.io/WeChatDataAnalysis/），解决了微信本地数据库的读取与解密问题，理念是&quot;你的微信数据，由你留存&quot;。</a></p>
+<p>本文记录的项目 <a href="https://github.com/wenbuer/wechat-unsaid-ai-web">Wechat Unsaid AI</a> 就是基于这套方案构建的独立服务：<strong>读取微信本机数据库 → 筛选会话 &#x2F; 时间 &#x2F; 消息类型 → 导出 html &#x2F; json &#x2F; txt &#x2F; excel → 打包 zip</strong>，并附带网页版聊天查看与 AI 分析。取密钥、进程内存扫描等基础能力参考主项目方案，本项目专注”导出与分析”这条链路。</p>
+<h2 id="0x01-项目简介"><a href="#0x01-项目简介" class="headerlink" title="0x01 项目简介"></a>0x01 项目简介</h2><p>一句话概括：一个可独立运行的微信聊天记录导出与分析服务。</p>
+<ul>
+<li>后端：FastAPI，导出 API 契约与主项目 <code>/api/chat/exports*</code> 完全一致，前端组件无需改动即可对接</li>
+<li>双数据源：实时直读微信 WCDB（<code>realtime</code> &#x2F; <code>auto</code>）与已解密 SQLite 库（<code>decrypted</code>）</li>
+<li>网页版：聊天记录查看、逐日趋势统计、可选接入 OpenAI 兼容大模型做 AI 分析</li>
+<li>多格式导出：HTML &#x2F; JSON &#x2F; TXT &#x2F; Excel，支持媒体打包、隐私模式、WEC1 加密</li>
+</ul>
+<h2 id="0x02-构建逻辑（整体架构）"><a href="#0x02-构建逻辑（整体架构）" class="headerlink" title="0x02 构建逻辑（整体架构）"></a>0x02 构建逻辑（整体架构）</h2><h3 id="提取原则"><a href="#提取原则" class="headerlink" title="提取原则"></a>提取原则</h3><p>从主项目提取时定了一条原则：<strong>只保留导出链路需要的东西，其余一律裁掉</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>裁掉</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>解密 &#x2F; 密钥提取（pymem &#x2F; wx_key &#x2F; 进程扫描）</td>
+<td>导出只读已解密库或实时可读库，不做解密</td>
+</tr>
+<tr>
+<td>朋友圈 &#x2F; 年度总结 &#x2F; MCP &#x2F; 公众号</td>
+<td>不属于导出链路</td>
+</tr>
+<tr>
+<td>桌面壳 Electron &#x2F; 主项目前端页面</td>
+<td>本服务为纯后端，网页版另外写</td>
+</tr>
+<tr>
+<td>语音转写（faster-whisper，约 1GB 模型）</td>
+<td>可选能力，需要时自行安装</td>
+</tr>
+</tbody></table>
+<h3 id="双数据源设计"><a href="#双数据源设计" class="headerlink" title="双数据源设计"></a>双数据源设计</h3><p>这是整个构建逻辑里最关键的一个决策：</p>
+<ul>
+<li><strong><code>realtime</code> &#x2F; <code>auto</code>（实时直读）</strong>：直接读微信本机 WCDB 原始库，依赖 <code>native/</code> 下的原生组件（<code>VoipEngine.dll</code>、<code>wechatdb_broker.exe</code> 等）与数据库密钥</li>
+<li><strong><code>decrypted</code>（已解密库）</strong>：读 <code>output/decrypted</code> 下的已解密 SQLite 库，纯 Python 实现，不依赖 DLL 与密钥</li>
+</ul>
+<p>原生组件缺失时自动降级到已解密库，导出功能不受影响。<code>decrypted</code> 路径纯粹由 Python 实现，跨平台移植性最好，也为后续移动端部署留了路。</p>
+<h3 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">wechat-unsaid-ai-web/</span><br><span class="line">├─ app.py                  # FastAPI 入口（挂载 chat_export / chat_view / analysis / decrypt_auto / health 路由与静态网页）</span><br><span class="line">├─ main.py                 # 启动脚本（uvicorn，默认 127.0.0.1:10392，可用环境变量覆盖端口/主机）</span><br><span class="line">├─ requirements.txt        # Python 依赖（含 Windows 取密钥可选依赖）</span><br><span class="line">├─ start.bat               # Windows 一键启动脚本</span><br><span class="line">├─ web/                    # 网页版前端（聊天查看 + 统计分析，静态页面）</span><br><span class="line">└─ src/wechat_decrypt_tool/</span><br><span class="line">   ├─ chat_export_service.py  # 导出核心服务（任务模型与调度）</span><br><span class="line">   ├─ chat_helpers.py / media_helpers.py / xlsx_export.py / export_integrity.py</span><br><span class="line">   ├─ routers/                # 路由层（chat_export / chat_view / analysis / decrypt_auto / health）</span><br><span class="line">   ├─ native_core_*.py        # 原生核心客户端（实时直读 WCDB）</span><br><span class="line">   └─ native/                 # 原生组件（DLL / wasm / broker，随仓库提供）</span><br></pre></td></tr></table></figure>
+
+<h2 id="0x03-后端设计"><a href="#0x03-后端设计" class="headerlink" title="0x03 后端设计"></a>0x03 后端设计</h2><h3 id="入口与路由"><a href="#入口与路由" class="headerlink" title="入口与路由"></a>入口与路由</h3><p>FastAPI 入口 <code>app.py</code> 只挂需要的路由，最后把 <code>web/</code> 静态目录挂到根路径，网页版与导出服务同进程托管：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># app.py（节选）</span></span><br><span class="line"><span class="keyword">from</span> wechat_decrypt_tool.routers.chat_export <span class="keyword">import</span> router <span class="keyword">as</span> chat_export_router</span><br><span class="line"><span class="keyword">from</span> wechat_decrypt_tool.routers.chat_view <span class="keyword">import</span> router <span class="keyword">as</span> chat_view_router</span><br><span class="line"><span class="keyword">from</span> wechat_decrypt_tool.routers.analysis <span class="keyword">import</span> router <span class="keyword">as</span> analysis_router</span><br><span class="line"><span class="keyword">from</span> wechat_decrypt_tool.routers.decrypt_auto <span class="keyword">import</span> router <span class="keyword">as</span> decrypt_auto_router</span><br><span class="line"><span class="keyword">from</span> wechat_decrypt_tool.routers.health <span class="keyword">import</span> router <span class="keyword">as</span> health_router</span><br><span class="line"></span><br><span class="line">app.include_router(health_router)</span><br><span class="line">app.include_router(chat_export_router)</span><br><span class="line">app.include_router(chat_view_router)</span><br><span class="line">app.include_router(analysis_router)</span><br><span class="line">app.include_router(decrypt_auto_router)</span><br><span class="line"></span><br><span class="line">app.mount(<span class="string">&quot;/&quot;</span>, StaticFiles(directory=<span class="built_in">str</span>(_web_dir), html=<span class="literal">True</span>), name=<span class="string">&quot;web&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>原生组件缺失时降级处理也写在入口：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    configure_native_core_entrypoint()</span><br><span class="line"><span class="keyword">except</span> Exception:</span><br><span class="line">    logger.warning(<span class="string">&quot;原生核心未配置（缺少 wechatdb 原生组件），仅支持 decrypted/降级数据源&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动与端口"><a href="#启动与端口" class="headerlink" title="启动与端口"></a>启动与端口</h3><p>默认监听 <code>127.0.0.1:10392</code>，端口冲突时用环境变量覆盖，<code>start.bat</code> 里内置了 10399 作为备选：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># main.py</span></span><br><span class="line">port = <span class="built_in">int</span>(os.environ.get(<span class="string">&quot;STANDALONE_EXPORT_PORT&quot;</span>, <span class="string">&quot;10392&quot;</span>))</span><br><span class="line">host = os.environ.get(<span class="string">&quot;STANDALONE_EXPORT_HOST&quot;</span>, <span class="string">&quot;127.0.0.1&quot;</span>)</span><br><span class="line">uvicorn.run(<span class="string">&quot;app:app&quot;</span>, host=host, port=port, log_level=<span class="string">&quot;info&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="导出核心"><a href="#导出核心" class="headerlink" title="导出核心"></a>导出核心</h3><p>导出由 <code>chat_export_service.py</code>（CHAT_EXPORT_MANAGER）承载，是一个完整的异步任务模型：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST</td>
+<td><code>/api/chat/exports</code></td>
+<td>创建导出任务（zip），支持 html &#x2F; json &#x2F; txt &#x2F; excel、scope、时间 &#x2F; 类型过滤、媒体打包、隐私模式、WEC1 加密</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/chat/exports</code></td>
+<td>列出导出任务</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/chat/exports/targets</code></td>
+<td>导出目标（会话）预览</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/chat/exports/&#123;id&#125;</code></td>
+<td>任务状态</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/chat/exports/&#123;id&#125;/download</code></td>
+<td>下载 zip</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/chat/exports/&#123;id&#125;/events</code></td>
+<td>任务进度 SSE</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/chat/exports/&#123;id&#125;</code></td>
+<td>取消任务</td>
+</tr>
+</tbody></table>
+<p>大文件导出采用后台任务 + SSE 进度推送，前端可以实时看到进度而不用轮询，这一块是构建时比较顺手的部分。</p>
+<h2 id="0x04-网页版与-AI-分析"><a href="#0x04-网页版与-AI-分析" class="headerlink" title="0x04 网页版与 AI 分析"></a>0x04 网页版与 AI 分析</h2><p><a href="E:\myBlob\source\images\a7e238d6-8604-4d08-8452-224eca4a2a06.png" title="a7e238d6-8604-4d08-8452-224eca4a2a06" class="gallery-item"><img src="E:\myBlob\source\images\a7e238d6-8604-4d08-8452-224eca4a2a06.png" alt="a7e238d6-8604-4d08-8452-224eca4a2a06"></a></p>
+<p><a href="E:\myBlob\source\images\0093bcf1-bd92-41bc-86a2-bb944c9bf622.png" title="0093bcf1-bd92-41bc-86a2-bb944c9bf622" class="gallery-item"><img src="E:\myBlob\source\images\0093bcf1-bd92-41bc-86a2-bb944c9bf622.png" alt="0093bcf1-bd92-41bc-86a2-bb944c9bf622"></a></p>
+<h3 id="聊天查看"><a href="#聊天查看" class="headerlink" title="聊天查看"></a>聊天查看</h3><p>网页版是静态页面，由 FastAPI 在同进程托管。左侧会话列表（昵称 &#x2F; 最后消息预览），按日期浏览消息，支持前后翻页与日期选择。</p>
+<h3 id="统计分析"><a href="#统计分析" class="headerlink" title="统计分析"></a>统计分析</h3><p>统计全部是本地确定性计算，不依赖任何外部服务：</p>
+<ul>
+<li>单日视角：消息频次（按时段）、聊天发起人（静默间隔后谁先开口）、回复延迟（平均 &#x2F; 中位）、双方消息数 &#x2F; 字数 &#x2F; 表情 &#x2F; 短回复对比</li>
+<li>全日期视角：逐日趋势折线图，我 vs 对方双线对比</li>
+</ul>
+<h3 id="AI-分析（可选）"><a href="#AI-分析（可选）" class="headerlink" title="AI 分析（可选）"></a>AI 分析（可选）</h3><p>在「AI 设置」填入 OpenAI 兼容接口（endpoint &#x2F; API Key &#x2F; 模型，如 DeepSeek），由<strong>浏览器直接调用</strong>，Key 只保存在本机浏览器 localStorage，不经过服务端。不配置时仅显示规则统计。</p>
+<p>网页版接口：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>路径</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/api/view/accounts</code></td>
+<td>账号列表（含密钥 &#x2F; 解密状态）</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/view/wechat-status</code></td>
+<td>微信安装与账号自动探测</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/view/decrypt</code></td>
+<td>一键自动处理（取密钥 + 解密）</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/view/accounts/&#123;account&#125;/contacts</code></td>
+<td>会话 &#x2F; 联系人列表</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/view/messages</code></td>
+<td>按日期读取消息</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/analysis/day</code></td>
+<td>单日统计</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/analysis/all</code></td>
+<td>全日期趋势</td>
+</tr>
+</tbody></table>
+<h2 id="0x05-关键取舍与踩坑"><a href="#0x05-关键取舍与踩坑" class="headerlink" title="0x05 关键取舍与踩坑"></a>0x05 关键取舍与踩坑</h2><p>构建过程里几个值得记录的决策点：</p>
+<ol>
+<li><strong>接口契约对齐主项目</strong>：<code>/api/chat/exports*</code> 完全照搬契约，好处是主项目前端组件（<code>ChatExportDialog.vue</code> &#x2F; <code>useChatExport.js</code>）可以零改动对接，两边可以互相替换。</li>
+<li><strong>降级优先于报错</strong>：原生组件缺失时不直接 500，而是降级到已解密数据源，服务始终可用。</li>
+<li><strong>端口冲突</strong>：主项目后端也常用 10392，独立版必须支持端口覆盖，最终用 <code>STANDALONE_EXPORT_PORT</code> 环境变量解决。</li>
+<li><strong>隐私与合规</strong>：账号密钥、导出 zip、<code>output/</code> 目录全部进 <code>.gitignore</code>，仓库里不提交任何隐私文件；工具只用于处理本人持有或有权限访问的数据。</li>
+<li><strong>可选依赖分离</strong>：取密钥（<code>pymem</code> &#x2F; <code>wx_key</code> &#x2F; <code>yara-python</code>）与语音转写（<code>faster-whisper</code>）都标记为可选，基础导出功能不强制安装。</li>
+</ol>
+<h2 id="0x06-快速开始"><a href="#0x06-快速开始" class="headerlink" title="0x06 快速开始"></a>0x06 快速开始</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python -m venv .venv</span><br><span class="line">.venv\Scripts\python -m pip install -r requirements.txt</span><br></pre></td></tr></table></figure>
+
+<p>启动：双击 <code>start.bat</code>，或 <code>python main.py</code>。</p>
+<ul>
+<li>网页版（聊天查看 + AI 分析）：<a href="http://127.0.0.1:10399/">http://127.0.0.1:10399/</a></li>
+<li>健康检查：<a href="http://127.0.0.1:10399/api/health">http://127.0.0.1:10399/api/health</a></li>
+<li>API 文档：<a href="http://127.0.0.1:10399/docs">http://127.0.0.1:10399/docs</a></li>
+</ul>
+<h2 id="0x07-总结"><a href="#0x07-总结" class="headerlink" title="0x07 总结"></a>0x07 总结</h2><p>从主项目里拆出”导出与分析”这条链路，独立成一个能跑的服务，过程中比较满意的是三点：</p>
+<ul>
+<li><strong>decrypted 纯 Python 路径</strong>让导出核心不绑死在 Windows 上，后续如果要上手机（Chaquopy &#x2F; Termux 跑 Python 核心）有现成路线</li>
+<li><strong>接口契约对齐</strong>保住了与主项目前端的兼容性，相当于白拿了成熟的导出交互层</li>
+<li><strong>降级设计</strong>让服务在组件不全的环境里依然可用</li>
+</ul>
+<p>读取与解密部分再次感谢 <a href="https://github.com/LifeArchiveProject/WeChatDataAnalysis">LifeArchiveProject&#x2F;WeChatDataAnalysis</a>。项目代码在 <a href="https://github.com/wenbuer/wechat-unsaid-ai-web">https://github.com/wenbuer/wechat-unsaid-ai-web</a> ，欢迎参考。</p>
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>]]></content>
+      <categories>
+        <category>Project</category>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>WeChat</tag>
+        <tag>Python</tag>
+        <tag>FastAPI</tag>
+        <tag>数据分析</tag>
+      </tags>
+  </entry>
 </search>
