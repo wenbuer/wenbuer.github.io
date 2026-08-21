@@ -211,45 +211,6 @@
       </tags>
   </entry>
   <entry>
-    <title>HTB VPN配置</title>
-    <url>/2021/03/13/HTB-VPN%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h3 id="HTB-VPN配置"><a href="#HTB-VPN配置" class="headerlink" title="HTB VPN配置"></a>HTB VPN配置</h3><p>服务器： 阿里云 ubuntu</p>
-<p>在服务器安装openvpn</p>
-<p><code>apt-get update</code></p>
-<p><code>apt-get install openvpn</code></p>
-<p>在HTB的Labs页面中找到连接Starting Point</p>
-<p><a href="/images/20210313190126.png" class="gallery-item"><img src="/images/20210313190126.png"></a></p>
-<p>选择好其中一个节点进行下载.ovpn文件</p>
-<a href="/images/20210313185138.png" class="gallery-item"><img src="/images/20210313185138.png" style="zoom:50%;" /></a>
-
-<p>在服务器用openvpn连接到staring point</p>
-<p><code>openvpn starting_point_XXXXX.ovpn</code></p>
-<p>点击Archetype机器，选择Jion Machine，加入之后会告诉你该机器的IP地址</p>
-<a href="/images/20210313185915.png" class="gallery-item"><img src="/images/20210313185915.png" style="zoom: 50%;" /></a>
-
-<p>在服务器ping该地址，可以ping通</p>
-<a href="/images/20210313190251.png" class="gallery-item"><img src="/images/20210313190251.png" style="zoom:50%;" /></a>
-
-<p>测试VPN已经搭建完成</p>
-</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
-        var options = {
-            selector: '.gallery-item'
-        };
-        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
-        }</script>]]></content>
-      <categories>
-        <category>HTB</category>
-        <category>Hacker</category>
-        <category>Security</category>
-        <category>Penetration testing</category>
-      </categories>
-      <tags>
-        <tag>Study life</tag>
-        <tag>HTB</tag>
-        <tag>Penetration testing</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CobaltStrike配置文件详解</title>
     <url>/2022/09/14/CobaltStrike%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h1 id="CobaltStrike配置文件详解"><a href="#CobaltStrike配置文件详解" class="headerlink" title="CobaltStrike配置文件详解"></a>CobaltStrike配置文件详解</h1><p>Cobalt Strike使用配置文件中存在的值来生成beacon payload，用户创建配置文件，并使用可扩展命令和C2配置文件语言来设置值。配置文件指定beacon将如何在事件中改变和存储数据。</p>
@@ -394,61 +355,26 @@
       </tags>
   </entry>
   <entry>
-    <title>HTB通过V2Ray代理访问靶机网页</title>
-    <url>/2021/04/15/HTB%E9%80%9A%E8%BF%87%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BB%A3%E7%90%86%E8%AE%BF%E9%97%AE%E9%9D%B6%E6%9C%BA%E7%BD%91%E9%A1%B5/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="HTB通过服务器代理访问靶机网页"><a href="#HTB通过服务器代理访问靶机网页" class="headerlink" title="HTB通过服务器代理访问靶机网页"></a>HTB通过服务器代理访问靶机网页</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在之前搭建openvpn访问HTB的文章中，我用的是ubuntu服务器，且没有桌面系统。这篇文章的出现是在攻击靶机的过程中需要访问靶场的网页，因为没有桌面系统，我打算将网页转发到本机上来做。</p>
-<p>一开始考虑的是图形转发，X11的Xmanager尝试了一下，占用带宽太大，输入一个ip需要半分钟的反应时间，因此放弃。</p>
-<p>然后尝试了vnc的图形转发，不同于Xmanager通过端口转发UI界面，vnc是远程连入操作系统，相当于单独开了一个连接窗口。</p>
-<p>但是vnc的安装还需要gnome之类的桌面系统，这和我一开始使用服务器的想法背道而驰。安装期间还搞崩了我的服务器，差点直接提交工单重置。因此安装尝试完之后也放弃了这种方法。</p>
-<p>之后考虑的是流量转发，利用v2ray直接转发本机流量，交给服务器代理访问，这种方式也证明用很好的效果。</p>
-<p>下面记录了·一下我的操作过程。</p>
-<h3 id="V2ray搭建"><a href="#V2ray搭建" class="headerlink" title="V2ray搭建"></a>V2ray搭建</h3><h4 id="时间校准"><a href="#时间校准" class="headerlink" title="时间校准"></a>时间校准</h4><p><code>date -R</code></p>
-<p>查看服务器时间，确保与主机时间误差不超过90s，不同时区的服务器时间确保经过转换之后不超过90s</p>
-<p>如果时间不准确，用</p>
-<p><code>date --set=&quot;XXXX-XX-XX XX:XX:XX&quot;</code></p>
-<p>来设置时间</p>
-<h4 id="服务器安装"><a href="#服务器安装" class="headerlink" title="服务器安装"></a>服务器安装</h4><p>下载安装脚本</p>
-<p><code>wget https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh</code></p>
-<p>安装v2ray</p>
-<p><code>bash install-release.sh</code></p>
-<p>启动v2ray</p>
-<p><code>systemctl start v2ray</code></p>
-<p>设置开机启动</p>
-<p><code>systemctl enable v2ray</code></p>
-<p>查看v2ray状态</p>
-<p><code>systemctl status v2ray</code></p>
-<p>如果显示确实在运行，状态没问题，就可以停下v2ray进行config的配置</p>
-<p>停止v2ray</p>
-<p><code>systemctl stop v2ray</code></p>
-<h4 id="客户端安装"><a href="#客户端安装" class="headerlink" title="客户端安装"></a>客户端安装</h4><p>windows在<a href="https://github.com/v2fly/v2ray-core/releases%E4%B8%8B%E8%BD%BD%E6%96%B0%E7%89%88%E7%9A%84v2ray-windows-64.zip%E5%AE%89%E8%A3%85%E5%8C%85%EF%BC%8C%E8%A7%A3%E5%8E%8B%E5%8D%B3%E5%8F%AF">https://github.com/v2fly/v2ray-core/releases下载新版的v2ray-windows-64.zip安装包，解压即可</a></p>
-<p>然后设置一下浏览器代理</p>
-<p>本机是chrome浏览器，推荐使用Proxy SwitchyOmega这个插件，能更加方便的切换代理设置</p>
-<p><a href="/images/image-20210415090617478.png" class="gallery-item"><img src="/images/image-20210415090617478.png"></a></p>
-<p>点击选项，然后点击左侧新建情景模式</p>
-<a href="/images/image-20210415090742885.png" class="gallery-item"><img src="/images/image-20210415090742885.png" style="zoom:50%;" /></a>
+    <title>HTB VPN配置</title>
+    <url>/2021/03/13/HTB-VPN%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h3 id="HTB-VPN配置"><a href="#HTB-VPN配置" class="headerlink" title="HTB VPN配置"></a>HTB VPN配置</h3><p>服务器： 阿里云 ubuntu</p>
+<p>在服务器安装openvpn</p>
+<p><code>apt-get update</code></p>
+<p><code>apt-get install openvpn</code></p>
+<p>在HTB的Labs页面中找到连接Starting Point</p>
+<p><a href="/images/20210313190126.png" class="gallery-item"><img src="/images/20210313190126.png"></a></p>
+<p>选择好其中一个节点进行下载.ovpn文件</p>
+<a href="/images/20210313185138.png" class="gallery-item"><img src="/images/20210313185138.png" style="zoom:50%;" /></a>
 
-<p>创建完之后，填写如下</p>
-<p><a href="/images/image-20210415091207398.png" class="gallery-item"><img src="/images/image-20210415091207398.png"></a></p>
-<p>然后点击左侧应用选项进行保存</p>
-<h4 id="VMess服务端配置"><a href="#VMess服务端配置" class="headerlink" title="VMess服务端配置"></a>VMess服务端配置</h4><p>生成自己的uuid</p>
-<p><code>cat /proc/sys/kernel/random/uuid &gt; 1.txt</code></p>
-<p>编辑config.json</p>
-<p><code>vim /usr/local/etc/v2ray/config.json</code></p>
-<p>删除注释内容</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;inbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="string">&quot;yourport&quot;</span><span class="punctuation">,</span> <span class="comment">// 服务器监听端口,自选,删除引号</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;vmess&quot;</span><span class="punctuation">,</span>    <span class="comment">// 主传入协议</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;clients&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">          <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;XXXXXXX-XXXX-XXXX-XXXXX-XXXXXXXX&quot;</span><span class="punctuation">,</span>  <span class="comment">// 用户 ID，客户端与服务器必须相同，复制之前生成的uuid</span></span><br><span class="line">            <span class="attr">&quot;alterId&quot;</span><span class="punctuation">:</span> <span class="number">64</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;outbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;freedom&quot;</span><span class="punctuation">,</span>  <span class="comment">// 主传出协议</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>在服务器用openvpn连接到staring point</p>
+<p><code>openvpn starting_point_XXXXX.ovpn</code></p>
+<p>点击Archetype机器，选择Jion Machine，加入之后会告诉你该机器的IP地址</p>
+<a href="/images/20210313185915.png" class="gallery-item"><img src="/images/20210313185915.png" style="zoom: 50%;" /></a>
 
-<h4 id="VMess客户端配置"><a href="#VMess客户端配置" class="headerlink" title="VMess客户端配置"></a>VMess客户端配置</h4><p>修改安装包解压之后的config.json，记得删除注释</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;inbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="number">1080</span><span class="punctuation">,</span> <span class="comment">// 监听端口</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;socks&quot;</span><span class="punctuation">,</span> <span class="comment">// 入口协议为 SOCKS 5</span></span><br><span class="line">      <span class="attr">&quot;sniffing&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;enabled&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;destOverride&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;http&quot;</span><span class="punctuation">,</span> <span class="string">&quot;tls&quot;</span><span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;auth&quot;</span><span class="punctuation">:</span> <span class="string">&quot;noauth&quot;</span>  <span class="comment">//socks的认证设置，noauth 代表不认证，由于 socks 通常在客户端使用，所以这里不认证</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;outbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;vmess&quot;</span><span class="punctuation">,</span> <span class="comment">// 出口协议</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;vnext&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">          <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;address&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_server_ip&quot;</span><span class="punctuation">,</span> <span class="comment">// 服务器地址，请修改为你自己的服务器 IP 或域名</span></span><br><span class="line">            <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your port&quot;</span><span class="punctuation">,</span>  <span class="comment">// 服务器端口，删除引号</span></span><br><span class="line">            <span class="attr">&quot;users&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">              <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;XXXXXXX-XXXX-XXXX-XXXXX-XXXXXXXX&quot;</span><span class="punctuation">,</span>  <span class="comment">// 用户 ID，客户端与服务器必须相同，复制之前生成的uuid</span></span><br><span class="line">                <span class="attr">&quot;alterId&quot;</span><span class="punctuation">:</span> <span class="number">64</span> <span class="comment">// 此处的值也应当与服务器相同</span></span><br><span class="line">              <span class="punctuation">&#125;</span></span><br><span class="line">            <span class="punctuation">]</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>在服务器ping该地址，可以ping通</p>
+<a href="/images/20210313190251.png" class="gallery-item"><img src="/images/20210313190251.png" style="zoom:50%;" /></a>
 
-<h4 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h4><p>数据包流程是</p>
-<p><code>&#123;浏览器&#125; &lt;--(socks)--&gt; &#123;V2Ray 客户端 inbound &lt;-&gt; V2Ray 客户端 outbound&#125; &lt;--(VMess)--&gt;  &#123;V2Ray 服务器 inbound &lt;-&gt; V2Ray 服务器 outbound&#125; &lt;--(Freedom)--&gt; &#123;目标网站&#125;</code></p>
-<p>检查服务器config</p>
-<p><code>/usr/local/bin/v2ray -test -config /usr/local/etc/v2ray/config.json</code></p>
-<p>服务器开启v2ray</p>
-<p><code>systemctl start v2ray</code></p>
-<p>客户端打开v2ray.exe</p>
-<p>浏览器切换代理模式</p>
-<p>即可访问HTB靶机网页（记得服务器要开放安全组端口）</p>
+<p>测试VPN已经搭建完成</p>
 </div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
         var options = {
             selector: '.gallery-item'
@@ -530,6 +456,183 @@
       <tags>
         <tag>Study life</tag>
         <tag>CTF</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HTB通过V2Ray代理访问靶机网页</title>
+    <url>/2021/04/15/HTB%E9%80%9A%E8%BF%87%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BB%A3%E7%90%86%E8%AE%BF%E9%97%AE%E9%9D%B6%E6%9C%BA%E7%BD%91%E9%A1%B5/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="HTB通过服务器代理访问靶机网页"><a href="#HTB通过服务器代理访问靶机网页" class="headerlink" title="HTB通过服务器代理访问靶机网页"></a>HTB通过服务器代理访问靶机网页</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在之前搭建openvpn访问HTB的文章中，我用的是ubuntu服务器，且没有桌面系统。这篇文章的出现是在攻击靶机的过程中需要访问靶场的网页，因为没有桌面系统，我打算将网页转发到本机上来做。</p>
+<p>一开始考虑的是图形转发，X11的Xmanager尝试了一下，占用带宽太大，输入一个ip需要半分钟的反应时间，因此放弃。</p>
+<p>然后尝试了vnc的图形转发，不同于Xmanager通过端口转发UI界面，vnc是远程连入操作系统，相当于单独开了一个连接窗口。</p>
+<p>但是vnc的安装还需要gnome之类的桌面系统，这和我一开始使用服务器的想法背道而驰。安装期间还搞崩了我的服务器，差点直接提交工单重置。因此安装尝试完之后也放弃了这种方法。</p>
+<p>之后考虑的是流量转发，利用v2ray直接转发本机流量，交给服务器代理访问，这种方式也证明用很好的效果。</p>
+<p>下面记录了·一下我的操作过程。</p>
+<h3 id="V2ray搭建"><a href="#V2ray搭建" class="headerlink" title="V2ray搭建"></a>V2ray搭建</h3><h4 id="时间校准"><a href="#时间校准" class="headerlink" title="时间校准"></a>时间校准</h4><p><code>date -R</code></p>
+<p>查看服务器时间，确保与主机时间误差不超过90s，不同时区的服务器时间确保经过转换之后不超过90s</p>
+<p>如果时间不准确，用</p>
+<p><code>date --set=&quot;XXXX-XX-XX XX:XX:XX&quot;</code></p>
+<p>来设置时间</p>
+<h4 id="服务器安装"><a href="#服务器安装" class="headerlink" title="服务器安装"></a>服务器安装</h4><p>下载安装脚本</p>
+<p><code>wget https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh</code></p>
+<p>安装v2ray</p>
+<p><code>bash install-release.sh</code></p>
+<p>启动v2ray</p>
+<p><code>systemctl start v2ray</code></p>
+<p>设置开机启动</p>
+<p><code>systemctl enable v2ray</code></p>
+<p>查看v2ray状态</p>
+<p><code>systemctl status v2ray</code></p>
+<p>如果显示确实在运行，状态没问题，就可以停下v2ray进行config的配置</p>
+<p>停止v2ray</p>
+<p><code>systemctl stop v2ray</code></p>
+<h4 id="客户端安装"><a href="#客户端安装" class="headerlink" title="客户端安装"></a>客户端安装</h4><p>windows在<a href="https://github.com/v2fly/v2ray-core/releases%E4%B8%8B%E8%BD%BD%E6%96%B0%E7%89%88%E7%9A%84v2ray-windows-64.zip%E5%AE%89%E8%A3%85%E5%8C%85%EF%BC%8C%E8%A7%A3%E5%8E%8B%E5%8D%B3%E5%8F%AF">https://github.com/v2fly/v2ray-core/releases下载新版的v2ray-windows-64.zip安装包，解压即可</a></p>
+<p>然后设置一下浏览器代理</p>
+<p>本机是chrome浏览器，推荐使用Proxy SwitchyOmega这个插件，能更加方便的切换代理设置</p>
+<p><a href="/images/image-20210415090617478.png" class="gallery-item"><img src="/images/image-20210415090617478.png"></a></p>
+<p>点击选项，然后点击左侧新建情景模式</p>
+<a href="/images/image-20210415090742885.png" class="gallery-item"><img src="/images/image-20210415090742885.png" style="zoom:50%;" /></a>
+
+<p>创建完之后，填写如下</p>
+<p><a href="/images/image-20210415091207398.png" class="gallery-item"><img src="/images/image-20210415091207398.png"></a></p>
+<p>然后点击左侧应用选项进行保存</p>
+<h4 id="VMess服务端配置"><a href="#VMess服务端配置" class="headerlink" title="VMess服务端配置"></a>VMess服务端配置</h4><p>生成自己的uuid</p>
+<p><code>cat /proc/sys/kernel/random/uuid &gt; 1.txt</code></p>
+<p>编辑config.json</p>
+<p><code>vim /usr/local/etc/v2ray/config.json</code></p>
+<p>删除注释内容</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;inbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="string">&quot;yourport&quot;</span><span class="punctuation">,</span> <span class="comment">// 服务器监听端口,自选,删除引号</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;vmess&quot;</span><span class="punctuation">,</span>    <span class="comment">// 主传入协议</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;clients&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">          <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;XXXXXXX-XXXX-XXXX-XXXXX-XXXXXXXX&quot;</span><span class="punctuation">,</span>  <span class="comment">// 用户 ID，客户端与服务器必须相同，复制之前生成的uuid</span></span><br><span class="line">            <span class="attr">&quot;alterId&quot;</span><span class="punctuation">:</span> <span class="number">64</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;outbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;freedom&quot;</span><span class="punctuation">,</span>  <span class="comment">// 主传出协议</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="VMess客户端配置"><a href="#VMess客户端配置" class="headerlink" title="VMess客户端配置"></a>VMess客户端配置</h4><p>修改安装包解压之后的config.json，记得删除注释</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;inbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="number">1080</span><span class="punctuation">,</span> <span class="comment">// 监听端口</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;socks&quot;</span><span class="punctuation">,</span> <span class="comment">// 入口协议为 SOCKS 5</span></span><br><span class="line">      <span class="attr">&quot;sniffing&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;enabled&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;destOverride&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;http&quot;</span><span class="punctuation">,</span> <span class="string">&quot;tls&quot;</span><span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;auth&quot;</span><span class="punctuation">:</span> <span class="string">&quot;noauth&quot;</span>  <span class="comment">//socks的认证设置，noauth 代表不认证，由于 socks 通常在客户端使用，所以这里不认证</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;outbounds&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;protocol&quot;</span><span class="punctuation">:</span> <span class="string">&quot;vmess&quot;</span><span class="punctuation">,</span> <span class="comment">// 出口协议</span></span><br><span class="line">      <span class="attr">&quot;settings&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;vnext&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">          <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;address&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your_server_ip&quot;</span><span class="punctuation">,</span> <span class="comment">// 服务器地址，请修改为你自己的服务器 IP 或域名</span></span><br><span class="line">            <span class="attr">&quot;port&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your port&quot;</span><span class="punctuation">,</span>  <span class="comment">// 服务器端口，删除引号</span></span><br><span class="line">            <span class="attr">&quot;users&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">              <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;XXXXXXX-XXXX-XXXX-XXXXX-XXXXXXXX&quot;</span><span class="punctuation">,</span>  <span class="comment">// 用户 ID，客户端与服务器必须相同，复制之前生成的uuid</span></span><br><span class="line">                <span class="attr">&quot;alterId&quot;</span><span class="punctuation">:</span> <span class="number">64</span> <span class="comment">// 此处的值也应当与服务器相同</span></span><br><span class="line">              <span class="punctuation">&#125;</span></span><br><span class="line">            <span class="punctuation">]</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h4><p>数据包流程是</p>
+<p><code>&#123;浏览器&#125; &lt;--(socks)--&gt; &#123;V2Ray 客户端 inbound &lt;-&gt; V2Ray 客户端 outbound&#125; &lt;--(VMess)--&gt;  &#123;V2Ray 服务器 inbound &lt;-&gt; V2Ray 服务器 outbound&#125; &lt;--(Freedom)--&gt; &#123;目标网站&#125;</code></p>
+<p>检查服务器config</p>
+<p><code>/usr/local/bin/v2ray -test -config /usr/local/etc/v2ray/config.json</code></p>
+<p>服务器开启v2ray</p>
+<p><code>systemctl start v2ray</code></p>
+<p>客户端打开v2ray.exe</p>
+<p>浏览器切换代理模式</p>
+<p>即可访问HTB靶机网页（记得服务器要开放安全组端口）</p>
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>]]></content>
+      <categories>
+        <category>HTB</category>
+        <category>Hacker</category>
+        <category>Security</category>
+        <category>Penetration testing</category>
+      </categories>
+      <tags>
+        <tag>Study life</tag>
+        <tag>HTB</tag>
+        <tag>Penetration testing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux服务器利用V2ray访问外网（命令行）</title>
+    <url>/2021/12/10/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="Linux服务器利用V2ray访问外网（命令行）"><a href="#Linux服务器利用V2ray访问外网（命令行）" class="headerlink" title="Linux服务器利用V2ray访问外网（命令行）"></a>Linux服务器利用V2ray访问外网（命令行）</h2><h3 id="0x00-背景"><a href="#0x00-背景" class="headerlink" title="0x00 背景"></a>0x00 背景</h3><p>在用go-cqhttp+flask框架实现自定义QQ机器人功能时，想要利用爬虫获取TG机器人的相关发布内容，面临的首个问题就是服务器需要访问外网。</p>
+<p>我手上有很多外网的代理链接，但是很可惜的是这些并不是我自己的VPS服务器；且在我本身linux服务器不带用图形界面，因此无法使用ssr和v2rayN等简洁的代理服务。</p>
+<p>因此，如何在只有命令行的条件下将已有的代理链接变成v2ray客户端配置并访问外网即是本文的主要内容。</p>
+<h3 id="0x01-实现过程"><a href="#0x01-实现过程" class="headerlink" title="0x01 实现过程"></a>0x01 实现过程</h3><p>选择一个已有的代理，获取V2ray的订阅链接。</p>
+<p>这个链接是一个订阅的url，直接在浏览器输入后，即可下载订阅链接的txt文件。</p>
+<p>打开之后是一个base64编码的内容，直接解码。</p>
+<p><a href="/images/image-20211205225346933.png" title="image-20211205225346933" class="gallery-item"><img src="/images/image-20211205225346933.png" alt="image-20211205225346933"></a></p>
+<p>可以看到有vmess:&#x2F;&#x2F;开头的base64内容，如果选择继续解码，你会得到一个json字段，如图。</p>
+<p><a href="/images/image-20211205225721126.png" title="image-20211205225721126" class="gallery-item"><img src="/images/image-20211205225721126.png" alt="image-20211205225721126"></a></p>
+<p>用这些字段确实可以根据v2ray客户端配置的格式补充得到配置文件，但是过于麻烦。</p>
+<p>我们直接将vmess:&#x2F;&#x2F;的内容复制到windows上的v2rayN里面，然后选择“导出所选服务器为服务端配置”。</p>
+<p><a href="/images/image-20211205230049835.png" title="image-20211205230049835" class="gallery-item"><img src="/images/image-20211205230049835.png" alt="image-20211205230049835"></a></p>
+<p>然后将这个配置文件上传到我们的linux服务器上即可，启动时带上-config参数导入配置文件。（linux的V2ray相关配置可以看之前的文章）</p>
+<p><code>v2ray -config /usr/local/etc/v2ray/v2ray.json </code></p>
+<p><a href="/images/image-20211205230342197.png" title="image-20211205230342197" class="gallery-item"><img src="/images/image-20211205230342197.png" alt="image-20211205230342197"></a></p>
+<p>可以看到V2ray已经正常启动。</p>
+<p>接下来需要在另一个命令行窗口中将流量转发到1080端口即可实现代理，输入命令行。</p>
+<p><code>export http_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
+<p><code>export https_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
+<blockquote>
+<p>注意：该代理只作用在当前终端窗口，不会影响服务器环境</p>
+</blockquote>
+<h3 id="0x02-效果"><a href="#0x02-效果" class="headerlink" title="0x02 效果"></a>0x02 效果</h3><p><a href="/images/image-20211205231153326.png" title="image-20211205231153326" class="gallery-item"><img src="/images/image-20211205231153326.png" alt="image-20211205231153326"></a></p>
+<p>命令行代理已经实现，接下来即可开始实现TG爬虫功能了</p>
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>]]></content>
+      <categories>
+        <category>Daily</category>
+      </categories>
+      <tags>
+        <tag>Daily life</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NeSE丙队1月月赛训练</title>
+    <url>/2021/01/22/NeSE%E4%B8%99%E9%98%9F1%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-misc1"><a href="#0x00-misc1" class="headerlink" title="0x00 misc1"></a>0x00 misc1</h4><p>签到题</p>
+<p>直接下载png文件，打开是一个二维码，直接扫码得到</p>
+<p>flag{B1ue_Bing0}</p>
+<h4 id="0x01-stego"><a href="#0x01-stego" class="headerlink" title="0x01 stego"></a>0x01 stego</h4><p>下载文件stego.png</p>
+<p>打开是一个放假通知，用binwalk查看内容</p>
+<p><a href="/images/20210125095532.png" title="image-20210125095532" class="gallery-item"><img src="/images/20210125095532.png" alt="image-20210125095532"></a></p>
+<p>可以得到这个png含有zip文件，根据图种特点，直接修改后缀.zip，有一个文件名为1的文件，直接打开得到</p>
+<p>flag{ez_z1p_st3g0}</p>
+<h3 id="WEB"><a href="#WEB" class="headerlink" title="WEB"></a>WEB</h3><h4 id="0x02-admin"><a href="#0x02-admin" class="headerlink" title="0x02 admin"></a>0x02 admin</h4><p>跳转进入网页显示不是admin，无法获取flag</p>
+<p>利用burpsuite抓包看到jwt_token，格式为{header}.{payload}.{verify signature}</p>
+<p>前两个用base64解密，得到header&#x3D;{“alg”:”HS256”,”type”:”JWT”}，payload&#x3D;{“user”:”tourist”} <del>大概是这样，忘记了</del></p>
+<p>jwt_token后面跟着key&#x3D;blueNeSE，verify signature的验证的公式为</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">HMACSHA256(</span><br><span class="line">  base64UrlEncode(header) + &quot;.&quot; +</span><br><span class="line">  base64UrlEncode(payload),</span><br><span class="line">  key</span><br><span class="line">) </span><br></pre></td></tr></table></figure>
+
+<p>通过jwt网站<a href="https://jwt.io/%E8%AE%A1%E7%AE%97%E9%AA%8C%E8%AF%81key%E7%A1%AE%E5%AE%9E%E4%B8%BAblueNeSE%EF%BC%8C%E6%9B%B4%E6%94%B9payload%E4%B8%BA%7B%22user%22:%22admin%22%7D%EF%BC%8C%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E9%AA%8C%E8%AF%81%E7%9A%84jwt_token">https://jwt.io/计算验证key确实为blueNeSE，更改payload为{&quot;user&quot;:&quot;admin&quot;}，自动生成验证的jwt_token</a></p>
+<p>修改jwt_token重放包，得到flag<del>忘了</del></p>
+<h3 id="Crypto"><a href="#Crypto" class="headerlink" title="Crypto"></a>Crypto</h3><h4 id="0x03-jefferson-wheel"><a href="#0x03-jefferson-wheel" class="headerlink" title="0x03 jefferson wheel"></a>0x03 jefferson wheel</h4><p>加密表为</p>
+<p>ZWAXJGDLUBVIQHKEPNTCRMOSFY&gt;<br>KPBRLNACZDTEXMJQOYHGVSFUWI&gt;<br>BDMAIZVNHSJUWFRTEQGYXPLOCK&gt;<br>RPLHDVNGFCUKTEBSXQYIZMJWAO&gt;<br>IHFRLABEUOTSGJVDKZPMNCQWXY&gt;<br>AMKGHBWPNYCJIFZDRUSLOQXVET&gt;<br>GWTHMPYBXIZULVKSRAFDCEONJQ&gt;<br>NOZUTWDCVRJLXKISYFAPMEGHBQ&gt;<br>XPLTDSRFGENYVUBMCQWAOIKZHJ&gt;<br>UDNAJFBOWCGVRSTZQKELMXYIHP&gt;<br>MNCVBXZQWERTPOIUYALSKDJFHG&gt;<br>LVNCMXZPQOWEJURYTASBKIDFHG&gt;<br>JZQAWVXCDERFSBGTYHNUMKILOP&gt;<br>KQDLOEJPCNFXBIWZGRYMTVHSUA&gt;<br>PVLUBFJSXOWAYGNEIDZTMHCRQK&gt;</p>
+<p>根据密钥[5-9-14-13-1-7-2-12-4-10-6-3-11-15-8]，重组加密表，得到新表为</p>
+<p>IHFRLABEUOTSGJVDKZPMNCQWXY&gt;<br>XPLTDSRFGENYVUBMCQWAOIKZHJ&gt;<br>KQDLOEJPCNFXBIWZGRYMTVHSUA&gt;<br>JZQAWVXCDERFSBGTYHNUMKILOP&gt;<br>ZWAXJGDLUBVIQHKEPNTCRMOSFY&gt;<br>GWTHMPYBXIZULVKSRAFDCEONJQ&gt;<br>KPBRLNACZDTEXMJQOYHGVSFUWI&gt;<br>LVNCMXZPQOWEJURYTASBKIDFHG&gt;<br>RPLHDVNGFCUKTEBSXQYIZMJWAO&gt;<br>UDNAJFBOWCGVRSTZQKELMXYIHP&gt;<br>AMKGHBWPNYCJIFZDRUSLOQXVET&gt;<br>BDMAIZVNHSJUWFRTEQGYXPLOCK&gt;<br>MNCVBXZQWERTPOIUYALSKDJFHG&gt;<br>PVLUBFJSXOWAYGNEIDZTMHCRQK&gt;<br>NOZUTWDCVRJLXKISYFAPMEGHBQ&gt;</p>
+<p>根据密文[Q-J-K-B-P-P-X-D-G-G-F-T-V-U-G]，转动新表得到</p>
+<p>QWXYIHFRLABEUOTSGJVDKZPMNC<br>JXPLTDSRFGENYVUBMCQWAOIKZH<br>KQDLOEJPCNFXBIWZGRYMTVHSUA<br>BGTYHNUMKILOPJZQAWVXCDERFS<br>PNTCRMOSFYZWAXJGDLUBVIQHKE<br>PYBXIZULVKSRAFDCEONJQGWTHM<br>XMJQOYHGVSFUWIKPBRLNACZDTE<br>DFHGLVNCMXZPQOWEJURYTASBKI<br>GFCUKTEBSXQYIZMJWAORPLHDVN<br>GVRSTZQKELMXYIHPUDNAJFBOWC<br>FZDRUSLOQXVETAMKGHBWPNYCJI<br>TEQGYXPLOCKBDMAIZVNHSJUWFR<br>VBXZQWERTPOIUYALSKDJFHGMNC<br>UBFJSXOWAYGNEIDZTMHCRQKPVL<br>GHBQNOZUTWDCVRJLXKISYFAPME</p>
+<p>根据语义，最后一列为flag{chasemeincircle}<del>忘了是大写还是小写</del></p>
+<h4 id="0x04-广播"><a href="#0x04-广播" class="headerlink" title="0x04 广播"></a>0x04 广播</h4><p>下载broadcast.zip和hint.txt</p>
+<p>zip压缩文件内容加密，根据hint.txt得知密码为18位，且是简单的编码方式</p>
+<p>猜测关键词为broadcast，共9位，推测为十六进制编码（十进制会产生1位数对3位数，base64则是1位对4&#x2F;3位）</p>
+<p>利用62726f616463617374解压成功，得到{c3 c2 c1 n3 n2 n1}，根据题目也可以看出为RSA广播攻击</p>
+<p>编写对应的代码如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"><span class="comment"># coding:utf8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> struct <span class="keyword">import</span> pack, unpack</span><br><span class="line"><span class="keyword">import</span> zlib</span><br><span class="line"><span class="keyword">import</span> gmpy2 <span class="keyword">as</span> gmpy</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_parse_number</span>(<span class="params">number</span>):</span><br><span class="line">    string = <span class="string">&quot;%x&quot;</span> % number</span><br><span class="line">    <span class="comment">#if len(string) != 64:</span></span><br><span class="line">    <span class="comment">#    return &quot;&quot;</span></span><br><span class="line">    erg = []</span><br><span class="line">    <span class="keyword">while</span> string != <span class="string">&#x27;&#x27;</span>:</span><br><span class="line">        erg = erg + [<span class="built_in">chr</span>(<span class="built_in">int</span>(string[:<span class="number">2</span>], <span class="number">16</span>))]</span><br><span class="line">        string = string[<span class="number">2</span>:]</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>.join(erg)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">extended_gcd</span>(<span class="params">a, b</span>):</span><br><span class="line">    x,y = <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    lastx, lasty = <span class="number">1</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> b:</span><br><span class="line">        a, (q, b) = b, <span class="built_in">divmod</span>(a,b)</span><br><span class="line">        x, lastx = lastx-q*x, x</span><br><span class="line">        y, lasty = lasty-q*y, y</span><br><span class="line">    <span class="keyword">return</span> (lastx, lasty, a)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">chinese_remainder_theorem</span>(<span class="params">items</span>):</span><br><span class="line">  N = <span class="number">1</span></span><br><span class="line">  <span class="keyword">for</span> a, n <span class="keyword">in</span> items:</span><br><span class="line">    N *= n</span><br><span class="line">  result = <span class="number">0</span></span><br><span class="line">  <span class="keyword">for</span> a, n <span class="keyword">in</span> items:</span><br><span class="line">    m = N//n</span><br><span class="line">    r, s, d = extended_gcd(n, m)</span><br><span class="line">    <span class="keyword">if</span> d != <span class="number">1</span>:</span><br><span class="line">      N=N/n</span><br><span class="line">      <span class="keyword">continue</span></span><br><span class="line">      <span class="comment">#raise &quot;Input not pairwise co-prime&quot;</span></span><br><span class="line">    result += a*s*m</span><br><span class="line">  <span class="keyword">return</span> result % N, N</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">c1 = m**e mod n1</span></span><br><span class="line"><span class="string">c2 = m**e mod n2</span></span><br><span class="line"><span class="string">c3 = m**e mod n3</span></span><br><span class="line"><span class="string">. .</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">sessions=[&#123;<span class="string">&quot;c&quot;</span>: <span class="number">2664456240866799628123354002961100780678777039452838534772316015487055657626151267255765909925238851052963177690615857269355367306531947285275658480119132176458619666356498982335615976520110220831553046336962209497199269751531446896806745547821273188359881207253304353340193045529947532321421316207582669186966262885925510852080336597611720270953364182776647640895915836757533572112922353511839592221769714011077657473370681864919378759906166093497668584965809250367719086157929143483067084526466393322021886107145372853920384593331401647566014964198106822275155018727443981449124990082600675418608431513247974233406</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">16158503998777337192674807945908821386693302597406387444349699542598095897285692091211476083809918750897861769264465663579793991679314429752295361957446059739359063103544638030154853387212724326557655148019702164400877330186327609348721648084613268414555203577183573889217351893673924371072333289354228674760315294504839359655489521012677566131327841053678744664608889174603997019849103346541029516404589134950647019313518381914869229067797614481107128126689730344210547636672896855115883318917823168989617075675281028751941660136853501327782175932311318584187206520215509966133929719351504589815606927966176149195779</span>&#125;,</span><br><span class="line">&#123;<span class="string">&quot;c&quot;</span>: <span class="number">8141444293590939926339140123606008320647283862734921035349993152736573212703175057344759120176139012159033736316173682242298057686577598027916977530077029856485627175379314811877501994761319423200265287785759453820095015807444949214265244900640835658881784054368646315441712319010363526404565445161985028402390954712866106921908734210919493250702187032275110124875570931002934221972634821225056433936935859313342958691599902102787445475305941582660308223893978598257522846759968671416599167447071747751521028177865487587852125772706197522666828868692341809398348371017535491453879955859658955741930595458023438100360</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">32317006071311007300714876688669951960444102669715484032130345427525853843244805988476588891865958825360448605290048592734632332583370763153757718383572299749209540231288997719992234568181178226221179583987114390330645720300200969658014581064237644699938356963972432409945268139827411216302358245968648685631852162149417921884611499140034180764281310426002777325893540359517405108625457448469440495488988134588122686723870538630903173922667307922091719215351000831684798921623126319342120005518066740737893055076255035167681805650095125693219744392056464805973406041558289941338164246139243161281441192654245812544809</span>&#125;,</span><br><span class="line">&#123;<span class="string">&quot;c&quot;</span>: <span class="number">32186692144821382556216414197036084450002406028322550030603281663242416068106078282460625499374288627277856236842632516201785581944392028997860442197688447471167439623993997293924922369564496861634056297046007484347428266405265850123438755524763475428402354354249708937585215741306623413807430961934859288170402397120084830356448790691150552044932030386388033322020053166574933222485614505111408006503260110878032569297769908686840698298294276083052356237977129947951638366162505197545851558874564120929824886880546857109477962821888212631753191393081515047983305638857450728393479191251293759249543719567211830591890</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">32317006071311007300714876688669951960444102669715484032130345427524655138867890893197201411522913463688717960921898019494119559150490921095088152386448283120630877367300996091750197750389652106796057638384067568276792218642619756161838094338476170470581645852036305042887575891768950486750990609730626074204953069170365351039844202147563211921699195999562457720327836338730130880314152322204629124008956222526289905774520564846695102147923912430235289375056683956240708354173616548191256839933106531936657610976268878493644409501763510589523424550621212340120772084161285303618671573000124518317607283263174664732027</span>&#125;]</span><br><span class="line"></span><br><span class="line">data = []</span><br><span class="line"><span class="keyword">for</span> session <span class="keyword">in</span> sessions:</span><br><span class="line">    e=session[<span class="string">&#x27;e&#x27;</span>]</span><br><span class="line">    n=session[<span class="string">&#x27;n&#x27;</span>]</span><br><span class="line">    msg=session[<span class="string">&#x27;c&#x27;</span>]</span><br><span class="line">    data += [(msg, n)]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Please wait, performing CRT&quot;</span>)</span><br><span class="line">x, n = chinese_remainder_theorem(data)</span><br><span class="line">e=session[<span class="string">&#x27;e&#x27;</span>]</span><br><span class="line">realnum = gmpy.iroot(x,e)[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(realnum)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>得到最终结果</p>
+<p>134491505866050799518149049116410640504801097393689986282578875171467764060356652949245541838134430726585819015055443577486765212620027434842249657064471879286694101508916323731138545953360768175582990398279608814586282578875171467764060356652949245541838134430727023319615912208504801097393689986282578875</p>
+<p><strong>根据Crypto第二题ez_crypto下flag取后9位的提示，得到flag为</strong></p>
+<p>flag{282578875}</p>
+<p><del>很离谱吗？是的，很离谱，更离谱的是ez_cypto怎么算都是m&#x3D;512347890123，尝试提交flag几十遍都是错的</del></p>
+<h2 id="Unsolved-Problem"><a href="#Unsolved-Problem" class="headerlink" title="Unsolved Problem"></a>Unsolved Problem</h2><h3 id="MISC-1"><a href="#MISC-1" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x05-misc2"><a href="#0x05-misc2" class="headerlink" title="0x05 misc2"></a>0x05 misc2</h4><p>图种格式，拆分为png+2*rar，png内容”secret is here”，rar内容5characters.txt加密</p>
+<p>png：</p>
+<p>没有找出更多隐写相关的线索</p>
+<p>5characters.txt：</p>
+<p>推测解压密码为5位字符，爆破时间需要2天多，放弃；内容为13位，推测为flag{XXXXXXX}，CRC32绕过需要7位，放弃</p>
+<h3 id="Crypto-1"><a href="#Crypto-1" class="headerlink" title="Crypto"></a>Crypto</h3><h4 id="0x06-base"><a href="#0x06-base" class="headerlink" title="0x06 base"></a>0x06 base</h4><p>hint.txt内容为16，推测为base16</p>
+<p>base.txt内容为brainfuck加密和3538，解密之后为base和3538，将3538用base16（十六进制）解密后为58，合起来内容为base58，这是一种bitcoin的编码方式</p>
+<p>然后没了，试了一堆都试不出来</p>
+<h4 id="0x07-ez-cypto"><a href="#0x07-ez-cypto" class="headerlink" title="0x07 ez_cypto"></a>0x07 ez_cypto</h4><p>挺离谱的，RSA共模攻击，求出m&#x3D;512347890123，提示flag为后9位，我也挺想知道flag是啥的</p>
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>]]></content>
+      <categories>
+        <category>CTF</category>
+        <category>Hacker</category>
+        <category>Security</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+        <tag>NeSE</tag>
       </tags>
   </entry>
   <entry>
@@ -684,109 +787,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Linux服务器利用V2ray访问外网（命令行）</title>
-    <url>/2021/12/10/Linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%A9%E7%94%A8V2ray%E8%AE%BF%E9%97%AE%E5%A4%96%E7%BD%91%EF%BC%88%E5%91%BD%E4%BB%A4%E8%A1%8C%EF%BC%89/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="Linux服务器利用V2ray访问外网（命令行）"><a href="#Linux服务器利用V2ray访问外网（命令行）" class="headerlink" title="Linux服务器利用V2ray访问外网（命令行）"></a>Linux服务器利用V2ray访问外网（命令行）</h2><h3 id="0x00-背景"><a href="#0x00-背景" class="headerlink" title="0x00 背景"></a>0x00 背景</h3><p>在用go-cqhttp+flask框架实现自定义QQ机器人功能时，想要利用爬虫获取TG机器人的相关发布内容，面临的首个问题就是服务器需要访问外网。</p>
-<p>我手上有很多外网的代理链接，但是很可惜的是这些并不是我自己的VPS服务器；且在我本身linux服务器不带用图形界面，因此无法使用ssr和v2rayN等简洁的代理服务。</p>
-<p>因此，如何在只有命令行的条件下将已有的代理链接变成v2ray客户端配置并访问外网即是本文的主要内容。</p>
-<h3 id="0x01-实现过程"><a href="#0x01-实现过程" class="headerlink" title="0x01 实现过程"></a>0x01 实现过程</h3><p>选择一个已有的代理，获取V2ray的订阅链接。</p>
-<p>这个链接是一个订阅的url，直接在浏览器输入后，即可下载订阅链接的txt文件。</p>
-<p>打开之后是一个base64编码的内容，直接解码。</p>
-<p><a href="/images/image-20211205225346933.png" title="image-20211205225346933" class="gallery-item"><img src="/images/image-20211205225346933.png" alt="image-20211205225346933"></a></p>
-<p>可以看到有vmess:&#x2F;&#x2F;开头的base64内容，如果选择继续解码，你会得到一个json字段，如图。</p>
-<p><a href="/images/image-20211205225721126.png" title="image-20211205225721126" class="gallery-item"><img src="/images/image-20211205225721126.png" alt="image-20211205225721126"></a></p>
-<p>用这些字段确实可以根据v2ray客户端配置的格式补充得到配置文件，但是过于麻烦。</p>
-<p>我们直接将vmess:&#x2F;&#x2F;的内容复制到windows上的v2rayN里面，然后选择“导出所选服务器为服务端配置”。</p>
-<p><a href="/images/image-20211205230049835.png" title="image-20211205230049835" class="gallery-item"><img src="/images/image-20211205230049835.png" alt="image-20211205230049835"></a></p>
-<p>然后将这个配置文件上传到我们的linux服务器上即可，启动时带上-config参数导入配置文件。（linux的V2ray相关配置可以看之前的文章）</p>
-<p><code>v2ray -config /usr/local/etc/v2ray/v2ray.json </code></p>
-<p><a href="/images/image-20211205230342197.png" title="image-20211205230342197" class="gallery-item"><img src="/images/image-20211205230342197.png" alt="image-20211205230342197"></a></p>
-<p>可以看到V2ray已经正常启动。</p>
-<p>接下来需要在另一个命令行窗口中将流量转发到1080端口即可实现代理，输入命令行。</p>
-<p><code>export http_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
-<p><code>export https_proxy=&quot;socks5://127.0.0.1:1080&quot;</code></p>
-<blockquote>
-<p>注意：该代理只作用在当前终端窗口，不会影响服务器环境</p>
-</blockquote>
-<h3 id="0x02-效果"><a href="#0x02-效果" class="headerlink" title="0x02 效果"></a>0x02 效果</h3><p><a href="/images/image-20211205231153326.png" title="image-20211205231153326" class="gallery-item"><img src="/images/image-20211205231153326.png" alt="image-20211205231153326"></a></p>
-<p>命令行代理已经实现，接下来即可开始实现TG爬虫功能了</p>
-</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
-        var options = {
-            selector: '.gallery-item'
-        };
-        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
-        }</script>]]></content>
-      <categories>
-        <category>Daily</category>
-      </categories>
-      <tags>
-        <tag>Daily life</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>NeSE丙队1月月赛训练</title>
-    <url>/2021/01/22/NeSE%E4%B8%99%E9%98%9F1%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-misc1"><a href="#0x00-misc1" class="headerlink" title="0x00 misc1"></a>0x00 misc1</h4><p>签到题</p>
-<p>直接下载png文件，打开是一个二维码，直接扫码得到</p>
-<p>flag{B1ue_Bing0}</p>
-<h4 id="0x01-stego"><a href="#0x01-stego" class="headerlink" title="0x01 stego"></a>0x01 stego</h4><p>下载文件stego.png</p>
-<p>打开是一个放假通知，用binwalk查看内容</p>
-<p><a href="/images/20210125095532.png" title="image-20210125095532" class="gallery-item"><img src="/images/20210125095532.png" alt="image-20210125095532"></a></p>
-<p>可以得到这个png含有zip文件，根据图种特点，直接修改后缀.zip，有一个文件名为1的文件，直接打开得到</p>
-<p>flag{ez_z1p_st3g0}</p>
-<h3 id="WEB"><a href="#WEB" class="headerlink" title="WEB"></a>WEB</h3><h4 id="0x02-admin"><a href="#0x02-admin" class="headerlink" title="0x02 admin"></a>0x02 admin</h4><p>跳转进入网页显示不是admin，无法获取flag</p>
-<p>利用burpsuite抓包看到jwt_token，格式为{header}.{payload}.{verify signature}</p>
-<p>前两个用base64解密，得到header&#x3D;{“alg”:”HS256”,”type”:”JWT”}，payload&#x3D;{“user”:”tourist”} <del>大概是这样，忘记了</del></p>
-<p>jwt_token后面跟着key&#x3D;blueNeSE，verify signature的验证的公式为</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">HMACSHA256(</span><br><span class="line">  base64UrlEncode(header) + &quot;.&quot; +</span><br><span class="line">  base64UrlEncode(payload),</span><br><span class="line">  key</span><br><span class="line">) </span><br></pre></td></tr></table></figure>
-
-<p>通过jwt网站<a href="https://jwt.io/%E8%AE%A1%E7%AE%97%E9%AA%8C%E8%AF%81key%E7%A1%AE%E5%AE%9E%E4%B8%BAblueNeSE%EF%BC%8C%E6%9B%B4%E6%94%B9payload%E4%B8%BA%7B%22user%22:%22admin%22%7D%EF%BC%8C%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E9%AA%8C%E8%AF%81%E7%9A%84jwt_token">https://jwt.io/计算验证key确实为blueNeSE，更改payload为{&quot;user&quot;:&quot;admin&quot;}，自动生成验证的jwt_token</a></p>
-<p>修改jwt_token重放包，得到flag<del>忘了</del></p>
-<h3 id="Crypto"><a href="#Crypto" class="headerlink" title="Crypto"></a>Crypto</h3><h4 id="0x03-jefferson-wheel"><a href="#0x03-jefferson-wheel" class="headerlink" title="0x03 jefferson wheel"></a>0x03 jefferson wheel</h4><p>加密表为</p>
-<p>ZWAXJGDLUBVIQHKEPNTCRMOSFY&gt;<br>KPBRLNACZDTEXMJQOYHGVSFUWI&gt;<br>BDMAIZVNHSJUWFRTEQGYXPLOCK&gt;<br>RPLHDVNGFCUKTEBSXQYIZMJWAO&gt;<br>IHFRLABEUOTSGJVDKZPMNCQWXY&gt;<br>AMKGHBWPNYCJIFZDRUSLOQXVET&gt;<br>GWTHMPYBXIZULVKSRAFDCEONJQ&gt;<br>NOZUTWDCVRJLXKISYFAPMEGHBQ&gt;<br>XPLTDSRFGENYVUBMCQWAOIKZHJ&gt;<br>UDNAJFBOWCGVRSTZQKELMXYIHP&gt;<br>MNCVBXZQWERTPOIUYALSKDJFHG&gt;<br>LVNCMXZPQOWEJURYTASBKIDFHG&gt;<br>JZQAWVXCDERFSBGTYHNUMKILOP&gt;<br>KQDLOEJPCNFXBIWZGRYMTVHSUA&gt;<br>PVLUBFJSXOWAYGNEIDZTMHCRQK&gt;</p>
-<p>根据密钥[5-9-14-13-1-7-2-12-4-10-6-3-11-15-8]，重组加密表，得到新表为</p>
-<p>IHFRLABEUOTSGJVDKZPMNCQWXY&gt;<br>XPLTDSRFGENYVUBMCQWAOIKZHJ&gt;<br>KQDLOEJPCNFXBIWZGRYMTVHSUA&gt;<br>JZQAWVXCDERFSBGTYHNUMKILOP&gt;<br>ZWAXJGDLUBVIQHKEPNTCRMOSFY&gt;<br>GWTHMPYBXIZULVKSRAFDCEONJQ&gt;<br>KPBRLNACZDTEXMJQOYHGVSFUWI&gt;<br>LVNCMXZPQOWEJURYTASBKIDFHG&gt;<br>RPLHDVNGFCUKTEBSXQYIZMJWAO&gt;<br>UDNAJFBOWCGVRSTZQKELMXYIHP&gt;<br>AMKGHBWPNYCJIFZDRUSLOQXVET&gt;<br>BDMAIZVNHSJUWFRTEQGYXPLOCK&gt;<br>MNCVBXZQWERTPOIUYALSKDJFHG&gt;<br>PVLUBFJSXOWAYGNEIDZTMHCRQK&gt;<br>NOZUTWDCVRJLXKISYFAPMEGHBQ&gt;</p>
-<p>根据密文[Q-J-K-B-P-P-X-D-G-G-F-T-V-U-G]，转动新表得到</p>
-<p>QWXYIHFRLABEUOTSGJVDKZPMNC<br>JXPLTDSRFGENYVUBMCQWAOIKZH<br>KQDLOEJPCNFXBIWZGRYMTVHSUA<br>BGTYHNUMKILOPJZQAWVXCDERFS<br>PNTCRMOSFYZWAXJGDLUBVIQHKE<br>PYBXIZULVKSRAFDCEONJQGWTHM<br>XMJQOYHGVSFUWIKPBRLNACZDTE<br>DFHGLVNCMXZPQOWEJURYTASBKI<br>GFCUKTEBSXQYIZMJWAORPLHDVN<br>GVRSTZQKELMXYIHPUDNAJFBOWC<br>FZDRUSLOQXVETAMKGHBWPNYCJI<br>TEQGYXPLOCKBDMAIZVNHSJUWFR<br>VBXZQWERTPOIUYALSKDJFHGMNC<br>UBFJSXOWAYGNEIDZTMHCRQKPVL<br>GHBQNOZUTWDCVRJLXKISYFAPME</p>
-<p>根据语义，最后一列为flag{chasemeincircle}<del>忘了是大写还是小写</del></p>
-<h4 id="0x04-广播"><a href="#0x04-广播" class="headerlink" title="0x04 广播"></a>0x04 广播</h4><p>下载broadcast.zip和hint.txt</p>
-<p>zip压缩文件内容加密，根据hint.txt得知密码为18位，且是简单的编码方式</p>
-<p>猜测关键词为broadcast，共9位，推测为十六进制编码（十进制会产生1位数对3位数，base64则是1位对4&#x2F;3位）</p>
-<p>利用62726f616463617374解压成功，得到{c3 c2 c1 n3 n2 n1}，根据题目也可以看出为RSA广播攻击</p>
-<p>编写对应的代码如下</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"><span class="comment"># coding:utf8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> struct <span class="keyword">import</span> pack, unpack</span><br><span class="line"><span class="keyword">import</span> zlib</span><br><span class="line"><span class="keyword">import</span> gmpy2 <span class="keyword">as</span> gmpy</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_parse_number</span>(<span class="params">number</span>):</span><br><span class="line">    string = <span class="string">&quot;%x&quot;</span> % number</span><br><span class="line">    <span class="comment">#if len(string) != 64:</span></span><br><span class="line">    <span class="comment">#    return &quot;&quot;</span></span><br><span class="line">    erg = []</span><br><span class="line">    <span class="keyword">while</span> string != <span class="string">&#x27;&#x27;</span>:</span><br><span class="line">        erg = erg + [<span class="built_in">chr</span>(<span class="built_in">int</span>(string[:<span class="number">2</span>], <span class="number">16</span>))]</span><br><span class="line">        string = string[<span class="number">2</span>:]</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>.join(erg)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">extended_gcd</span>(<span class="params">a, b</span>):</span><br><span class="line">    x,y = <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    lastx, lasty = <span class="number">1</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> b:</span><br><span class="line">        a, (q, b) = b, <span class="built_in">divmod</span>(a,b)</span><br><span class="line">        x, lastx = lastx-q*x, x</span><br><span class="line">        y, lasty = lasty-q*y, y</span><br><span class="line">    <span class="keyword">return</span> (lastx, lasty, a)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">chinese_remainder_theorem</span>(<span class="params">items</span>):</span><br><span class="line">  N = <span class="number">1</span></span><br><span class="line">  <span class="keyword">for</span> a, n <span class="keyword">in</span> items:</span><br><span class="line">    N *= n</span><br><span class="line">  result = <span class="number">0</span></span><br><span class="line">  <span class="keyword">for</span> a, n <span class="keyword">in</span> items:</span><br><span class="line">    m = N//n</span><br><span class="line">    r, s, d = extended_gcd(n, m)</span><br><span class="line">    <span class="keyword">if</span> d != <span class="number">1</span>:</span><br><span class="line">      N=N/n</span><br><span class="line">      <span class="keyword">continue</span></span><br><span class="line">      <span class="comment">#raise &quot;Input not pairwise co-prime&quot;</span></span><br><span class="line">    result += a*s*m</span><br><span class="line">  <span class="keyword">return</span> result % N, N</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">c1 = m**e mod n1</span></span><br><span class="line"><span class="string">c2 = m**e mod n2</span></span><br><span class="line"><span class="string">c3 = m**e mod n3</span></span><br><span class="line"><span class="string">. .</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">sessions=[&#123;<span class="string">&quot;c&quot;</span>: <span class="number">2664456240866799628123354002961100780678777039452838534772316015487055657626151267255765909925238851052963177690615857269355367306531947285275658480119132176458619666356498982335615976520110220831553046336962209497199269751531446896806745547821273188359881207253304353340193045529947532321421316207582669186966262885925510852080336597611720270953364182776647640895915836757533572112922353511839592221769714011077657473370681864919378759906166093497668584965809250367719086157929143483067084526466393322021886107145372853920384593331401647566014964198106822275155018727443981449124990082600675418608431513247974233406</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">16158503998777337192674807945908821386693302597406387444349699542598095897285692091211476083809918750897861769264465663579793991679314429752295361957446059739359063103544638030154853387212724326557655148019702164400877330186327609348721648084613268414555203577183573889217351893673924371072333289354228674760315294504839359655489521012677566131327841053678744664608889174603997019849103346541029516404589134950647019313518381914869229067797614481107128126689730344210547636672896855115883318917823168989617075675281028751941660136853501327782175932311318584187206520215509966133929719351504589815606927966176149195779</span>&#125;,</span><br><span class="line">&#123;<span class="string">&quot;c&quot;</span>: <span class="number">8141444293590939926339140123606008320647283862734921035349993152736573212703175057344759120176139012159033736316173682242298057686577598027916977530077029856485627175379314811877501994761319423200265287785759453820095015807444949214265244900640835658881784054368646315441712319010363526404565445161985028402390954712866106921908734210919493250702187032275110124875570931002934221972634821225056433936935859313342958691599902102787445475305941582660308223893978598257522846759968671416599167447071747751521028177865487587852125772706197522666828868692341809398348371017535491453879955859658955741930595458023438100360</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">32317006071311007300714876688669951960444102669715484032130345427525853843244805988476588891865958825360448605290048592734632332583370763153757718383572299749209540231288997719992234568181178226221179583987114390330645720300200969658014581064237644699938356963972432409945268139827411216302358245968648685631852162149417921884611499140034180764281310426002777325893540359517405108625457448469440495488988134588122686723870538630903173922667307922091719215351000831684798921623126319342120005518066740737893055076255035167681805650095125693219744392056464805973406041558289941338164246139243161281441192654245812544809</span>&#125;,</span><br><span class="line">&#123;<span class="string">&quot;c&quot;</span>: <span class="number">32186692144821382556216414197036084450002406028322550030603281663242416068106078282460625499374288627277856236842632516201785581944392028997860442197688447471167439623993997293924922369564496861634056297046007484347428266405265850123438755524763475428402354354249708937585215741306623413807430961934859288170402397120084830356448790691150552044932030386388033322020053166574933222485614505111408006503260110878032569297769908686840698298294276083052356237977129947951638366162505197545851558874564120929824886880546857109477962821888212631753191393081515047983305638857450728393479191251293759249543719567211830591890</span>, <span class="string">&quot;e&quot;</span>: <span class="number">3</span>, <span class="string">&quot;n&quot;</span>: <span class="number">32317006071311007300714876688669951960444102669715484032130345427524655138867890893197201411522913463688717960921898019494119559150490921095088152386448283120630877367300996091750197750389652106796057638384067568276792218642619756161838094338476170470581645852036305042887575891768950486750990609730626074204953069170365351039844202147563211921699195999562457720327836338730130880314152322204629124008956222526289905774520564846695102147923912430235289375056683956240708354173616548191256839933106531936657610976268878493644409501763510589523424550621212340120772084161285303618671573000124518317607283263174664732027</span>&#125;]</span><br><span class="line"></span><br><span class="line">data = []</span><br><span class="line"><span class="keyword">for</span> session <span class="keyword">in</span> sessions:</span><br><span class="line">    e=session[<span class="string">&#x27;e&#x27;</span>]</span><br><span class="line">    n=session[<span class="string">&#x27;n&#x27;</span>]</span><br><span class="line">    msg=session[<span class="string">&#x27;c&#x27;</span>]</span><br><span class="line">    data += [(msg, n)]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Please wait, performing CRT&quot;</span>)</span><br><span class="line">x, n = chinese_remainder_theorem(data)</span><br><span class="line">e=session[<span class="string">&#x27;e&#x27;</span>]</span><br><span class="line">realnum = gmpy.iroot(x,e)[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(realnum)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>得到最终结果</p>
-<p>134491505866050799518149049116410640504801097393689986282578875171467764060356652949245541838134430726585819015055443577486765212620027434842249657064471879286694101508916323731138545953360768175582990398279608814586282578875171467764060356652949245541838134430727023319615912208504801097393689986282578875</p>
-<p><strong>根据Crypto第二题ez_crypto下flag取后9位的提示，得到flag为</strong></p>
-<p>flag{282578875}</p>
-<p><del>很离谱吗？是的，很离谱，更离谱的是ez_cypto怎么算都是m&#x3D;512347890123，尝试提交flag几十遍都是错的</del></p>
-<h2 id="Unsolved-Problem"><a href="#Unsolved-Problem" class="headerlink" title="Unsolved Problem"></a>Unsolved Problem</h2><h3 id="MISC-1"><a href="#MISC-1" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x05-misc2"><a href="#0x05-misc2" class="headerlink" title="0x05 misc2"></a>0x05 misc2</h4><p>图种格式，拆分为png+2*rar，png内容”secret is here”，rar内容5characters.txt加密</p>
-<p>png：</p>
-<p>没有找出更多隐写相关的线索</p>
-<p>5characters.txt：</p>
-<p>推测解压密码为5位字符，爆破时间需要2天多，放弃；内容为13位，推测为flag{XXXXXXX}，CRC32绕过需要7位，放弃</p>
-<h3 id="Crypto-1"><a href="#Crypto-1" class="headerlink" title="Crypto"></a>Crypto</h3><h4 id="0x06-base"><a href="#0x06-base" class="headerlink" title="0x06 base"></a>0x06 base</h4><p>hint.txt内容为16，推测为base16</p>
-<p>base.txt内容为brainfuck加密和3538，解密之后为base和3538，将3538用base16（十六进制）解密后为58，合起来内容为base58，这是一种bitcoin的编码方式</p>
-<p>然后没了，试了一堆都试不出来</p>
-<h4 id="0x07-ez-cypto"><a href="#0x07-ez-cypto" class="headerlink" title="0x07 ez_cypto"></a>0x07 ez_cypto</h4><p>挺离谱的，RSA共模攻击，求出m&#x3D;512347890123，提示flag为后9位，我也挺想知道flag是啥的</p>
-</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
-        var options = {
-            selector: '.gallery-item'
-        };
-        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
-        }</script>]]></content>
-      <categories>
-        <category>CTF</category>
-        <category>Hacker</category>
-        <category>Security</category>
-      </categories>
-      <tags>
-        <tag>CTF</tag>
-        <tag>NeSE</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>NeSE丙队5月月赛训练</title>
     <url>/2021/05/29/NeSE%E4%B8%99%E9%98%9F5%E6%9C%88%E6%9C%88%E8%B5%9B%E8%AE%AD%E7%BB%83/</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="Solved"><a href="#Solved" class="headerlink" title="Solved"></a>Solved</h2><h3 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h3><h4 id="0x00-嗷呜"><a href="#0x00-嗷呜" class="headerlink" title="0x00 嗷呜"></a>0x00 嗷呜</h4><p>简单查一下，兽音加密，直接 <a href="https://roar.iiilab.com/">https://roar.iiilab.com/</a> 输入内容，得到一串01数组</p>
@@ -909,6 +909,58 @@
       </tags>
   </entry>
   <entry>
+    <title>基于Telegram机器人的图片爬虫</title>
+    <url>/2021/12/20/%E7%88%AC%E8%99%AB%E8%8E%B7%E5%8F%96telegram%E5%8F%91%E5%9B%BE%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9B%BE%E7%89%87%E5%86%85%E5%AE%B9/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="项目概述"><a href="#项目概述" class="headerlink" title="项目概述"></a>项目概述</h2><p>本文将详细介绍如何通过Python爬虫技术，从Telegram的图片机器人获取图片内容，并将这些图片集成到QQ机器人中实现跨平台转发功能。</p>
+<h2 id="技术实现流程"><a href="#技术实现流程" class="headerlink" title="技术实现流程"></a>技术实现流程</h2><h3 id="1-获取Telegram图片链接"><a href="#1-获取Telegram图片链接" class="headerlink" title="1. 获取Telegram图片链接"></a>1. 获取Telegram图片链接</h3><p>首先通过Telegram客户端操作获取目标机器人的图片分享链接：</p>
+<ol>
+<li>选择需要爬取的机器人消息</li>
+<li>点击”转发”选项</li>
+<li>选择”复制链接”</li>
+</ol>
+<p><a href="/images/image-20211220103054655.png" title="image-20211220103054655" class="gallery-item"><img src="/images/image-20211220103054655.png" alt="image-20211220103054655"></a></p>
+<p>典型链接格式为：<code>https://t.me/botmzt/XXXX?single</code>，其中<code>XXXX</code>为图片的唯一数字编号。</p>
+<h3 id="2-分析图片存放机制"><a href="#2-分析图片存放机制" class="headerlink" title="2. 分析图片存放机制"></a>2. 分析图片存放机制</h3><p>通过浏览器开发者工具分析图片加载过程：</p>
+<ol>
+<li>在浏览器中打开获得的链接</li>
+<li>按F12打开开发者工具</li>
+<li>切换到”网络(Network)”标签</li>
+<li>观察图片资源的实际请求地址</li>
+</ol>
+<p><a href="/images/image-20211220123312110.png" title="image-20211220123312110" class="gallery-item"><img src="/images/image-20211220123312110.png" alt="image-20211220123312110"></a></p>
+<p>可以发现实际图片请求常带有<code>embed=1&amp;single=1</code>参数。</p>
+<h3 id="3-实现爬虫代码"><a href="#3-实现爬虫代码" class="headerlink" title="3. 实现爬虫代码"></a>3. 实现爬虫代码</h3><p>基于Python实现完整的爬虫功能：</p>
+<p>然后分析<a href="https://t.me/botmzt/XXXX?embed=1&single=1%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E6%89%BE%E5%88%B0%E5%9B%BE%E7%89%87%E5%AF%B9%E5%BA%94%E7%9A%84url%E3%80%82%E5%90%8C%E6%97%B6%E6%89%BE%E5%88%B0%E6%97%A0%E5%9B%BE%E7%89%87%E6%97%B6%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%88%A4%E5%88%AB%E6%9D%A1%E4%BB%B6">https://t.me/botmzt/XXXX?embed=1&amp;single=1的源码，找到图片对应的url。同时找到无图片时的源码，作为一个判别条件</a></p>
+<p>通过之前文章的代理内容，我们可以写爬虫代码直接下载图片内容</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding:UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="comment"># 配置部分</span></span><br><span class="line">prefix_url = <span class="string">&quot;https://t.me/botmzt/&quot;</span></span><br><span class="line">suffix_url = <span class="string">&quot;?embed=1&amp;single=1&quot;</span></span><br><span class="line">file_url = <span class="string">&quot;./picCache/&quot;</span></span><br><span class="line">proxies = &#123;</span><br><span class="line">    <span class="string">&#x27;http&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;https&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Connection&#x27;</span>: <span class="string">&#x27;close&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TelegramImageCrawler</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.session = requests.Session()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_latest_image_num</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;获取最新的图片编号&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 实现省略.</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">download_image</span>(<span class="params">self, image_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;下载指定编号的图片&quot;&quot;&quot;</span></span><br><span class="line">        target_url = <span class="string">f&quot;<span class="subst">&#123;prefix_url&#125;</span><span class="subst">&#123;image_num&#125;</span><span class="subst">&#123;suffix_url&#125;</span>&quot;</span></span><br><span class="line">        response = <span class="variable language_">self</span>.session.get(target_url, proxies=proxies, headers=headers)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> response.status_code != <span class="number">200</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">            </span><br><span class="line">        soup = BeautifulSoup(response.text, <span class="string">&#x27;lxml&#x27;</span>)</span><br><span class="line">        pic_data = soup.find_all(<span class="string">&#x27;a&#x27;</span>, attrs=&#123;<span class="string">&#x27;class&#x27;</span>: <span class="string">&#x27;js-message_photo&#x27;</span>&#125;)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> pic_data:</span><br><span class="line">            img_style = pic_data[<span class="number">0</span>][<span class="string">&#x27;style&#x27;</span>]</span><br><span class="line">            img_url = re.search(<span class="string">&#x27;https:.*?jpg&#x27;</span>, img_style).group()</span><br><span class="line">            </span><br><span class="line">            img_data = <span class="variable language_">self</span>.session.get(img_url, proxies=proxies, headers=headers).content</span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">f&#x27;/data/images/<span class="subst">&#123;image_num&#125;</span>.jpg&#x27;</span>, <span class="string">&#x27;wb+&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(img_data)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">batch_download</span>(<span class="params">self, start_num, end_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;批量下载图片&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(start_num, end_num+<span class="number">1</span>):</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;正在下载图片 #<span class="subst">&#123;num&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="variable language_">self</span>.download_image(num)</span><br></pre></td></tr></table></figure>
+
+<h2 id="关键技术点"><a href="#关键技术点" class="headerlink" title="关键技术点"></a>关键技术点</h2><ol>
+<li><strong>代理配置</strong>：使用SOCKS5代理访问Telegram</li>
+<li><strong>异常处理</strong>：检测<code>tgme_widget_message_error</code>类判断无效消息</li>
+<li><strong>图片识别</strong>：通过BeautifulSoup解析DOM结构获取图片URL</li>
+<li><strong>文件存储</strong>：将下载的图片按编号保存到本地</li>
+</ol>
+<h2 id="系统集成"><a href="#系统集成" class="headerlink" title="系统集成"></a>系统集成</h2><p>将爬虫功能集成到go-cqhttp机器人的基本思路：</p>
+<ol>
+<li>设置定时任务定期检查新图片</li>
+<li>下载新图片到本地存储</li>
+<li>通过QQ机器人接口发送图片</li>
+<li>记录已处理的图片编号防止重复</li>
+</ol>
+</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
+        var options = {
+            selector: '.gallery-item'
+        };
+        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
+        }</script>]]></content>
+      <categories>
+        <category>Daily</category>
+      </categories>
+      <tags>
+        <tag>Daily life</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>社工案例思路——无交互日常篇</title>
     <url>/2021/01/21/%E7%A4%BE%E5%B7%A5%E6%A1%88%E4%BE%8B%E6%80%9D%E8%B7%AF%E2%80%94%E2%80%94%E6%97%A0%E4%BA%A4%E4%BA%92%E6%97%A5%E5%B8%B8%E7%AF%87/</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h1 id="社工案例思路-被动信息收集篇"><a href="#社工案例思路-被动信息收集篇" class="headerlink" title="社工案例思路-被动信息收集篇"></a>社工案例思路-被动信息收集篇</h1><h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>“互联网时代没有隐私”已经成为普遍认知。本文将分享基于社会工程学的被动信息收集方法，在不与目标产生直接交互的情况下，如何通过常见应用平台构建详细的人物画像。所有技术手法均属于被动分析范畴，避免采用钓鱼邮件等主动攻击手段。</p>
@@ -991,58 +1043,6 @@
       <tags>
         <tag>Social Engineering</tag>
         <tag>Daily Life</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>基于Telegram机器人的图片爬虫</title>
-    <url>/2021/12/20/%E7%88%AC%E8%99%AB%E8%8E%B7%E5%8F%96telegram%E5%8F%91%E5%9B%BE%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9B%BE%E7%89%87%E5%86%85%E5%AE%B9/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/css/lightgallery.min.css" /><div class=".article-gallery"><h2 id="项目概述"><a href="#项目概述" class="headerlink" title="项目概述"></a>项目概述</h2><p>本文将详细介绍如何通过Python爬虫技术，从Telegram的图片机器人获取图片内容，并将这些图片集成到QQ机器人中实现跨平台转发功能。</p>
-<h2 id="技术实现流程"><a href="#技术实现流程" class="headerlink" title="技术实现流程"></a>技术实现流程</h2><h3 id="1-获取Telegram图片链接"><a href="#1-获取Telegram图片链接" class="headerlink" title="1. 获取Telegram图片链接"></a>1. 获取Telegram图片链接</h3><p>首先通过Telegram客户端操作获取目标机器人的图片分享链接：</p>
-<ol>
-<li>选择需要爬取的机器人消息</li>
-<li>点击”转发”选项</li>
-<li>选择”复制链接”</li>
-</ol>
-<p><a href="/images/image-20211220103054655.png" title="image-20211220103054655" class="gallery-item"><img src="/images/image-20211220103054655.png" alt="image-20211220103054655"></a></p>
-<p>典型链接格式为：<code>https://t.me/botmzt/XXXX?single</code>，其中<code>XXXX</code>为图片的唯一数字编号。</p>
-<h3 id="2-分析图片存放机制"><a href="#2-分析图片存放机制" class="headerlink" title="2. 分析图片存放机制"></a>2. 分析图片存放机制</h3><p>通过浏览器开发者工具分析图片加载过程：</p>
-<ol>
-<li>在浏览器中打开获得的链接</li>
-<li>按F12打开开发者工具</li>
-<li>切换到”网络(Network)”标签</li>
-<li>观察图片资源的实际请求地址</li>
-</ol>
-<p><a href="/images/image-20211220123312110.png" title="image-20211220123312110" class="gallery-item"><img src="/images/image-20211220123312110.png" alt="image-20211220123312110"></a></p>
-<p>可以发现实际图片请求常带有<code>embed=1&amp;single=1</code>参数。</p>
-<h3 id="3-实现爬虫代码"><a href="#3-实现爬虫代码" class="headerlink" title="3. 实现爬虫代码"></a>3. 实现爬虫代码</h3><p>基于Python实现完整的爬虫功能：</p>
-<p>然后分析<a href="https://t.me/botmzt/XXXX?embed=1&single=1%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E6%89%BE%E5%88%B0%E5%9B%BE%E7%89%87%E5%AF%B9%E5%BA%94%E7%9A%84url%E3%80%82%E5%90%8C%E6%97%B6%E6%89%BE%E5%88%B0%E6%97%A0%E5%9B%BE%E7%89%87%E6%97%B6%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%88%A4%E5%88%AB%E6%9D%A1%E4%BB%B6">https://t.me/botmzt/XXXX?embed=1&amp;single=1的源码，找到图片对应的url。同时找到无图片时的源码，作为一个判别条件</a></p>
-<p>通过之前文章的代理内容，我们可以写爬虫代码直接下载图片内容</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding:UTF-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="comment"># 配置部分</span></span><br><span class="line">prefix_url = <span class="string">&quot;https://t.me/botmzt/&quot;</span></span><br><span class="line">suffix_url = <span class="string">&quot;?embed=1&amp;single=1&quot;</span></span><br><span class="line">file_url = <span class="string">&quot;./picCache/&quot;</span></span><br><span class="line">proxies = &#123;</span><br><span class="line">    <span class="string">&#x27;http&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;https&#x27;</span>: <span class="string">&#x27;socks5://127.0.0.1:1080&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;Connection&#x27;</span>: <span class="string">&#x27;close&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TelegramImageCrawler</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.session = requests.Session()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_latest_image_num</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;获取最新的图片编号&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 实现省略.</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">download_image</span>(<span class="params">self, image_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;下载指定编号的图片&quot;&quot;&quot;</span></span><br><span class="line">        target_url = <span class="string">f&quot;<span class="subst">&#123;prefix_url&#125;</span><span class="subst">&#123;image_num&#125;</span><span class="subst">&#123;suffix_url&#125;</span>&quot;</span></span><br><span class="line">        response = <span class="variable language_">self</span>.session.get(target_url, proxies=proxies, headers=headers)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> response.status_code != <span class="number">200</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">            </span><br><span class="line">        soup = BeautifulSoup(response.text, <span class="string">&#x27;lxml&#x27;</span>)</span><br><span class="line">        pic_data = soup.find_all(<span class="string">&#x27;a&#x27;</span>, attrs=&#123;<span class="string">&#x27;class&#x27;</span>: <span class="string">&#x27;js-message_photo&#x27;</span>&#125;)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> pic_data:</span><br><span class="line">            img_style = pic_data[<span class="number">0</span>][<span class="string">&#x27;style&#x27;</span>]</span><br><span class="line">            img_url = re.search(<span class="string">&#x27;https:.*?jpg&#x27;</span>, img_style).group()</span><br><span class="line">            </span><br><span class="line">            img_data = <span class="variable language_">self</span>.session.get(img_url, proxies=proxies, headers=headers).content</span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">f&#x27;/data/images/<span class="subst">&#123;image_num&#125;</span>.jpg&#x27;</span>, <span class="string">&#x27;wb+&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(img_data)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">batch_download</span>(<span class="params">self, start_num, end_num</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;批量下载图片&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">for</span> num <span class="keyword">in</span> <span class="built_in">range</span>(start_num, end_num+<span class="number">1</span>):</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;正在下载图片 #<span class="subst">&#123;num&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="variable language_">self</span>.download_image(num)</span><br></pre></td></tr></table></figure>
-
-<h2 id="关键技术点"><a href="#关键技术点" class="headerlink" title="关键技术点"></a>关键技术点</h2><ol>
-<li><strong>代理配置</strong>：使用SOCKS5代理访问Telegram</li>
-<li><strong>异常处理</strong>：检测<code>tgme_widget_message_error</code>类判断无效消息</li>
-<li><strong>图片识别</strong>：通过BeautifulSoup解析DOM结构获取图片URL</li>
-<li><strong>文件存储</strong>：将下载的图片按编号保存到本地</li>
-</ol>
-<h2 id="系统集成"><a href="#系统集成" class="headerlink" title="系统集成"></a>系统集成</h2><p>将爬虫功能集成到go-cqhttp机器人的基本思路：</p>
-<ol>
-<li>设置定时任务定期检查新图片</li>
-<li>下载新图片到本地存储</li>
-<li>通过QQ机器人接口发送图片</li>
-<li>记录已处理的图片编号防止重复</li>
-</ol>
-</div><script src="https://cdn.jsdelivr.net/npm/lightgallery.js@1.4.0/dist/js/lightgallery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-thumbnail.js@1.2.0/dist/lg-thumbnail.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-fullscreen.js@1.2.0/dist/lg-fullscreen.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-zoom.js@1.3.0/dist/lg-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-autoplay.js@1.2.0/dist/lg-autoplay.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-video.js@1.3.0/dist/lg-video.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-hash.js@1.0.0/dist/lg-hash.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lg-pager.js@1.0.0/dist/lg-pager.min.js"></script><script>if (typeof lightGallery !== 'undefined') {
-        var options = {
-            selector: '.gallery-item'
-        };
-        lightGallery(document.getElementsByClassName('.article-gallery')[0], options);
-        }</script>]]></content>
-      <categories>
-        <category>Daily</category>
-      </categories>
-      <tags>
-        <tag>Daily life</tag>
       </tags>
   </entry>
 </search>
